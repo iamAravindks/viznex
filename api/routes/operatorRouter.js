@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addTheAdToQueue,
+  createCustomer,
   loadProfile,
   operatorLogin,
 } from "../controllers/operatorController.js";
@@ -33,6 +34,11 @@ operatorRouter.get("/load-devices", isAuthOperator, fetchDevices);
 // @access Private
 operatorRouter.get("/profile", isAuthOperator, loadProfile);
 
+// @desc create a new customer
+// @route POST /api/operator/create-customer
+// @access Private
+
+operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
 
 // @desc Logout
 // @route DELETE /api/operator/logout

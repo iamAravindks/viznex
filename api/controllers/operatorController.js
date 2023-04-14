@@ -315,3 +315,38 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+
+export const createCustomer = expressAsyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(200).json({
+      message: "Customer fields are required",
+    });
+  }
+
+  try {
+    const customerExists = await Customer.findOne({ email });
+
+    if (customerExists) {
+      res.status(400);
+      throw new Error(`Customer with email id ${email} is already exists`);
+    }
+    const customer = await Customer.create({
+      name,
+      email,
+      password,
+    });
+    if (customer) {
+      const customers = await Customer.find({}).select(
+        "-password -passwordResetToken -passwordResetExpires"
+      );
+      res.status(201).json(customers);
+    } else {
+      res.status(500);
+      throw new Error("Oops, something is not working! try again");
+    }
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
