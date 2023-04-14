@@ -1,0 +1,7 @@
+.table tr.active th,
+.table tr.active td,
+.table tr.active:nth-child(2n) th,
+.table tr.active:nth-child(2n) td {
+  background-color: #fff7e7;
+  padding: 1em;
+}
