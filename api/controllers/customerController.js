@@ -1,4 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
+import mongoose, { Error } from "mongoose";
 import Customer from "../models/customerSchema.js";
 import generateToken from "../utils/utils.js";
 
@@ -77,6 +78,23 @@ export const customerLogin = expressAsyncHandler(async (req, res) => {
     } else {
       res.status(401);
       throw new Error("Invalid email or password");
+    }
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+export const loadProfileCustomer = expressAsyncHandler(async (req, res) => {
+  try {
+    const customer = await Customer.findById(
+      new mongoose.Types.ObjectId(req.customer._id)
+    );
+
+    if (customer) {
+      res.status(200);
+      res.json(customer.toJSON());
+    } else {
+      throw new Error();
     }
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");

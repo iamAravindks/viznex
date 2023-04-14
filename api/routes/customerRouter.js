@@ -2,8 +2,10 @@ import { Router } from "express";
 import {
   customerLogin,
   customerSignUp,
+  loadProfileCustomer,
 } from "../controllers/customerController.js";
 import { logout } from "../controllers/otherController.js";
+import { isAuthCustomer } from "../middlewares/middlewares.js";
 
 const customerRouter = Router();
 
@@ -12,6 +14,12 @@ const customerRouter = Router();
 // @access Private
 
 customerRouter.post("/login", customerLogin);
+
+// @desc customer Profile
+// @route GET /api/customer/profile
+// @access Private
+
+customerRouter.get("/profile", isAuthCustomer, loadProfileCustomer);
 
 // @desc Logout
 // @route DELETE /api/admins/logout

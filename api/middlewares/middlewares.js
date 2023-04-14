@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
 import config from "../config.js";
 import Admin from "../models/adminModel.js";
+import Customer from "../models/customerSchema.js";
 import Device from "../models/DeviceModel.js";
 import Operator from "../models/OperatorModel.js";
 
@@ -140,4 +141,51 @@ const isAuthDevice = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
-export { notFound, errorHandler, isAuthAdmin, isAuthOperator, isAuthDevice };
+const isAuthCustomer = expressAsyncHandler(async (req, res, next) => {
+  const token = req.cookies["Viznx_Secure_Session_ID"];
+  if (token) {
+    try {
+      const decodedObj = jwt.verify(
+        token,
+        config.JWT_SECRET,
+        (err, decoded) => {
+          if (err) {
+            res.status(401);
+            next(new Error("Session Expired! login required"));
+            return;
+          }
+          return decoded;
+        }
+      );
+
+      const customer = await Customer.findById(decodedObj.id).select(
+        "-password"
+      );
+      if (customer) {
+        req.customer = customer;
+        next();
+      } else {
+        res.status(404);
+        next(new Error("No customer found,customer credentials may changed"));
+      }
+    } catch (error) {
+      res.status(401);
+      throw new Error("Session Expired! login required");
+    }
+  } else {
+    res.status(401);
+
+    throw new Error(
+      "Your session maybe expired or become invalid! Try to login again"
+    );
+  }
+});
+
+export {
+  notFound,
+  errorHandler,
+  isAuthAdmin,
+  isAuthOperator,
+  isAuthDevice,
+  isAuthCustomer,
+};
