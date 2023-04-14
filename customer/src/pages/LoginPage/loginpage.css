@@ -1,0 +1,33 @@
+.login-btn {
+  background: linear-gradient(90.8deg, #5940f5 -1.77%, #5b9dbf 105.28%);
+}
+
+.field-holder label {
+  cursor: text;
+  padding-left: 0;
+  transition: 0.25s ease-in;
+  pointer-events: none;
+}
+
+.field-holder input:focus ~ label,
+.field-holder input:valid ~ label {
+  top: -20px;
+}
+
+.circle {
+  background: linear-gradient(159.95deg, #7e6ff8 3.61%, #5792bb 86.63%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-35%, -50%);
+  height: 400px; /* Set a specific height value */
+  width: 400px; /* Set a specific width value */
+  border-radius: 50%;
+  position: absolute;
+}
+
+.design-section {
+  background: rgba(255, 255, 255, 0.01);
+  position: relative;
+  backdrop-filter: blur(10px);
+  padding-right: 20px;
+}
