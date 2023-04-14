@@ -24,8 +24,8 @@ const handleSubmit = async e => {
       ...info
     }
     const res = await axiosInstance.post("/admin/create-device",newOperator, config)
+    
 
-    console.log(newOperator)
     
   } catch (error) {
     console.log(error)

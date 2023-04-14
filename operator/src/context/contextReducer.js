@@ -29,7 +29,7 @@ export const contextReducer = (state, action) => {
       return {
         ...state,
         loading: false,
-        userInfo: action.payload.operator,
+        userInfo: action.payload,
         error: null,
       };
     case USER_PROFILE_SUCCESS:

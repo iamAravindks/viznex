@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import OperatorCard from "../../components/DeviceCard/OperatorCard";
 import OperatorModel from "../../components/Modals/OperatorModel";
 import useFetch from "../../hooks/useFetch";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const GroupPage = () => {
 
  
-  const { data } = useFetch("/load-admin-operators");
+  const { data, loading } = useFetch("/load-admin-operators");
 
   const [dat, setdat] = useState([])
  useEffect(()=>{
@@ -24,11 +25,16 @@ const GroupPage = () => {
       <OperatorModel />
       <div className="pt-20">
       <h1 className="font-bold text-2xl">List of operators</h1>
-      <div className="py-4 flex gap-8">
-    {dat && dat.map((obj, i)=>(
-      <OperatorCard obj={obj} h={i} />
+      <div className="py-4">
+        {loading ? (<div className="flex justify-center my-40"><ClipLoader /></div>):(
+          <div className="flex flex-wrap gap-8">
+            {dat && dat.map((obj, i)=>(
+              <OperatorCard obj={obj} h={i} />
 
-    ))}
+            ))}
+          </div>
+        )}
+   {/*   */}
       </div>
       </div>
      

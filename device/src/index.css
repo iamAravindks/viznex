@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+
+.left{
+  background-image: url('./assets/bg2.png');
+  background-position-x: right;
+  background-position-y:center ;
+  background-repeat: no-repeat;
+
+}
+
+.right{
+
+  background-image: url('./assets/bg1.png');
+  background-position-x: left;
+  background-position-y:center ;
+  background-repeat: no-repeat;
+
+
+
+}
+.lefta{
+  background-image: url('./assets/bga2.png');
+  background-position-x: right;
+  background-position-y:center ;
+  background-repeat: no-repeat;
+
+}
+
+.righta{
+
+  background-image: url('./assets/bga1.png');
+  background-position-x: left;
+  background-position-y:center ;
+  background-repeat: no-repeat;
+
+
+
+}
+.grad-1{
+  background: linear-gradient(90.8deg, #5940F5 -1.77%, #5B9DBF 105.28%);
+}
+.grad-2{
+  background: linear-gradient(90.8deg, #FFA000 -1.77%, #FFBC00 105.28%);
+}
+.shad{
+  box-shadow: 0px 0px 72.6895px rgba(0, 0, 0, 0.2);
+}
+.shad1{
+  box-shadow: 0px 0px 3.63448px rgba(0, 0, 0, 0.25);
+}

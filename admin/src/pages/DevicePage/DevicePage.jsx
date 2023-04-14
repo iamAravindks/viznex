@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import DeviceCard from "../../components/DeviceCard/DeviceCard";
 import DeviceModal from "../../components/Modals/DeviceModal";
 import useFetch from "../../hooks/useFetch";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const DevicePage = () => {
-  const { data } = useFetch("/load-admin-devices");
+  const { data , loading} = useFetch("/load-admin-devices");
 
   const [dat, setdat] = useState([])
  useEffect(()=>{
@@ -16,11 +17,25 @@ const DevicePage = () => {
   <DeviceModal />
   <div className="pt-20">
       <h1 className="font-bold text-2xl">List of operators</h1>
-      <div className="py-4 flex gap-8">
-    {dat && dat.map((obj, i)=>(
+      <div className="py-4 ">
+    {loading ? (
+      <div className="flex justify-center items-center my-40"><ClipLoader /></div>
+    ):
+    (
+      <div className="flex gap-8 flex-wrap">
+        {dat && dat.map((obj, i)=>(
       <DeviceCard obj={obj} h={i} />
 
     ))}
+      </div>
+    )}
+   
+   
+   
+    {/* {dat && dat.map((obj, i)=>(
+      <DeviceCard obj={obj} h={i} />
+
+    ))} */}
       </div>
       </div>
 

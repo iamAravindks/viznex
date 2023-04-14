@@ -9,6 +9,7 @@ import "./loginpage.css";
 
 const LoginPage = () => {
   const { login, userInfo } = useContext(Context);
+  console.log(userInfo)
   const navigate = useNavigate();
 
   const memoizedUserInfo = useMemo(() => userInfo, [userInfo]);
