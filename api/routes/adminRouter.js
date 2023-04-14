@@ -4,7 +4,9 @@ import {
   adminSignUp,
   createDevice,
   createOperator,
+  deleteDeviceId,
   loadProfile,
+  updateDevice,
 } from "../controllers/adminController.js";
 import { fetchDevices } from "../controllers/deviceController.js";
 import { fetchOperators } from "../controllers/operatorController.js";
@@ -50,6 +52,18 @@ adminRouter.post("/create-operator", isAuthAdmin, createOperator);
 // @access Private
 
 adminRouter.post("/create-device", isAuthAdmin, createDevice);
+
+// @desc edit a device
+// @route PATCH /api/admin/device/:id
+// @access Private
+
+adminRouter.patch("/device/:id", isAuthAdmin, updateDevice);
+
+// @desc delete a device
+// @route DELETE /api/admin/device/:id
+// @access Private
+
+adminRouter.delete("/device/:id", isAuthAdmin, deleteDeviceId);
 
 // @desc fetch all the devices
 // @route GET /api/admin/load-admin-devices

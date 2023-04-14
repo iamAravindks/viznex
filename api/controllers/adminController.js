@@ -1,4 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
+import mongoose from "mongoose";
 import Admin from "../models/adminModel.js";
 import Device from "../models/DeviceModel.js";
 import Operator from "../models/OperatorModel.js";
@@ -163,7 +164,6 @@ export const createDevice = expressAsyncHandler(async (req, res) => {
 
 export const loadProfile = expressAsyncHandler(async (req, res) => {
   try {
-    console.log(req.admin._id);
     const admin = await Admin.findById(req.admin._id);
     if (admin) {
       return res.status(200).json(admin.toJSON());
@@ -171,6 +171,83 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
       res.status(403);
       throw new Error("Bad request");
     }
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Update a device
+// @access Private
+
+export const updateDevice = expressAsyncHandler(async (req, res) => {
+  try {
+    const _id = new mongoose.Types.ObjectId(req.params.id);
+    console.log(req.params.id);
+    const device = await Device.findById(_id);
+
+    if (!device) {
+      res.status(404);
+      throw new Error("Device not found");
+    }
+
+    const {
+      name = device.name,
+      location = device.location,
+      deviceId = device.deviceId,
+    } = req.body;
+
+    const result = await Device.updateOne(
+      {
+        _id,
+      },
+      {
+        name,
+        location,
+        deviceId,
+      }
+    );
+
+    if (result.nModified === 0) {
+      res.status(500);
+      throw new Error("Device not updated");
+    }
+    const devices = await Device.find({}).select("-password");
+
+    res.status(200).json(devices);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Delete a device
+// @access Private
+
+export const deleteDeviceId = expressAsyncHandler(async (req, res) => {
+  try {
+    const _id = new mongoose.Types.ObjectId(req.params.id);
+    console.log(req.params.id);
+    const device = await Device.findById(_id);
+
+    if (!device) {
+      res.status(404);
+      throw new Error("Device not found");
+    }
+
+    const result = await Device.deleteOne({
+      _id,
+    });
+
+    if (result.deletedCount === 0) {
+      res.status(500);
+      throw new Error("Device not deleted");
+    }
+    const devices = await Device.find({}).select("-password");
+
+    res.status(200).json(devices);
   } catch (error) {
     throw new Error(
       error.message ? error.message : "Internal server error,try again"
