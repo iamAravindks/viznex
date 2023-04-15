@@ -243,7 +243,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     const uniqueArr = successFullUpdate.filter(
       (obj, index, self) => index === self.findIndex((o) => o._id === obj._id)
     );
-    console.log(uniqueArr);
+
     if (
       successFullUpdate.length !==
         devices.length * slotsWithFrequencies.length ||
@@ -273,23 +273,33 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
       { $addToSet: { devices: devicesObj } }
     );
 
-    const slots = slotsWithFrequencies.map((item) => item.slot);
-
     // avoid the duplication
     // Check if the ad already exists under the operator
+    const combinationDeployedDevices = devices
+      .map((device) => {
+        return slotsWithFrequencies.map((item) => {
+          return {
+            device,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            slot: { slotType: item.slot, frequency: item.adFrequency },
+          };
+        });
+      })
+      .flat();
 
     // for that create an array with combinations of both devices and slots
 
-    const combinationDeployedDevices = slots.flatMap((slot) =>
-      devices.map((deviceId) => ({
-        device: new mongoose.Types.ObjectId(deviceId),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        slot: {
-          slotType: slot,
-        }, // only include the slotType value as a string
-      }))
-    );
+    // const combinationDeployedDevices = slots.flatMap((slot) =>
+    //   devices.map((deviceId) => ({
+    //     device: new mongoose.Types.ObjectId(deviceId),
+    //     startDate: new Date(startDate),
+    //     endDate: new Date(endDate),
+    //     slot: {
+    //       slotType: slot,
+    //     }, // only include the slotType value as a string
+    //   }))
+    // );
 
     const existingAdIndex = operator.adsUnderOperator.findIndex(
       (adObj) => adObj.ad.toString() === ad._id.toString()
@@ -318,6 +328,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
           endDate: device.endDate,
           slot: {
             slotType: device.slot.slotType,
+            frequency: device.slot.frequency,
           },
         }))
       );
