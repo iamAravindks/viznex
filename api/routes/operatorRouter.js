@@ -4,6 +4,7 @@ import {
   createCustomer,
   loadProfile,
   operatorLogin,
+  updateQueue,
 } from "../controllers/operatorController.js";
 import { fetchDevices } from "../controllers/deviceController.js";
 import { isAuthOperator } from "../middlewares/middlewares.js";
@@ -22,6 +23,12 @@ operatorRouter.post("/login", operatorLogin);
 // @access Private
 
 operatorRouter.post("/create-queue", isAuthOperator, addTheAdToQueue);
+
+// @desc update queue
+// @route PATCH /api/operator/update-queue
+// @access Private
+
+operatorRouter.patch("/update-queue", isAuthOperator, updateQueue);
 
 // @desc fetch all the devices
 // @route GET /api/operator/load-devices

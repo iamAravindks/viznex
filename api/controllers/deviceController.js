@@ -23,24 +23,11 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
       res.cookie("Viznx_Secure_Device_Session_ID", token, {
         httpOnly: true,
         maxAge: maxAge,
-        sameSite: "None",
-        path: "/",
-        secure: true,
       });
       res.cookie("Viznx_device_Status", device._id, {
         maxAge: maxAge,
-        sameSite: "None",
-        path: "/",
-        secure: true,
+        httpOnly: true,
       });
-
-      // const deviceInfo = await Device.findById(device._id)
-      //   .populate("morningQueue.ad", "name url customer")
-      //   .populate("noonQueue.ad", "name url customer")
-      //   .populate("eveningQueue.ad", "name url customer")
-      //   .populate("morningQueue.operator", "name email")
-      //   .populate("noonQueue.operator", "name email")
-      //   .populate("eveningQueue.operator", "name email");
 
       const deviceInfo = await Device.findOne({ deviceId })
         .select("-password ")
@@ -77,90 +64,27 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
 
 export const loadQueues = expressAsyncHandler(async (req, res) => {
   try {
-    const device = await Device.findById(req.device.id)
-      .populate("morningQueue.ad", "name url customer")
-      .populate("noonQueue.ad", "name url customer")
-      .populate("eveningQueue.ad", "name url customer")
-      .populate("morningQueue.operator", "name email")
-      .populate("noonQueue.operator", "name email")
-      .populate("eveningQueue.operator", "name email");
-
-    const morningQueueAds = await Promise.all(
-      device.morningQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
+    const deviceInfo = await Device.findById(req.device._id)
+      .select("-password ")
+      .populate({
+        path: "slots",
+        select: "name ",
+        populate: {
+          path: "queue.ad",
+          select: "name url customer",
+          populate: {
+            path: "customer",
+            select: "name email",
           },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
+        },
       })
-    );
-
-    const noonQueueAds = await Promise.all(
-      device.noonQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
-          },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
+      .populate({
+        path: "slots.queue.operator",
+        select: "name email",
       })
-    );
+      .lean();
 
-    const eveningQueueAds = await Promise.all(
-      device.eveningQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
-          },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
-      })
-    );
-
-    const queues = {
-      morningQueue: {
-        ads: morningQueueAds,
-      },
-      noonQueue: {
-        ads: noonQueueAds,
-      },
-      eveningQueue: {
-        ads: eveningQueueAds,
-      },
-    };
-
-    res.status(200).json({ queues });
+    return res.status(201).json(deviceInfo);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error ");
   }
