@@ -15,7 +15,7 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = "https://api.viznx.in/api/admin";
+const BASE_URL = "http://localhost:5000/api/admin";
 
 export const Context = createContext(initialState);
 const config = {

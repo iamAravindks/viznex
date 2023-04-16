@@ -14,7 +14,7 @@ const config = {
   withCredentials: true,
 };
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api",
+    baseURL: "http://localhost:5000/api",
 })
 const handleSubmit = async e => {
   e.preventDefault();
