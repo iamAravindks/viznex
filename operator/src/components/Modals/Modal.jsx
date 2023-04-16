@@ -8,7 +8,75 @@ import { Context } from "../../context/context";
 
 const Modal = () => {
   const { loadDevices, devices, addAd } = useContext(Context);
+  const [slots, setslots] = useState([{
+    slot:"slotOne",
+     adFrequency:0
+  },
+  {
+    slot:"slotTwo",
+     adFrequency:0
+  },
+  {
+    slot:"slotThree",
+     adFrequency:0
+  },
+  {
+    slot:"slotFour",
+     adFrequency:0
+  },
+  {
+    slot:"slotFive",
+     adFrequency:0
+  },
+  {
+    slot:"slotSix",
+     adFrequency:0
+  },
+  {
+    slot:"slotSeven",
+     adFrequency:0
+  },
+  {
+    slot:"slotEight",
+     adFrequency:0
+  },
+  {
+    slot:"slotNine",
+     adFrequency:0
+  },
+  {
+    slot:"slotTen",
+     adFrequency:0
+  },
 
+
+
+
+
+])
+ const onCheckboxchange = (v,id)=> {
+   if(document.getElementById(id).checked == true){
+    let newa = [...slots]
+    newa[v].adFrequency = 1
+    setslots(newa)
+   }
+   else{
+    let newa = [...slots]
+    newa[v].adFrequency = 0
+    setslots(newa)
+   }
+
+ }
+ const onFrequencyChange = (v, id)=> e => {
+  if(document.getElementById(id).checked == true){
+
+  let newa = [...slots]
+  newa[v].adFrequency  = e.target.value;
+  setslots(newa)
+  console.log(slots)
+  }
+
+ }
   useEffect(() => {
     loadDevices();
   }, []);
@@ -26,6 +94,9 @@ const Modal = () => {
     const newVideo = {
       ...info,
       devices: selectedDevices,
+      slotsWithFrequencies: slots,
+      adFrequency:2
+
     };
     addAd(newVideo);
   };
@@ -125,18 +196,49 @@ const Modal = () => {
                 className="w-full max-w-xs input"
               />
             </div>
-            <select
-              className="select w-[80%] "
-              name="session"
-              onChange={handleChange}
-            >
-              <option disabled selected>
-                Select Sessions
-              </option>
-              <option value="morning">Morning</option>
-              <option value="noon">Noon</option>
-              <option value="evening">Evening</option>
-            </select>
+           <div className="min-w-[80%] flex flex-col gap-8">
+             <h3>Select slots</h3>
+             <div>
+               <div><input type="checkbox" name="" id="slotOne" onChange={()=>onCheckboxchange(0, "slotOne")} /><label htmlFor="">Slot 1</label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" name="slotOne" onChange={ onFrequencyChange(0, "slotOne")} value={slots[0].adFrequency}  /></div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotTwo" onChange={()=>onCheckboxchange(1, "slotTwo")}/><label htmlFor="">Slot 2    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(1, "slotTwo")} value={slots[1].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotThree" onChange={()=>onCheckboxchange(2, "slotThree")}/><label htmlFor="">Slot 3    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(2, "slotThree")} value={slots[2].adFrequency} />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotFour" onChange={()=>onCheckboxchange(3, "slotFour")}/><label htmlFor="">Slot 4   </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(3, "slotFour")} value={slots[3].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotFive" onChange={()=>onCheckboxchange(4, "slotFive")}/><label htmlFor="">Slot 5    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(4, "slotFive")} value={slots[4].adFrequency}  />   </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotSix" onChange={()=>onCheckboxchange(5, "slotSix")}/><label htmlFor="">Slot 6   </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(5, "slotSix")} value={slots[5].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotSeven" onChange={()=>onCheckboxchange(6, "slotSeven")}/><label htmlFor="">Slot 7    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(6, "slotSeven")} value={slots[6].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotEight" onChange={()=>onCheckboxchange(7, "slotEight")}/><label htmlFor="">Slot 8   </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(7, "slotEight")} value={slots[7].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotNine" onChange={()=>onCheckboxchange(8, "slotNine")}/><label htmlFor="">Slot 9    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(8, "slotNine")} value={slots[8].adFrequency}  />  </div>
+             </div>
+             <div>
+               <div><input type="checkbox" name="" id="slotTen" onChange={()=>onCheckboxchange(9, "slotTen")}/><label htmlFor="">Slot 10    </label> </div>
+               <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(9, "slotTen")} value={slots[9].adFrequency}  />  </div>
+             </div>
+           </div>
             <div className="pb-6 button-section">
               <button className="btn add-video-btn" onClick={handleSubmit}>
                 {" "}

@@ -25,7 +25,7 @@ const initialState = {
   devices: [],
 };
 
-const BASE_URL = "https://api.viznx.in/api/operator";
+const BASE_URL = "http://localhost:5000/api/operator";
 
 export const Context = createContext(initialState);
 const token = localStorage.getItem("Viznx_Secure_Session_ID");
