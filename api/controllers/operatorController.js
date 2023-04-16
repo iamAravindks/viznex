@@ -91,15 +91,31 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
 // @desc Add an ad
 // @access Private
 
-const addToDevices = async (slots = [], devices, ad, operator, adFrequency) => {
+const addToDevices = async (
+  slotsWithFrequencies = [],
+  devices,
+  ad,
+  operator
+) => {
   try {
-    const updatePromises = devices.map(async (_id) => {
+    const rawData = devices
+      .map((device) => {
+        return slotsWithFrequencies.map((item) => {
+          return {
+            device,
+            slot: item.slot,
+            adFrequency: item.adFrequency,
+          };
+        });
+      })
+      .flat();
+    const updatePromises = rawData.map(async (data) => {
       // check whether the ad is also present in the device
       const device = await Device.findOne({
-        _id: new mongoose.Types.ObjectId(_id),
+        _id: new mongoose.Types.ObjectId(data.device),
         slots: {
           $elemMatch: {
-            name: { $in: slots },
+            name: data.slot,
             "queue.ad": ad._id,
             "queue.operator": operator._id,
           },
@@ -107,31 +123,35 @@ const addToDevices = async (slots = [], devices, ad, operator, adFrequency) => {
       });
 
       if (device) {
+        const _id = data.device;
         return { _id }; // skip adding the device if it already exists in the array
       } else {
-        const updateResult = await Device.updateMany(
+        const updateResult = await Device.updateOne(
           {
-            _id: new mongoose.Types.ObjectId(_id),
-          },
-          {
-            $addToSet: {
-              "slots.$[slot].queue": {
-                ad: ad._id,
-                operator: operator._id,
-                adFrequency: adFrequency,
+            _id: new mongoose.Types.ObjectId(data.device),
+            slots: {
+              $elemMatch: {
+                name: data.slot,
               },
             },
           },
           {
-            arrayFilters: slots.map((s) => ({ "slot.name": s })),
+            $addToSet: {
+              "slots.$.queue": {
+                ad: ad._id,
+                adFrequency: data.adFrequency,
+                operator: operator._id,
+              },
+            },
           }
         );
 
         console.log(`${updateResult.nModified} documents updated`);
 
         if (updateResult.nModified === 0) {
-          throw new DeviceNotFound(`Device ${_id} not found`);
+          throw new DeviceNotFound(`Device ${data.device} not found`);
         } else {
+          const _id = data.device;
           return { _id };
         }
       }
@@ -161,7 +181,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     devices,
     startDate,
     endDate,
-    slots,
+    slotsWithFrequencies,
     adFrequency,
   } = req.body;
 
@@ -172,7 +192,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     !devices ||
     !startDate ||
     !endDate ||
-    !slots ||
+    !slotsWithFrequencies ||
     !adFrequency
   ) {
     return res
@@ -215,16 +235,18 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
 
     // set up the devices queue according to the session
     const successFullUpdate = await addToDevices(
-      slots,
+      slotsWithFrequencies,
       devices,
       ad,
-      operator,
-      adFrequency
+      operator
+    );
+    const uniqueArr = successFullUpdate.filter(
+      (obj, index, self) => index === self.findIndex((o) => o._id === obj._id)
     );
 
-    console.log({ successFullUpdate });
     if (
-      successFullUpdate.length !== devices.length ||
+      successFullUpdate.length !==
+        devices.length * slotsWithFrequencies.length ||
       !successFullUpdate.every((device) => devices.includes(device._id))
     ) {
       throw new Error("Error on device update with queue");
@@ -250,21 +272,34 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
       { _id: customer._id },
       { $addToSet: { devices: devicesObj } }
     );
+
     // avoid the duplication
     // Check if the ad already exists under the operator
+    const combinationDeployedDevices = devices
+      .map((device) => {
+        return slotsWithFrequencies.map((item) => {
+          return {
+            device,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            slot: { slotType: item.slot, frequency: item.adFrequency },
+          };
+        });
+      })
+      .flat();
 
     // for that create an array with combinations of both devices and slots
 
-    const combinationDeployedDevices = slots.flatMap((slot) =>
-      devices.map((deviceId) => ({
-        device: new mongoose.Types.ObjectId(deviceId),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        slot: {
-          slotType: slot,
-        }, // only include the slotType value as a string
-      }))
-    );
+    // const combinationDeployedDevices = slots.flatMap((slot) =>
+    //   devices.map((deviceId) => ({
+    //     device: new mongoose.Types.ObjectId(deviceId),
+    //     startDate: new Date(startDate),
+    //     endDate: new Date(endDate),
+    //     slot: {
+    //       slotType: slot,
+    //     }, // only include the slotType value as a string
+    //   }))
+    // );
 
     const existingAdIndex = operator.adsUnderOperator.findIndex(
       (adObj) => adObj.ad.toString() === ad._id.toString()
@@ -293,6 +328,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
           endDate: device.endDate,
           slot: {
             slotType: device.slot.slotType,
+            frequency: device.slot.frequency,
           },
         }))
       );
@@ -352,7 +388,7 @@ export const createCustomer = expressAsyncHandler(async (req, res) => {
 export const updateQueue = expressAsyncHandler(async (req, res) => {
   try {
     // fetch the queue with ad id and slot name
-    const { ad, slotType, customerEmail, url, startDate, endDate, devices } =
+    const { ad, slots, customerEmail, url, startDate, endDate, devices } =
       req.body;
     const operator = await Operator.findById(req.operator._id);
     const customer = await Customer.findOne({
@@ -373,79 +409,74 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
       );
     }
 
-    // if (startDate || endDate)
-    // {
-    //   operator.adsUnderOperator.forEach(item =>
-    //   {
-    //     if (item.ad.toString() === ad.toString())
-    //     {
-    //       item.deployedDevices.forEach(device =>
-    //       {
-    //         if (device.slot.slotType === slot)
-    //         {
-    //           if (startDate)
-    //           {
-    //             device.startDate = new Date(startDate)
-    //           }
-    //           if (endDate)
-    //           {
-    //             device.endDate = new Date(endDate);
-    //           }
-    //         }
-    //       })
-    //     }
-    //   })
+    // add devices to the customer
+    const devicesObj = devices.map((deviceId) => {
+      return {
+        _id: new mongoose.Types.ObjectId(deviceId),
+        type: mongoose.Types.ObjectId,
+        ref: "Device",
+        totalPlayHrs: 0,
+      };
+    });
 
-    //   operator.save()
-    // }
-
-    const alreadyDeployedDevices = operator.adsUnderOperator.filter(
-      (item) =>
-        item.ad.toString() === ad.toString() &&
-        item.deployedDevices.every(
-          (device) => device.slot.slotType === slotType
-        )
+    await Customer.updateOne(
+      { _id: customer._id },
+      { $addToSet: { devices: devicesObj } }
     );
 
-    // const newDeployedDevices = alreadyDeployedDevices[0].deployedDevices.map(
-    //   (device) => {
-    //     const existingDeviceIndex = devices.findIndex(
-    //       (d) => d.toString() === device.device.toString()
-    //     );
+    // set up the devices queue according to the session , duplication is avoided , expected new devices that
+    // is either updated or removed
+    // TODO : we need another method to remove the ad from old devices after all process
 
-    //     // check whether if not existing in the devices and deployedDevices length is small which means deletion of that device
-    //     if (
-    //       existingDeviceIndex !== -1 &&
-    //       alreadyDeployedDevices[0].deployedDevices.length > devices
-    //     )
-    //     {
+    const successFullUpdate = await addToDevices(
+      slots,
+      devices,
+      ad,
+      operator,
+      adFrequency
+    );
 
-    //     }
-    //     // update
-    //     else if (
-    //       existingDeviceIndex !== -1 &&
-    //       alreadyDeployedDevices[0].deployedDevices.length === devices
-    //     ) {
-    //       return {
-    //         ...device,
-    //         startDate: startDate ? startDate : device.startDate,
-    //         endDate: endDate ? endDate : device.endDate,
-    //       };
-    //     } else {
-    //       // it's a new device , push the new device ID into devices array of the customer
+    if (
+      successFullUpdate.length !== devices.length ||
+      !successFullUpdate.every((device) => devices.includes(device._id))
+    ) {
+      throw new Error("Error on device update with queue");
+    }
 
-    //       customer.devices = [...customer.devices, device.device];
+    // next update the operator side
 
-    //       return {
-    //         slot: device.slot,
-    //         startDate: startDate ? startDate : device.startDate,
-    //         endDate: endDate ? endDate : device.endDate,
-    //       };
-    //     }
-    //   }
-    // );
+    // find the index of the object with ad
 
-    res.json(alreadyDeployedDevices);
+    const existingAdIndex = operator.adsUnderOperator.findIndex(
+      (adObj) => adObj.ad.toString() === ad._id.toString()
+    );
+    const defaultStartDate =
+      operator.adsUnderOperator[existingAdIndex].startDate;
+    const defaultEndDate = operator.adsUnderOperator[existingAdIndex].endDate;
+
+    // since it is editing , ad with an id is already present
+
+    // for that create an array with combinations of both devices and slots
+    // it has objects of devices with slots , we need to update the date also
+
+    const combinationDeployedDevices = slots.flatMap((slot) =>
+      devices.map((deviceId) => ({
+        device: new mongoose.Types.ObjectId(deviceId),
+        startDate: startDate ? startDate : defaultStartDate,
+        endDate: endDate ? endDate : defaultEndDate,
+
+        slot: {
+          slotType: slot,
+        }, // only include the slotType value as a string
+      }))
+    );
+
+    // combinationDeployedDevices is the new deployedDevices of the object with ad ID
+
+    // find the object with ad , iterate over the deployedDevices ,
+    //TODO: if already a device is present update only the startDate and endDate else copy the new device
+
+    operator.save();
   } catch (error) {
     console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");

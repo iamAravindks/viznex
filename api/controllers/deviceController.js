@@ -36,7 +36,7 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
           select: "name ",
           populate: {
             path: "queue.ad",
-            select: "name url customer",
+            select: "name url adFrequency customer",
             populate: {
               path: "customer",
               select: "name email",
@@ -71,7 +71,7 @@ export const loadQueues = expressAsyncHandler(async (req, res) => {
         select: "name ",
         populate: {
           path: "queue.ad",
-          select: "name url customer",
+          select: "name url adFrequency customer",
           populate: {
             path: "customer",
             select: "name email",
@@ -107,98 +107,27 @@ export const fetchDevices = expressAsyncHandler(async (req, res) => {
 
 export const loadProfile = expressAsyncHandler(async (req, res) => {
   try {
-    const device = await Device.findById(req.device.id);
-
-    const deviceInfo = await Device.findById(device._id)
-      .populate("morningQueue.ad", "name url customer")
-      .populate("noonQueue.ad", "name url customer")
-      .populate("eveningQueue.ad", "name url customer")
-      .populate("morningQueue.operator", "name email")
-      .populate("noonQueue.operator", "name email")
-      .populate("eveningQueue.operator", "name email");
-
-    const morningQueueAds = await Promise.all(
-      deviceInfo.morningQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
+    const deviceInfo = await Device.findById(req.device.id)
+      .select("-password ")
+      .populate({
+        path: "slots",
+        select: "name ",
+        populate: {
+          path: "queue.ad",
+          select: "name url adFrequency customer",
+          populate: {
+            path: "customer",
+            select: "name email",
           },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
+        },
       })
-    );
-
-    const noonQueueAds = await Promise.all(
-      deviceInfo.noonQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
-          },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
+      .populate({
+        path: "slots.queue.operator",
+        select: "name email",
       })
-    );
+      .lean();
 
-    const eveningQueueAds = await Promise.all(
-      deviceInfo.eveningQueue.map(async (queue) => {
-        const ad = await Ad.findById(queue.ad._id).populate(
-          "customer",
-          "name email"
-        );
-        return {
-          name: ad.name,
-          url: ad.url,
-          customer: {
-            name: ad.customer.name,
-            email: ad.customer.email,
-          },
-          operator: {
-            name: queue.operator.name,
-            email: queue.operator.email,
-          },
-        };
-      })
-    );
-
-    const queues = {
-      morningQueue: {
-        ads: morningQueueAds,
-      },
-      noonQueue: {
-        ads: noonQueueAds,
-      },
-      eveningQueue: {
-        ads: eveningQueueAds,
-      },
-    };
-
-    const data = { ...device.toJSON(), queues };
-
-    delete data.morningQueue;
-    delete data.noonQueue;
-    delete data.eveningQueue;
-
-    return res.status(201).json(data);
+    return res.status(201).json(deviceInfo);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }

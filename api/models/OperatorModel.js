@@ -16,6 +16,7 @@ const DeployedDevices = mongoose.Schema({
   slot: {
     slotType: {
       type: String,
+
       required: true,
       enum: [
         "slotOne",
@@ -29,6 +30,10 @@ const DeployedDevices = mongoose.Schema({
         "slotNine",
         "slotTen",
       ],
+    },
+    frequency: {
+      type: Number,
+      default: 1,
     },
     noOfTimesPlayed: { type: String, default: 0 },
   },
