@@ -4,12 +4,9 @@ import { useContext, useEffect, useState, useRef } from 'react'
 import { Context } from '../context/context'
 const Home = () => {
     const { userInfo } = useContext(Context);
-    console.log(userInfo)
-    const [mrng, setMrng] = useState(false)
-    const [nn, setNn] = useState(false)
-    const [evng, setEvng] = useState(false)
+    const [info, setInfo] = useState(userInfo)
 
-  const checkTime = () => {
+   /* const checkTime = () => {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
         if(currentHour<8 || currentHour>21){
@@ -33,7 +30,7 @@ const Home = () => {
             setNn(false)
         }
        
-    }
+    } 
     const now = new Date();
     const delay = 60 * 60 * 1000 - now.getMinutes() * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
     setTimeout(function() {
@@ -41,18 +38,44 @@ const Home = () => {
         setInterval(checkTime, 60 * 60 * 1000); // Run the function once per hour
       }, delay);
 
- 
+  */
     
    
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const videoRef = useRef(null);
-    
-    const handleEnded = (val) => {
+      
+   
+      const handleEnded = (val) => {
+        // decrementing adFrequency value by 1
+        let newInfo = { ...info };
+        newInfo.slots[0].queue[currentUrlIndex].adFrequency =
+          newInfo.slots[0].queue[currentUrlIndex].adFrequency - 1;
+        setInfo(newInfo);
+      
         if (currentUrlIndex < val - 1) {
-          setCurrentUrlIndex(currentUrlIndex + 1);
+          let nextIndex = currentUrlIndex + 1;
+          while (newInfo.slots[0].queue[nextIndex].adFrequency === 0) {
+            // skip over videos with adFrequency 0
+            nextIndex++;
+            if (nextIndex >= val) {
+              // reached the end of the queue, start from the beginning
+              setCurrentUrlIndex(0)
+            }
+          }
+          setCurrentUrlIndex(nextIndex);
         } else {
-          setCurrentUrlIndex(0)
-        }
+          setCurrentUrlIndex(0);
+         
+        
+      };
+      
+
+          
+
+        
+       
+    
+        
       };
 
     
@@ -61,41 +84,16 @@ const Home = () => {
         <div className='relative'>
             
             <div>
-                {userInfo !== undefined &&
-                    
-<>
-              {
-                  mrng && 
-                  <>{            userInfo.queues.morningQueue.ads.length != 0 ?     <ReactPlayer  playing={true} width="100vw" height="100vh" url={userInfo.queues.morningQueue.ads[currentUrlIndex].url} onEnded={()=>handleEnded(userInfo.queues.morningQueue.ads.length)}/> : <h1>No ads are added in this session</h1>
-                }   </>
-
-              }      
-             { 
-                 nn &&  <>
-                 {  userInfo.queues.noonQueue.ads.length != 0 ? <ReactPlayer playing={true} width="100vw" height="100vh" url={userInfo.queues.noonQueue.ads[currentUrlIndex].url} onEnded={()=>handleEnded(userInfo.queues.noonQueue.ads.length)}/>: <h1>No ads are added in this session</h1>
-}  
-                 </>
-             }    
-             {
-                 evng && 
-                 <>
-                 {        userInfo.queues.eveningQueue.ads.length != 0 ?          <ReactPlayer  playing={true} width="100vw" height="100vh" url={userInfo.queues.eveningQueue.ads[currentUrlIndex].url} onEnded={()=>handleEnded(userInfo.queues.eveningQueue.ads.length)}/>: <h1 className=''>No ads are added in this session</h1>
-}
-                 </>
-             }
+               
+                       <ReactPlayer ref={videoRef}  playing={true} width="100vw" height="100vh" url={info.slots[0].queue[currentUrlIndex].ad.url}  onEnded={()=>handleEnded(info.slots[0].queue.length)} /> : <h1>No ads are added in this session</h1>
+               
 
 
 
   
 
-</>
-                   /*  <video
-                    ref={videoRef}
-                    src={userInfo.queues.morningQueue.ads[0].url}
-                    onEnded={handleEnded}
-                    autoPlay
-                    controls
-                />  */} 
+
+                 
                 </div>
          
 
