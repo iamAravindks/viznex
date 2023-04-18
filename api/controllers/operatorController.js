@@ -80,13 +80,11 @@ export const fetchOperators = expressAsyncHandler(async (req, res) => {
 export const loadProfile = expressAsyncHandler(async (req, res) => {
   try {
     const operator = await Operator.findById(req.operator.id).populate({
-      path:"adsUnderOperator.ad",
+      path: "adsUnderOperator.ad",
       populate: {
         path: "customer",
-        select:"name email"
-      }
-    
-      
+        select: "name email",
+      },
     });
     res.status(200).json(operator.toJSON());
   } catch (error) {
@@ -483,6 +481,100 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
     operator.save();
   } catch (error) {
     console.log(error);
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+// @desc Load ads from operator
+// @access Private
+export const loadAds = expressAsyncHandler(async (req, res) => {
+  try {
+    const operator = await Operator.findById(req.operator.id)
+      .populate({
+        path: "adsUnderOperator.ad",
+        select: "_id name url operator customer",
+        populate: {
+          path: "customer",
+          select: "name email",
+        },
+      })
+      .populate({
+        path: "adsUnderOperator.deployedDevices.device",
+        select: "_id name location",
+      });
+    if (operator) {
+      return res.status(200).json(operator?.adsUnderOperator);
+    } else {
+      throw new Error("Please try again");
+    }
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+// @desc Load devices from operator
+// @access Private
+
+export const loadDevices = expressAsyncHandler(async (req, res) => {
+  try {
+    const devices = await Operator.aggregate([
+      {
+        $match: {
+          _id: req.operator._id,
+        },
+      },
+      {
+        $unwind: "$adsUnderOperator",
+      },
+      { $unwind: "$adsUnderOperator.deployedDevices" },
+      {
+        $lookup: {
+          from: "devices",
+          localField: "adsUnderOperator.deployedDevices.device",
+          foreignField: "_id",
+          as: "device",
+        },
+      },
+      { $unwind: "$device" },
+      {
+        $project: {
+          _id: "$device._id",
+          deviceId: "$device.deviceId",
+          name: "$device.name",
+          location: "$device.location",
+          slots: "$device.slots",
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          deviceId: { $first: "$deviceId" },
+          name: { $first: "$name" },
+          location: { $first: "$location" },
+          slots: { $first: "$slots" },
+        },
+      },
+      { $unwind: "$slots" },
+      {
+        $lookup: {
+          from: "ads",
+          localField: "slots.queue.ad",
+          foreignField: "_id",
+          as: "slots.queue.ad",
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          deviceId: { $first: "$deviceId" },
+          name: { $first: "$name" },
+          location: { $first: "$location" },
+          slots: { $push: "$slots" },
+        },
+      },
+    ]);
+    res.json(devices);
+  } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });

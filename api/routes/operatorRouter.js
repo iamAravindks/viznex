@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   addTheAdToQueue,
   createCustomer,
+  loadAds,
+  loadDevices,
   loadProfile,
   operatorLogin,
   updateQueue,
@@ -46,6 +48,18 @@ operatorRouter.get("/profile", isAuthOperator, loadProfile);
 // @access Private
 
 operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
+
+// @desc Load ads from operator
+//@route GET /api/operator/load-ads
+// @access Private
+
+operatorRouter.get("/load-ads", isAuthOperator, loadAds);
+
+// @desc Load ads from operator
+//@route GET /api/operator/load-device-details
+// @access Private
+
+operatorRouter.get("/load-device-details", isAuthOperator, loadDevices);
 
 // @desc Logout
 // @route DELETE /api/operator/logout
