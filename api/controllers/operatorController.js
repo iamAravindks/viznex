@@ -182,7 +182,6 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     startDate,
     endDate,
     slotsWithFrequencies,
-    adFrequency,
   } = req.body;
 
   if (
@@ -192,8 +191,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     !devices ||
     !startDate ||
     !endDate ||
-    !slotsWithFrequencies ||
-    !adFrequency
+    !slotsWithFrequencies
   ) {
     return res
       .status(200)
