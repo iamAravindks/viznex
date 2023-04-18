@@ -5,8 +5,11 @@ import Multiselect from "multiselect-react-dropdown";
 import "./modal.css";
 import { useContext } from "react";
 import { Context } from "../../context/context";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Modal = () => {
+  const [showClip, setShowClip] = useState(false)
+const [msg, setmsg] = useState('')
   const { loadDevices, devices, addAd } = useContext(Context);
   const [slots, setslots] = useState([{
     slot:"slotOne",
@@ -67,6 +70,13 @@ const Modal = () => {
    }
 
  }
+ const config = {
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+};
+const BASE_URL = "http://localhost:5000/api/operator"
  const onFrequencyChange = (v, id)=> e => {
   if(document.getElementById(id).checked == true){
 
@@ -89,16 +99,28 @@ const Modal = () => {
   const [selectedDevices, setSelectedDevices] = useState([]);
 
   const handleSubmit = async (e) => {
+    setmsg('')
+
     e.preventDefault();
+    setShowClip(true)
+    try{
+      const newVideo = {
+        ...info,
+        devices: selectedDevices,
+        slotsWithFrequencies: slots,
+        adFrequency:2
+  
+      };
+      const res = await axios.post(`${BASE_URL}/create-queue`, newVideo, config);
+  
+    }
+    catch(error){
+      setmsg(error.response.data.message)
 
-    const newVideo = {
-      ...info,
-      devices: selectedDevices,
-      slotsWithFrequencies: slots,
-      adFrequency:2
+    }
+    setShowClip(false)
 
-    };
-    addAd(newVideo);
+    
   };
 
   return (
@@ -239,11 +261,14 @@ const Modal = () => {
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(9, "slotTen")} value={slots[9].adFrequency}  />  </div>
              </div>
            </div>
-            <div className="pb-6 button-section">
-              <button className="btn add-video-btn" onClick={handleSubmit}>
-                {" "}
+            <div className="pb-6 button-section flex items-center gap-4">
+              <label className="btn add-video-btn" htmlFor="my-modal-3"
+                    onClick={handleSubmit} >
+                
                 Add Video
-              </button>
+              </label>
+              {showClip && <span  className="flex  gap-4 items-center"><ClipLoader color="#b600ff"/> Adding video </span>}{msg && <em><p className="text-[red]">{msg}</p></em>}
+
             </div>
           </form>
         </div>

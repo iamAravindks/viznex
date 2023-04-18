@@ -1,9 +1,13 @@
+import { MdAssignmentReturned } from "react-icons/md";
 import {
   CLEAR_ERROR,
   REQUEST,
   SET_ERROR,
   USER_AUTH_FAIL,
   USER_LOGIN_SUCCESS,
+  SET_LOADING,
+  CLEAR_LOADING
+  
 } from "./types";
 
 export const contextReducer = (state, action) => {
@@ -23,6 +27,16 @@ export const contextReducer = (state, action) => {
       return { ...state, error: action.payload };
     case CLEAR_ERROR:
       return { ...state, error: null };
+    case SET_LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
+    case CLEAR_LOADING:
+      return {
+        ...state,
+        loading: false,
+      };
     default:
       return state;
   }

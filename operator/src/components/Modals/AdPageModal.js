@@ -1,39 +1,24 @@
-import React from "react";
+import {useState, useEffect} from "react";
+import ReactPlayer from 'react-player/lazy'
 
-const AdPageModal = ({ads}) => {
-
-
+const AdPageModal = ({itm, setOpen}) => {
+  console.log(itm)
+  
 
   return (
-    <>
-      {/* The button to open modal */}
-      <label
-        htmlFor="adpagedetails"
-        className="btn border-0 hover:bg-[#FFB800] min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px] w-[202px] h-[45]  bg-[#FFB800] text-[#fff] text-[21.07px] font-bold"
-      >
-        View More
-      </label>
-
-      {/* Put this part before </body> tag */}
-      <input type="checkbox" id="adpagedetails" className="modal-toggle" />
-      <div className="modal">
-        <div className="relative modal-box">
-          <label
-            htmlFor="adpagedetails"
-            className="absolute btn btn-sm btn-circle right-2 top-2"
-          >
-            ✕
-          </label>
-          <div className="pt-5 modal-container">
-            <div className="video-container ">
-            <iframe width="420" height="315"
-src={ads.ad.url}>
-</iframe>            </div>
-            
-          </div>
-        </div>
+    <div className=" fixed bg-[rgba(0,0,0,0.5)] top-0 left-0 w-full h-full   ">
+      <div className="bg-[white] w-[80%] px-12 py-8 shadow-[0_7px_29px_0_rgba(100,100,111,0.2)] border-none rounded-[20px] fixed translate-x-[-50%] translate-y-[-50%] top-[50%] left-[50%]">
+      <div className="flex justify-end" >
+        <button className="rounded-full hover:bg-[rgba(0,0,0,0.5)] w-[40px] text-black font-bold text-2xl hover:text-[white]  h-[40px]" onClick={()=>setOpen(null)}>x</button>
       </div>
-    </>
+      <div className="py-4">
+        <ReactPlayer url={itm.ad.url} />
+      </div>
+      <div className="py-8">
+        <h1 className="text-3xl py-4 font-bold">{itm.ad.name}</h1>
+      </div>
+      </div>
+    </div>
   );
 };
 

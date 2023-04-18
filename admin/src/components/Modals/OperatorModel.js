@@ -1,6 +1,7 @@
 import {useState} from "react";
 import axios from "axios";
-const OperatorModel = () => {
+import ClipLoader from "react-spinners/ClipLoader";
+const OperatorModel = ({reFetch}) => {
 
 
   const [info, setinfo] = useState({});
@@ -8,7 +9,8 @@ const OperatorModel = () => {
   setinfo((prev) => ({...prev, [e.target.name] : e.target.value}))
   console.log(info)
 }
-
+const [showClip, setShowClip] = useState(false)
+const [msg, setmsg] = useState('')
 const config = {
   headers: {
     "Content-Type": "application/json",
@@ -16,22 +18,33 @@ const config = {
   withCredentials: true,
 };
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api",
+    baseURL: "http://localhost:5000/api",
 })
 const handleSubmit = async e => {
+ setmsg('')
   e.preventDefault();
+  if(info.name && info.email && info.password && info.location && info.name !== " " && info.email !== " " && info.password !== " " && info.location !== " "){
+    setShowClip(true)
+
   try {
     console.log(info)
     const newOperator = {
       ...info
     }
     const res = await axiosInstance.post("/admin/create-operator",newOperator, config)
+    document.querySelector("#operatormodel").checked = false;
+    reFetch();
 
     console.log(newOperator)
     
   } catch (error) {
-    console.log(error)
+    setmsg(error.response.data.message)
   }
+  setShowClip(false)
+}
+else{
+  setmsg('Please enter all the necessary fields')
+}
 }
   return (
     <>
@@ -84,13 +97,15 @@ const handleSubmit = async e => {
                 onChange={handleChange}
 
               />
-              <div className="btn-section flex">
-                <button
-                  type="submit" onClick={handleSubmit}
+              <div className="btn-section flex gap-4 items-center">
+                <label htmlFor="operatormodel"
+                  onClick={handleSubmit}
                   className="btn min-w-[100px] p-[10px_60px] bg-linkColor  border-0 hover:bg-[#BC3FFF]"
                 >
                   Add
-                </button>
+                </label>
+                {showClip && <span className="flex  gap-4 items-center"><ClipLoader color="#b600ff"/> <em>Creating operator</em> </span>}{msg && <em><p className="text-[red]">{msg}</p></em>}
+
               </div>
             </form>
           </div>

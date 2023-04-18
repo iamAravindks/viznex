@@ -9,7 +9,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 const GroupPage = () => {
 
  
-  const { data, loading } = useFetch("/load-admin-operators");
+  const { data, loading, reFetch } = useFetch("/load-admin-operators");
 
   const [dat, setdat] = useState([])
  useEffect(()=>{
@@ -22,7 +22,7 @@ const GroupPage = () => {
   return (
     <div className="w-full  pt-20 pl-16 pb-16  gap-[64px]">
       
-      <OperatorModel />
+      <OperatorModel reFetch={reFetch}/>
       <div className="pt-20">
       <h1 className="font-bold text-2xl">List of operators</h1>
       <div className="py-4">

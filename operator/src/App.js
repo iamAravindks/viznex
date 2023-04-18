@@ -15,6 +15,7 @@ function App() {
     if (!userInfo?._id && userStatus) {
       loadProfile().then(() => setIsProfileLoaded(true));
     } else {
+      loadProfile()
       setIsProfileLoaded(true);
       setLoading(false);
     }

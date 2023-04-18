@@ -4,7 +4,7 @@ import axios from "axios"
 
 const useFetch = (url) => {
     const axiosInstance = axios.create({
-        baseURL: "https://api.viznx.in/api/admin",
+        baseURL: "http://localhost:5000/api/admin",
     })
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ const useFetch = (url) => {
     const reFetch = async ()=> {
         setLoading(true);
         try {
-            const res = await axiosInstance.get(url);
+            const res = await axiosInstance.get(url, config);
             setData(res.data);
           } catch (err) {
             setError(err);

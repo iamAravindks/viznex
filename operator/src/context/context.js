@@ -3,8 +3,8 @@ import { contextReducer } from "./contextReducer";
 import {
   CLEAR_ERROR,
   CLEAR_LOADING,
-  CREATE_QUEUE,
-  LOAD_DEVICES,
+/*   CREATE_QUEUE,
+ */  LOAD_DEVICES,
   REQUEST,
   SET_ERROR,
   SET_LOADING,
@@ -25,14 +25,12 @@ const initialState = {
   devices: [],
 };
 
-const BASE_URL = "https://api.viznx.in/api/operator";
+const BASE_URL = "http://localhost:5000/api/operator";
 
 export const Context = createContext(initialState);
-const token = localStorage.getItem("Viznx_Secure_Session_ID");
 const config = {
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
   },
   withCredentials: true,
 };
@@ -157,7 +155,7 @@ const Provider = ({ children }) => {
 
   //add ad
 
-  const addAd = async (obj) => {
+  /* const addAd = async (obj) => {
     try {
       dispatch({ type: REQUEST });
       const res = await axios.post(`${BASE_URL}/create-queue`, obj, config);
@@ -169,7 +167,7 @@ const Provider = ({ children }) => {
           : error.message;
       dispatch({ type: SET_ERROR, payload: err });
     }
-  };
+  }; */
 
   return (
     <Context.Provider
@@ -185,8 +183,8 @@ const Provider = ({ children }) => {
         logout,
         setLoading,
         loadDevices,
-        addAd,
-      }}
+/*         addAd,
+ */      }}
     >
       {children}
     </Context.Provider>

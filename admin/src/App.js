@@ -2,6 +2,7 @@ import RouteLayout from "./Routes/RouteLayout";
 import { useContext, useMemo, useEffect } from "react";
 import { Context } from "./context/context";
 import "./App.css";
+import Loader from "./components/Loader/Loader";
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
 
   return (
     <div className="App">
+      <Loader />
       <RouteLayout />
     </div>
   );

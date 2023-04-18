@@ -49,8 +49,8 @@ const Navbar = () => {
           <img src="images/profile.png" alt="profile-pic" />
         </div>
         <div className="pr-5 text-center profile-content text-textHead">
-          <h1 className="text-xl leading-none">Himalaya</h1>
-          <p className="text-xs text-[#6DB3E8] leading-none">Customer ID</p>
+          <h1 className="text-xl leading-none">{userInfo.name}</h1>
+          <p className="text-xs text-[#6DB3E8] leading-none">Operator</p>
         </div>
         <div className="tooltip tooltip-bottom" data-tip="Logout">
           <button className=" btn logout-button" onClick={logout}>

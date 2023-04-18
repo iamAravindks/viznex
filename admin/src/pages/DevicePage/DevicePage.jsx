@@ -5,7 +5,7 @@ import useFetch from "../../hooks/useFetch";
 import ClipLoader from "react-spinners/ClipLoader";
 
 const DevicePage = () => {
-  const { data , loading} = useFetch("/load-admin-devices");
+  const { data , loading , reFetch} = useFetch("/load-admin-devices");
 
   const [dat, setdat] = useState([])
  useEffect(()=>{
@@ -14,9 +14,9 @@ const DevicePage = () => {
  }, [data])
   return (
   <div className="w-full  pt-20 pl-16 pb-16  gap-[64px]">
-  <DeviceModal />
+  <DeviceModal reFetch={reFetch} />
   <div className="pt-20">
-      <h1 className="font-bold text-2xl">List of operators</h1>
+      <h1 className="font-bold text-2xl">List of devices</h1>
       <div className="py-4 ">
     {loading ? (
       <div className="flex justify-center items-center my-40"><ClipLoader /></div>

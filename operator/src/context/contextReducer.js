@@ -1,8 +1,8 @@
 import {
   CLEAR_ERROR,
   CLEAR_LOADING,
-  CREATE_QUEUE,
-  LOAD_DEVICES,
+/*   CREATE_QUEUE,
+ */  LOAD_DEVICES,
   REQUEST,
   SET_ERROR,
   SET_LOADING,
@@ -68,11 +68,11 @@ export const contextReducer = (state, action) => {
         ...state,
         loading: false,
       };
-    case CREATE_QUEUE:
+    /* case CREATE_QUEUE:
       return {
         ...state,
         loading: false,
-      };
+      }; */
     default:
       return state;
   }

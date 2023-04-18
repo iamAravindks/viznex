@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useState } from "react";
 import { contextReducer } from "./contextReducer";
 import {
   CLEAR_ERROR,
@@ -6,6 +6,8 @@ import {
   SET_ERROR,
   USER_AUTH_FAIL,
   USER_LOGIN_SUCCESS,
+  SET_LOADING,
+  CLEAR_LOADING
 } from "./types";
 import axios from "axios";
 
@@ -13,9 +15,10 @@ const initialState = {
   loading: false,
   userInfo: null,
   error: null,
+ 
 };
 
-const BASE_URL = "https://api.viznx.in/api/admin";
+const BASE_URL = "http://localhost:5000/api/admin";
 
 export const Context = createContext(initialState);
 const config = {
@@ -28,7 +31,8 @@ const config = {
 const Provider = ({ children }) => {
   const [userState, dispatch] = useReducer(contextReducer, initialState);
 
-  // @actions
+
+  // @actionsti wan 
 
   // login
 
@@ -86,7 +90,11 @@ const Provider = ({ children }) => {
     }
   };
 
-  
+  const setLoading = (set) => {
+    if (set) {
+      dispatch({ type: SET_LOADING });
+    } else dispatch({ type: CLEAR_LOADING });
+  };
 
   // error remover
 
@@ -103,6 +111,8 @@ const Provider = ({ children }) => {
         login,
         clearError,
         loadProfile,
+        setLoading,
+        
       }}
     >
       {children}

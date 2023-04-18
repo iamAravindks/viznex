@@ -1,12 +1,16 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import ClipLoader from "react-spinners/ClipLoader";
+import { Context } from "../../context/context";
 
-const DeviceModal = () => {
+const DeviceModal = ({reFetch}) => {
   const [info, setinfo] = useState({});
   const handleChange = (e) => {
   setinfo((prev) => ({...prev, [e.target.name] : e.target.value}))
   console.log(info)
 }
+const [showClip, setShowClip] = useState(false)
+const [msg, setmsg] = useState('')
 const config = {
   headers: {
     "Content-Type": "application/json",
@@ -14,23 +18,39 @@ const config = {
   withCredentials: true,
 };
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api",
+    baseURL: "http://localhost:5000/api",
 })
 const handleSubmit = async e => {
+/*   setLoading(true)
+
+ */     
+ setmsg('')
+
   e.preventDefault();
+
+  if(info.name && info.deviceId && info.password && info.location && info.name !== " " && info.deviceId !== " " && info.password !== " " && info.location !== " "){
+    setShowClip(true)
+  
   try {
+
+
     console.log(info)
     const newOperator = {
       ...info
     }
     const res = await axiosInstance.post("/admin/create-device",newOperator, config)
-    
-
-    
+    document.querySelector("#devicemodel").checked = false;
+    reFetch();
   } catch (error) {
-    console.log(error)
+    setmsg(error.response.data.message)
   }
-}
+  setShowClip(false)
+  }
+  else{
+    setmsg("Please enter all neccessary fields")
+  }
+/*   setLoading(false)
+ */}
   return (
     <>
       {/* The button to open modal */}
@@ -58,6 +78,7 @@ const handleSubmit = async e => {
                 type="text"
                 placeholder="deviceId"
                 name="deviceId"
+                
                 onChange={handleChange}
 
               />
@@ -66,6 +87,7 @@ const handleSubmit = async e => {
                 type="text"
                 placeholder="name"
                 name="name"
+                
                 onChange={handleChange}
 
               />
@@ -74,6 +96,7 @@ const handleSubmit = async e => {
                 type="text"
                 placeholder="password"
                 name="password"
+                
                 onChange={handleChange}
 
               />
@@ -82,15 +105,17 @@ const handleSubmit = async e => {
                 type="text"
                 placeholder="Place"
                 name="location"
+                
                 onChange={handleChange}
               />
-              <div className="btn-section flex">
-                <button
-                  type="submit"  onClick={handleSubmit}
+              <div className="btn-section flex items-center gap-4">
+                <label htmlFor="devicemodel"
+                    onClick={handleSubmit} 
                   className="btn min-w-[100px] p-[10px_60px] bg-linkColor  border-0 hover:bg-[#BC3FFF]"
                 >
                   Add
-                </button>
+                </label>
+                {showClip && <span  className="flex  gap-4 items-center"><ClipLoader color="#b600ff"/> Creating device </span>}{msg && <em><p className="text-[red]">{msg}</p></em>}
               </div>
             </form>
           </div>

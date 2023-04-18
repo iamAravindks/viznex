@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import "./Navigation.css";
 
 import { MdDevicesOther, MdDashboard, MdGroups } from "react-icons/md";
+import { Context } from "../../context/context";
 // import { FaPlay } from "react-icons/fa";
 
 const Navbar = () => {
+  const {userInfo} = useContext(Context)
   const [title, setTitle] = useState("My Ads");
   const path = useLocation();
 
@@ -40,8 +42,8 @@ const Navbar = () => {
           <img src="images/profile.png" alt="profile-pic" />
         </div>
         <div className="pr-5 text-center profile-content text-textHead">
-          <h1 className="text-xl leading-none">Himalaya</h1>
-          <p className="text-xs text-[#6DB3E8] leading-none">Customer ID</p>
+          <h1 className="text-xl leading-none">{userInfo.name}</h1>
+          <p className="text-xs text-[#6DB3E8] leading-none">Admin</p>
         </div>
       </div>
     </div>
