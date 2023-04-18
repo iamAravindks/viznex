@@ -21,12 +21,20 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
       const maxAge = 1000 * 60 * 60 * 24 * 365 * 10; // set maxAge to 10 years
       const token = generateTokenForDevice(device._id);
       res.cookie("Viznx_Secure_Device_Session_ID", token, {
-        httpOnly: true,
         maxAge: maxAge,
+        domain: 'viznx.in',
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
       });
       res.cookie("Viznx_device_Status", device._id, {
         maxAge: maxAge,
+        domain: 'viznx.in',
+        path: '/',
         httpOnly: true,
+        secure: true,
+        sameSite: 'none'
       });
 
       const deviceInfo = await Device.findOne({ deviceId })

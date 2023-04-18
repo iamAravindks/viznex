@@ -31,11 +31,20 @@ export const customerSignUp = expressAsyncHandler(async (req, res) => {
       const maxAge = 3 * 24 * 60 * 60;
       const token = generateToken(customer._id);
       res.cookie("Viznx_Secure_Customer_Session_ID", token, {
-        httpOnly: true,
         maxAge: maxAge * 1000,
+        domain: 'viznx.in',
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
       });
       res.cookie("Viznx_customer_Status", customer._id, {
         maxAge: maxAge * 1000,
+        domain: 'viznx.in',
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
       });
       res.status(201).json(customer.toJSON());
     } else {

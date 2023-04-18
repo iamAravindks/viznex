@@ -48,20 +48,7 @@ const Provider = ({ children }) => {
         { email, password },
         config
       );
-      // if (
-      //   res?.data?.Viznx_Secure_Session_ID &&
-      //   res?.data?.Viznx_operator_Status
-      // ) {
-      //   localStorage.setItem(
-      //     "Viznx_Secure_Session_ID",
-      //     res.data.Viznx_Secure_Session_ID
-      //   );
-
-      //   localStorage.setItem(
-      //     "Viznx_operator_Status",
-      //     res.data.Viznx_operator_Status
-      //   );
-      // }
+     
 
       dispatch({ type: USER_LOGIN_SUCCESS, payload: res.data });
     } catch (error) {
@@ -121,8 +108,7 @@ const Provider = ({ children }) => {
   //logout
   const logout = async () => {
     try {
-     /*  localStorage.removeItem("Viznx_Secure_Session_ID");
-      localStorage.removeItem("Viznx_operator_Status"); */
+    
       dispatch({ type: USER_LOGOUT_SUCCESS });
     } catch (error) {
       const err =
