@@ -26,7 +26,7 @@ customerRouter.get("/profile", isAuthCustomer, loadProfileCustomer);
 // @access Private
 customerRouter.delete(
   "/logout",
-  logout("Viznx_Secure_Session_ID", "Viznx_customer_Status")
+  logout("Viznx_Secure_Customer_Session_ID", "Viznx_customer_Status")
 );
 
 export default customerRouter;

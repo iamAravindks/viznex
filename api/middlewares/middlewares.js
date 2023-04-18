@@ -60,7 +60,7 @@ const isAuthAdmin = expressAsyncHandler(async (req, res, next) => {
 });
 
 const isAuthOperator = expressAsyncHandler(async (req, res, next) => {
-  const token = req.cookies["Viznx_Secure_Session_ID"];
+  const token = req.cookies["Viznx_Secure_Operator_Session_ID"];
   if (token) {
     try {
       const decodedObj = jwt.verify(
@@ -142,7 +142,7 @@ const isAuthDevice = expressAsyncHandler(async (req, res, next) => {
 });
 
 const isAuthCustomer = expressAsyncHandler(async (req, res, next) => {
-  const token = req.cookies["Viznx_Secure_Session_ID"];
+  const token = req.cookies["Viznx_Secure_Customer_Session_ID"];
   if (token) {
     try {
       const decodedObj = jwt.verify(

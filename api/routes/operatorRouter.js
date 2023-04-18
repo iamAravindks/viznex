@@ -52,6 +52,6 @@ operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
 // @access Private
 operatorRouter.delete(
   "/logout",
-  logout("Viznx_Secure_Session_ID", "Viznx_operator_Status")
+  logout("Viznx_Secure_Operator_Session_ID", "Viznx_operator_Status")
 );
 export default operatorRouter;

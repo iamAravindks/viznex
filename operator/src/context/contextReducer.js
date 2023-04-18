@@ -17,7 +17,7 @@ export const contextReducer = (state, action) => {
     case REQUEST:
       return { ...state, loading: true };
     case USER_LOGIN_SUCCESS:
-      localStorage.setItem(
+      /* localStorage.setItem(
         "Viznx_Secure_Session_ID",
         action.payload.Viznx_Secure_Session_ID
       );
@@ -25,7 +25,7 @@ export const contextReducer = (state, action) => {
       localStorage.setItem(
         "Viznx_operator_Status",
         action.payload.Viznx_operator_Status
-      );
+      ); */
       return {
         ...state,
         loading: false,

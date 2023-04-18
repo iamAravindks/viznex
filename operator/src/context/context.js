@@ -15,13 +15,10 @@ import {
 } from "./types";
 import axios from "axios";
 
-const userStatus = localStorage.getItem("Viznx_operator_Status") || null;
-console.log(userStatus);
 const initialState = {
   loading: false,
   userInfo: null,
   error: null,
-  userStatus,
   devices: [],
 };
 
@@ -124,8 +121,8 @@ const Provider = ({ children }) => {
   //logout
   const logout = async () => {
     try {
-      localStorage.removeItem("Viznx_Secure_Session_ID");
-      localStorage.removeItem("Viznx_operator_Status");
+     /*  localStorage.removeItem("Viznx_Secure_Session_ID");
+      localStorage.removeItem("Viznx_operator_Status"); */
       dispatch({ type: USER_LOGOUT_SUCCESS });
     } catch (error) {
       const err =

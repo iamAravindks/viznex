@@ -43,7 +43,7 @@ export const operatorLogin = expressAsyncHandler(async (req, res) => {
     if (operator && (await operator.matchPassword(password))) {
       const maxAge = 3 * 24 * 60 * 60;
       const token = generateToken(operator._id);
-      res.cookie("Viznx_Secure_Session_ID", token, {
+      res.cookie("Viznx_Secure_Operator_Session_ID", token, {
         httpOnly: true,
         maxAge: maxAge * 1000,
       });
