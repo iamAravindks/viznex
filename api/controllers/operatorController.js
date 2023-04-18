@@ -45,7 +45,7 @@ export const operatorLogin = expressAsyncHandler(async (req, res) => {
       const token = generateToken(operator._id);
       res.cookie("Viznx_Secure_Operator_Session_ID", token, {
         maxAge: maxAge * 1000,
-        domain: 'viznx.in',
+        domain: '.viznx.in',
         path: '/',
         httpOnly: true,
         secure: true,
@@ -53,7 +53,7 @@ export const operatorLogin = expressAsyncHandler(async (req, res) => {
       });
       res.cookie("Viznx_operator_Status", operator._id, {
         maxAge: maxAge * 1000,
-        domain: 'viznx.in',
+        domain: '.viznx.in',
         path: '/',
         httpOnly: true,
         secure: true,
