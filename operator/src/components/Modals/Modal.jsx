@@ -10,7 +10,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 const Modal = () => {
   const [showClip, setShowClip] = useState(false)
 const [msg, setmsg] = useState('')
-  const { loadDevices, devices, addAd } = useContext(Context);
+  const { loadDevices, devices, loadProfile} = useContext(Context);
   const [slots, setslots] = useState([{
     slot:"slotOne",
      adFrequency:0
@@ -76,7 +76,7 @@ const [msg, setmsg] = useState('')
   },
   withCredentials: true,
 };
-const BASE_URL = "http://localhost:5000/api/operator"
+const BASE_URL = "https://api.viznx.in/api/operator"
  const onFrequencyChange = (v, id)=> e => {
   if(document.getElementById(id).checked == true){
 
@@ -108,11 +108,11 @@ const BASE_URL = "http://localhost:5000/api/operator"
         ...info,
         devices: selectedDevices,
         slotsWithFrequencies: slots,
-        adFrequency:2
+        
   
       };
       const res = await axios.post(`${BASE_URL}/create-queue`, newVideo, config);
-  
+      loadProfile()
     }
     catch(error){
       setmsg(error.response.data.message)
@@ -221,43 +221,43 @@ const BASE_URL = "http://localhost:5000/api/operator"
            <div className="min-w-[80%] flex flex-col gap-8">
              <h3>Select slots</h3>
              <div>
-               <div><input type="checkbox" name="" id="slotOne" onChange={()=>onCheckboxchange(0, "slotOne")} /><label htmlFor="">Slot 1</label> </div>
+               <div><input type="checkbox" name="" id="slotOne" onChange={()=>onCheckboxchange(0, "slotOne")} /><label htmlFor="">Slot 1 9am to 10am</label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" name="slotOne" onChange={ onFrequencyChange(0, "slotOne")} value={slots[0].adFrequency}  /></div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotTwo" onChange={()=>onCheckboxchange(1, "slotTwo")}/><label htmlFor="">Slot 2    </label> </div>
+               <div><input type="checkbox" name="" id="slotTwo" onChange={()=>onCheckboxchange(1, "slotTwo")}/><label htmlFor="">Slot 2 10am to 11am   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(1, "slotTwo")} value={slots[1].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotThree" onChange={()=>onCheckboxchange(2, "slotThree")}/><label htmlFor="">Slot 3    </label> </div>
+               <div><input type="checkbox" name="" id="slotThree" onChange={()=>onCheckboxchange(2, "slotThree")}/><label htmlFor="">Slot 3 11am to 12pm   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(2, "slotThree")} value={slots[2].adFrequency} />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotFour" onChange={()=>onCheckboxchange(3, "slotFour")}/><label htmlFor="">Slot 4   </label> </div>
+               <div><input type="checkbox" name="" id="slotFour" onChange={()=>onCheckboxchange(3, "slotFour")}/><label htmlFor="">Slot 4 12pm to 1pm  </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(3, "slotFour")} value={slots[3].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotFive" onChange={()=>onCheckboxchange(4, "slotFive")}/><label htmlFor="">Slot 5    </label> </div>
+               <div><input type="checkbox" name="" id="slotFive" onChange={()=>onCheckboxchange(4, "slotFive")}/><label htmlFor="">Slot 5 1pm to 2pm   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(4, "slotFive")} value={slots[4].adFrequency}  />   </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotSix" onChange={()=>onCheckboxchange(5, "slotSix")}/><label htmlFor="">Slot 6   </label> </div>
+               <div><input type="checkbox" name="" id="slotSix" onChange={()=>onCheckboxchange(5, "slotSix")}/><label htmlFor="">Slot 6 2pm to 3pm  </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(5, "slotSix")} value={slots[5].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotSeven" onChange={()=>onCheckboxchange(6, "slotSeven")}/><label htmlFor="">Slot 7    </label> </div>
+               <div><input type="checkbox" name="" id="slotSeven" onChange={()=>onCheckboxchange(6, "slotSeven")}/><label htmlFor="">Slot 7 3pm to 4pm   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(6, "slotSeven")} value={slots[6].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotEight" onChange={()=>onCheckboxchange(7, "slotEight")}/><label htmlFor="">Slot 8   </label> </div>
+               <div><input type="checkbox" name="" id="slotEight" onChange={()=>onCheckboxchange(7, "slotEight")}/><label htmlFor="">Slot 8 4pm to 5pm  </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(7, "slotEight")} value={slots[7].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotNine" onChange={()=>onCheckboxchange(8, "slotNine")}/><label htmlFor="">Slot 9    </label> </div>
+               <div><input type="checkbox" name="" id="slotNine" onChange={()=>onCheckboxchange(8, "slotNine")}/><label htmlFor="">Slot 9 5pm to 6pm   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(8, "slotNine")} value={slots[8].adFrequency}  />  </div>
              </div>
              <div>
-               <div><input type="checkbox" name="" id="slotTen" onChange={()=>onCheckboxchange(9, "slotTen")}/><label htmlFor="">Slot 10    </label> </div>
+               <div><input type="checkbox" name="" id="slotTen" onChange={()=>onCheckboxchange(9, "slotTen")}/><label htmlFor="">Slot 10 6pm to 7pm   </label> </div>
                <div><label htmlFor="">Ad frequency</label><input type="number" className="input" onChange={ onFrequencyChange(9, "slotTen")} value={slots[9].adFrequency}  />  </div>
              </div>
            </div>

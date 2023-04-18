@@ -81,6 +81,10 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
   try {
     const operator = await Operator.findById(req.operator.id).populate({
       path:"adsUnderOperator.ad",
+      populate: {
+        path: "customer",
+        select:"name email"
+      }
     
       
     });
