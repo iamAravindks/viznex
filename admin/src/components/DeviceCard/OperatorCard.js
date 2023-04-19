@@ -1,4 +1,5 @@
 import React from "react";
+import OperatorEditModal from "../Modals/OperatorEditModal";
 // import { Link } from "react-router-dom";
 import OperatorViewModal from "../Modals/OperatorViewModal";
 
@@ -19,7 +20,12 @@ const DeviceCard = ({obj, h}) => {
           {obj.name}
         </p>
         <p className="text-[17px] text-[#4c4c4c] resides">{obj.location}</p>
-        <OperatorViewModal />
+        <div className="flex flex-wrap gap-2 justify-center">
+        <OperatorViewModal obj={obj}/>
+        <OperatorEditModal obj={obj}/>
+        <button className="btn border-0 hover:bg-white min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[17px] w-28 h-8 my-4 bg-white text-[#828282] text-[11px]">Delete</button>
+        </div>
+
       </div>
     </div>
   );
