@@ -15,12 +15,12 @@ const RouteLayout = () => {
       <Routes>
         <Route element={<PrivateRoutingLayout />}>
           <Route element={<NavbarLayout />} path="/">
-{/*             <Route path="/" element={<DashboardPage />} />
- */}    
-{/*  <Route path="/" element={<AdDetailPage />} />        
- */} <Route path="/operators" element={<GroupPage />} />
- <Route path="/" element={<OperatorDetailPage />} /> 
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/operators" element={<GroupPage />} />
             <Route path="/devices" element={<DevicePage />}></Route>
+            <Route path="/device/:id" element={<AdDetailPage />}> </Route>
+            <Route path="/operator/:id" element={<OperatorDetailPage />}> </Route>
+
           </Route>
         </Route>
 

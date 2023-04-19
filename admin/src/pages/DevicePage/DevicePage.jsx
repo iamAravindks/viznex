@@ -6,13 +6,14 @@ import ClipLoader from "react-spinners/ClipLoader";
 import DeviceViewModal from "../../components/Modals/DeviceViewModal";
 import DeviceEditModal from "../../components/Modals/DeviceEditModal"
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const DevicePage = () => {
   const { data , loading , reFetch} = useFetch("/load-admin-devices");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedCardedit, setSelectedCardedit] = useState(null);
-
-  const handleClick = (card) => {
-    setSelectedCard(card);
+  const navigate = useNavigate()
+  const handleClick = (id) => {
+    navigate(`/device/${id}`)
   };
   const [dat, setdat] = useState([])
  useEffect(()=>{
@@ -59,7 +60,7 @@ const axiosInstance = axios.create({
               </p>
               <p className="text-[17px] text-[#4c4c4c] resides">{obj.location}</p>
               <div className="flex flex-wrap gap-2 justify-center">
-                <button className="btn border-0 hover:bg-white min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[17px] w-28 h-8 my-4 bg-white text-[#828282] text-[11px]" onClick={()=>handleClick(obj)}>View</button>
+                <button className="btn border-0 hover:bg-white min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[17px] w-28 h-8 my-4 bg-white text-[#828282] text-[11px]" onClick={()=>handleClick(obj._id)}>View</button>
                 <button className="btn border-0 hover:bg-white min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[17px] w-28 h-8 my-4 bg-white text-[#828282] text-[11px]" onClick={()=>setSelectedCardedit(obj)}>Edit</button>
                 <button className="btn border-0 hover:bg-white min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[17px] w-28 h-8 my-4 bg-white text-[#828282] text-[11px]" onClick={()=>handleDelete(obj._id)}>Delete</button>
 

@@ -668,7 +668,8 @@ export const loadDevices = expressAsyncHandler(async (req, res) => {
 
 export const getOperatorById = expressAsyncHandler(async (req, res) => {
   try {
-    const operator = await Operator.findById(req.params.id);
+    const operator = await Operator.findById(req.params.id).populate({path:"adsUnderOperator.ad"})
+    
     if (!operator) {
       res.status(404);
       throw new Error("No operator found,try again");
