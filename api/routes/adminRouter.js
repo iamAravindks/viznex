@@ -31,7 +31,7 @@ adminRouter.post("/login", adminLogin);
 // @route GET  /api/admin/profile
 // @access Private
 
-adminRouter.get("/profile", isAuthAdmin, loadProfile);
+adminRouter.get("/load-profile", isAuthAdmin, loadProfile);
 
 // @desc Logout
 // @route DELETE /api/admin/logout

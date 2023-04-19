@@ -4,7 +4,7 @@ import { Context } from "../context/context";
 const PrivateRoutingLayout = () => {
 
   const { userInfo } = useContext(Context);
-
+console.log(userInfo)
   return userInfo?._id ? <Outlet /> : <Navigate to="/login" />;
 };
 
