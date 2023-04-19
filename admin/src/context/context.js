@@ -70,7 +70,7 @@ const Provider = ({ children }) => {
     try {
       dispatch({ type: REQUEST });
 
-      const res = await axios.get(`${BASE_URL}/profile`, config);
+      const res = await axios.get(`${BASE_URL}/load-profile`, config);
 
       console.log(res);
       dispatch({ type: USER_LOGIN_SUCCESS, payload: res.data });
