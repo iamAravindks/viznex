@@ -33,20 +33,20 @@ export const adminSignUp = expressAsyncHandler(async (req, res) => {
       const token = generateToken(admin._id);
       res.cookie("Viznx_Secure_Session_ID", token, {
         maxAge: maxAge * 1000,
-        domain: '.viznx.in',
-        path: '/',
+        domain: ".viznx.in",
+        path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: "none",
       });
 
       res.cookie("Viznx_admin_Status", admin._id, {
         maxAge: maxAge * 1000,
-        domain: '.viznx.in',
-        path: '/',
+        domain: ".viznx.in",
+        path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: "none",
       });
       res.status(201).json({
         _id: admin._id,
@@ -177,7 +177,7 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
     if (admin) {
       return res.status(200).json(admin.toJSON());
     } else {
-      res.status(403);
+      res.status(400);
       throw new Error("Bad request");
     }
   } catch (error) {
@@ -257,6 +257,77 @@ export const deleteDeviceId = expressAsyncHandler(async (req, res) => {
     const devices = await Device.find({}).select("-password");
 
     res.status(200).json(devices);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Edit a operator by id
+// @route PATCH /api/admin/edit-operator/;id
+// @access Private
+
+export const editOperatorId = expressAsyncHandler(async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      res.status(400);
+      throw new Error("Oops! Bad request ");
+    }
+    const operator = await Operator.findById(req.params.id);
+    if (!operator) {
+      res.status(404);
+      throw new Error("No operator found,check again");
+    }
+    const {
+      name = operator.name,
+      email = operator.email,
+      location = operator.location,
+    } = req.body;
+    console.log(name);
+    operator.name = name;
+    operator.email = email;
+    operator.location = location;
+
+    if (req.body.password) {
+      operator.password = req.body.password;
+    }
+    await operator.save();
+
+    const operators = await Operator.find({}).select("name email location");
+    return res.status(200).json(operators);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Delete a operator by id
+// @access Private
+
+export const deleteOperatorId = expressAsyncHandler(async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      res.status(400);
+      throw new Error("Oops! Bad request ");
+    }
+    const operator = await Operator.findById(req.params.id);
+    if (!operator) {
+      res.status(404);
+      throw new Error("No operator found,check again");
+    }
+    const deleteOperator = await Operator.deleteOne({
+      _id: req.params.id,
+    });
+
+    if (deleteOperator.deletedCount === 0) {
+      res.status(500);
+      throw new Error("Device not deleted");
+    }
+
+    const operators = await Operator.find({}).select("name email location");
+    return res.status(200).json(operators);
   } catch (error) {
     throw new Error(
       error.message ? error.message : "Internal server error,try again"
