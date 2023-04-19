@@ -75,12 +75,91 @@ export const operatorLogin = expressAsyncHandler(async (req, res) => {
 
 export const fetchOperators = expressAsyncHandler(async (req, res) => {
   try {
-    const operators = await Operator.find({}).select("name email location");
+    const operators = await Operator.find({});
     res.status(200).json(operators);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+export const fetchCustomers = expressAsyncHandler(async (req, res) => {
+  try {
+    const customers = await Customer.find({});
+    res.status(200).json(customers);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+export const updateCustomer = expressAsyncHandler(async (req, res) => {
+  try {
+    const _id = new mongoose.Types.ObjectId(req.params.id);
+    console.log(req.params.id);
+    const customer = await Customer.findById(_id);
+
+    if (!customer) {
+      res.status(404);
+      throw new Error("Customer not found");
+    }
+
+    const {
+      name = customer.name,
+      email = customer.email,
+    } = req.body;
+
+    const result = await Customer.updateOne(
+      {
+        _id,
+      },
+      {
+        name,
+        email,
+      }
+    );
+
+    if (result.nModified === 0) {
+      res.status(500);
+      throw new Error("Customer not updated");
+    }
+
+    res.status(200).json(customer);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+
+
+
+export const deleteCustomer = expressAsyncHandler(async (req, res) => {
+  try {
+    const _id = new mongoose.Types.ObjectId(req.params.id);
+    console.log(req.params.id);
+    const customer = await Customer.findById(_id);
+
+    if (!customer) {
+      res.status(404);
+      throw new Error("Customer not found");
+    }
+
+    const result = await Customer.deleteOne({
+      _id,
+    });
+
+    if (result.deletedCount === 0) {
+      res.status(500);
+      throw new Error("customer not deleted");
+    }
+
+    res.status(200).json(customer);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
 
 // @desc Get Profile of the operator
 // @access Private

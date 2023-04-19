@@ -103,7 +103,12 @@ export const loadQueues = expressAsyncHandler(async (req, res) => {
 
 export const fetchDevices = expressAsyncHandler(async (req, res) => {
   try {
-    const devices = await Device.find({}).select("deviceId name location ");
+    const devices = await Device.find({}).select("deviceId name location slots").populate({
+      path:"slots.queue.ad",
+      populate: {
+        path:"customer operator"
+      }
+    })
     res.status(200).json(devices);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server Error");

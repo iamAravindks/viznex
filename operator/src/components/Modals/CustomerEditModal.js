@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
-const OperatorEditModal = ({obj, reFetch, setOpen}) => {
+const CustomerEditModal = ({obj, reFetch, setOpen}) => {
   const [info, setinfo] = useState({});
   const handleChange = (e) => {
     setinfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,13 +31,12 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
           ...info,
         };
         const res = await axiosInstance.patch(
-          `/admin/edit-operator/${obj._id}`,
+          `/operator/customer/${obj._id}`,
           newOperator,
           config
         );
         reFetch()
         setOpen(null)
-        document.querySelector("#operatormodel").checked = false;
 
         console.log(newOperator);
       } catch (error) {
@@ -54,7 +53,7 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
     <div className="flex justify-end" >
       <button className="rounded-full hover:bg-[rgba(0,0,0,0.5)] w-[40px] text-black font-bold text-2xl hover:text-[white]  h-[40px]" onClick={()=>setOpen(null)}>x</button>
     </div>
-   <h1 className="text-3xl font-bold">Edit Operator</h1>
+   <h1 className="text-3xl font-bold">Edit Customer</h1>
     <div className="py-8">
     <form className="flex flex-col my-8">
               <label htmlFor="">name</label>
@@ -75,16 +74,7 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
                 name="email"
                 onChange={handleChange}
               />
-                             <label htmlFor="">Location</label>
-
-              <input
-                className=" w-full border rounded px-2 py-1 text-[grey] max-w-xs my-2"
-                type="text"
-                defaultValue={obj.location}
-
-                name="location"
-                onChange={handleChange}
-              />
+                            
               <div className="btn-section flex gap-4 items-center">
                 <label
                   htmlFor="deviceeditmodal"
@@ -95,7 +85,7 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
                 </label>
                 {showClip && (
                   <span className="flex  gap-4 items-center">
-                    <ClipLoader color="#b600ff" /> <em>Updating operator</em>{" "}
+                    <ClipLoader color="#b600ff" /> <em>Updating customer</em>{" "}
                   </span>
                 )}
                 {msg && (
@@ -115,4 +105,4 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
   );
 };
 
-export default OperatorEditModal;
+export default CustomerEditModal;

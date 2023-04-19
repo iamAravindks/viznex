@@ -19,9 +19,7 @@ const CustomerCard = () => {
         </p>
         <p className="text-[17px] text-[#4c4c4c] resides">Location, India</p>
       </div>
-      <div className="flex mt-4 btn-section md:flex-row md:justify-center">
-        <CustomerModal />
-      </div>
+     
     </div>
   );
 };

@@ -2,10 +2,13 @@ import { Router } from "express";
 import {
   addTheAdToQueue,
   createCustomer,
+  deleteCustomer,
+  fetchCustomers,
   loadAds,
   loadDevices,
   loadProfile,
   operatorLogin,
+  updateCustomer,
   updateQueue,
 } from "../controllers/operatorController.js";
 import { fetchDevices } from "../controllers/deviceController.js";
@@ -37,6 +40,9 @@ operatorRouter.patch("/update-queue", isAuthOperator, updateQueue);
 // @access Private
 
 operatorRouter.get("/load-devices", isAuthOperator, fetchDevices);
+operatorRouter.get("/load-customers", isAuthOperator, fetchCustomers);
+operatorRouter.delete("/customer/:id", isAuthOperator, deleteCustomer);
+operatorRouter.patch("/customer/:id", isAuthOperator, updateCustomer);
 
 // @desc Fetch the Profile
 // @route Get /api/operator/profile

@@ -89,6 +89,6 @@ adminRouter.patch("/edit-operator/:id", isAuthAdmin, editOperatorId);
 // @route DELETE /api/admin/delete-operator/:id
 // @access Private
 
-adminRouter.delete("/delete-operator/:id", isAuthAdmin, deleteOperatorId);
+adminRouter.delete("/operator/:id", isAuthAdmin, deleteOperatorId);
 
 export default adminRouter;

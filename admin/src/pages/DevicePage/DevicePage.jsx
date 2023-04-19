@@ -26,7 +26,7 @@ const DevicePage = () => {
   withCredentials: true,
 };
 const axiosInstance = axios.create({
-  baseURL: "https://api.viznx.in/api",
+  baseURL: "http://localhost:5000/api",
 });
  const handleDelete = async (id) => {
     await axiosInstance.delete(`/admin/device/${id}`, config)

@@ -19,10 +19,9 @@ const initialState = {
   loading: false,
   userInfo: null,
   error: null,
-  devices: [],
 };
 
-const BASE_URL = "https://api.viznx.in/api/operator";
+const BASE_URL = "http://localhost:5000/api/operator";
 
 export const Context = createContext(initialState);
 const config = {
@@ -121,7 +120,7 @@ const Provider = ({ children }) => {
 
   // load devices
 
-  const loadDevices = async () => {
+  /* const loadDevices = async () => {
     try {
       dispatch({ type: REQUEST });
       const res = await axios.get(`${BASE_URL}/load-devices`, config);
@@ -134,7 +133,7 @@ const Provider = ({ children }) => {
           : error.message;
       dispatch({ type: SET_ERROR, payload: err });
     }
-  };
+  }; */
 
   //add ad
 
@@ -159,14 +158,13 @@ const Provider = ({ children }) => {
         loading: userState.loading,
         error: userState.error,
         userStatus: userState.userStatus,
-        devices: userState.devices,
         login,
         clearError,
         loadProfile,
         logout,
         setLoading,
-        loadDevices,
-/*         addAd,
+/*         loadDevices,
+ *//*         addAd,
  */      }}
     >
       {children}

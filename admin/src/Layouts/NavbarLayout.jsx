@@ -7,7 +7,7 @@ const NavbarLayout = () => {
     <>
       <Navbar />
       <Sidebar />
-      <div className="ml-32 pl-7">
+      <div className="ml-32">
         <Outlet />
       </div>
     </>
