@@ -5,6 +5,8 @@ import {
   createDevice,
   createOperator,
   deleteDeviceId,
+  deleteOperatorId,
+  editOperatorId,
   loadProfile,
   updateDevice,
 } from "../controllers/adminController.js";
@@ -76,5 +78,17 @@ adminRouter.get("/load-admin-devices", isAuthAdmin, fetchDevices);
 // @access Private
 
 adminRouter.get("/load-admin-operators", isAuthAdmin, fetchOperators);
+
+// @desc Edit a operator by id
+// @route PATCH /api/admin/edit-operator/:id
+// @access Private
+
+adminRouter.patch("/edit-operator/:id", isAuthAdmin, editOperatorId);
+
+// @desc DELETE a operator by id
+// @route DELETE /api/admin/delete-operator/:id
+// @access Private
+
+adminRouter.delete("/delete-operator/:id", isAuthAdmin, deleteOperatorId);
 
 export default adminRouter;
