@@ -4,6 +4,7 @@ import "./Navigation.css";
 
 import { MdDevicesOther, MdDashboard, MdGroups } from "react-icons/md";
 import { FaPlay, FaPowerOff } from "react-icons/fa";
+import { HiUser } from "react-icons/hi";
 import { Context } from "../../context/context";
 
 const Navbar = () => {
@@ -29,6 +30,9 @@ const Navbar = () => {
         break;
       case "/ads":
         setTitle("Ads");
+        break;
+      case "/customer":
+        setTitle("Customer");
         break;
       default:
         break;
@@ -64,22 +68,26 @@ const Navbar = () => {
 
 const Sidebar = () => {
   return (
-    <div className="fixed top-20 bg-white shadow-[0_4px_11px_rgba(0,0,0,0.1)] w-32 min-h-full flex justify-center">
-      <div className="flex flex-col w-full gap-24 pt-32 nav-links">
+    <div className="fixed bg-white shadow-[0_4px_11px_rgba(0,0,0,0.1)] w-32 min-h-full">
+      <div className="flex flex-col w-full gap-12 pt-12 nav-links">
         {[
           /*Links with respective icons in there order*/
-          { icon: <MdDashboard className="text-[34px]" />, text: "Dashboard" },
+          { icon: <MdDashboard className="text-[30px]" />, text: "Dashboard" },
           {
-            icon: <MdGroups className="text-[34px]" />,
+            icon: <MdGroups className="text-[30px]" />,
             text: "Groups",
           },
           {
-            icon: <MdDevicesOther className="text-[34px]" />,
+            icon: <MdDevicesOther className="text-[30px]" />,
             text: "Devices",
           },
           {
-            icon: <FaPlay className="text-[34px]" />,
+            icon: <FaPlay className="text-[30px]" />,
             text: "Ads",
+          },
+          {
+            icon: <HiUser className="text-[30px]" />,
+            text: "Customer",
           },
         ].map((item, index) => (
           <NavLink

@@ -31,18 +31,22 @@
 }
 
 .navlink:nth-child(1).active ~ .marker {
-  top: 121px;
+  top: 40px;
 }
 .navlink:nth-child(2).active ~ .marker {
-  top: 278px;
+  top: 140px;
 }
 
 .navlink:nth-child(3).active ~ .marker {
-  top: 420px;
+  top: 240px;
 }
 
 .navlink:nth-child(4).active ~ .marker {
-  top: 565px;
+  top: 340px;
+}
+
+.navlink:nth-child(5).active ~ .marker {
+  top: 440px;
 }
 
 .navlink p {
