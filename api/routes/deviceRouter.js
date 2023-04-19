@@ -26,6 +26,10 @@ deviceRouter.get("/profile", isAuthDevice, loadProfile);
 
 deviceRouter.get("/load-queues", isAuthDevice, loadQueues);
 
+// @desc Update noOfTimesPlayed of ad on a slot by a device
+// @route PATCH /api/device/update-times/:slot/:ad
+// @access Private
+
 // @desc Logout
 // @route DELETE /api/admins/logout
 // @access Private

@@ -22,19 +22,19 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
       const token = generateTokenForDevice(device._id);
       res.cookie("Viznx_Secure_Device_Session_ID", token, {
         maxAge: maxAge,
-        domain: 'viznx.in',
-        path: '/',
+        domain: "viznx.in",
+        path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: "none",
       });
       res.cookie("Viznx_device_Status", device._id, {
         maxAge: maxAge,
-        domain: 'viznx.in',
-        path: '/',
+        domain: "viznx.in",
+        path: "/",
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: "none",
       });
 
       const deviceInfo = await Device.findOne({ deviceId })
@@ -136,6 +136,41 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
       .lean();
 
     return res.status(201).json(deviceInfo);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+// @desc Get the data of a device by id
+// @access Private
+
+export const getDeviceById = expressAsyncHandler(async (req, res) => {
+  try {
+    const device = await Device.findById(req.params.id)
+      .select("-password ")
+      .populate({
+        path: "slots",
+        select: "name ",
+        populate: {
+          path: "queue.ad",
+          select: "name url adFrequency customer",
+          populate: {
+            path: "customer",
+            select: "name email",
+          },
+        },
+      })
+      .populate({
+        path: "slots.queue.operator",
+        select: "name email",
+      })
+      .lean();
+    if (!device) {
+      res.status(404);
+      throw new Error("No device found,try again");
+    }
+
+    res.status(200).json(device);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
