@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Admin from "../models/adminModel.js";
 import Device from "../models/DeviceModel.js";
 import Operator from "../models/OperatorModel.js";
+import Customer from "../models/customerSchema.js";
 import generateToken from "../utils/utils.js";
 
 // @desc Register a admin , NB:There is only one admin user here
@@ -328,6 +329,72 @@ export const deleteOperatorId = expressAsyncHandler(async (req, res) => {
 
     const operators = await Operator.find({}).select("name email location");
     return res.status(200).json(operators);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Edit a customer by id
+// @route PATCH /api/admin/edit-customer/:id
+// @access Private
+
+export const editCustomerId = expressAsyncHandler(async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      res.status(400);
+      throw new Error("Oops! Bad request ");
+    }
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) {
+      res.status(404);
+      throw new Error("No customer found,check again");
+    }
+    const { name = customer.name, email = customer.email } = req.body;
+
+    customer.name = name;
+    customer.email = email;
+
+    if (req.body.password) {
+      customer.password = req.body.password;
+    }
+    await customer.save();
+
+    const customers = await Customer.find({}).select("name email location");
+    return res.status(200).json(customers);
+  } catch (error) {
+    throw new Error(
+      error.message ? error.message : "Internal server error,try again"
+    );
+  }
+});
+
+// @desc Delete a customer by id
+// @access Private
+
+export const deleteCustomerId = expressAsyncHandler(async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      res.status(400);
+      throw new Error("Oops! Bad request ");
+    }
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) {
+      res.status(404);
+      throw new Error("No customer found,check again");
+    }
+    const deleteCustomer = await Customer.deleteOne({
+      _id: req.params.id,
+    });
+
+    if (deleteCustomer.deletedCount === 0) {
+      res.status(500);
+      throw new Error("Device not deleted");
+    }
+
+    const customers = await Customer.find({}).select("name email location");
+    return res.status(200).json(customers);
   } catch (error) {
     throw new Error(
       error.message ? error.message : "Internal server error,try again"
