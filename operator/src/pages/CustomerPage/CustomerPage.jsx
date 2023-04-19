@@ -19,7 +19,7 @@ const CustomerPage = () => {
     withCredentials: true,
   };
   const axiosInstance = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: "https://api.viznx.in/api",
   });
   const handleDelete = async (id) => {
     await axiosInstance.delete(`/operator/customer/${id}`, config)

@@ -16,7 +16,7 @@ const OperatorEditModal = ({obj, reFetch, setOpen}) => {
     withCredentials: true,
   };
   const axiosInstance = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: "https://api.viznx.in/api",
   });
 
   const handleSubmit = async (e) => {
