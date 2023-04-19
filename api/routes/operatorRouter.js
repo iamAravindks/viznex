@@ -11,7 +11,10 @@ import {
   updateCustomer,
   updateQueue,
 } from "../controllers/operatorController.js";
-import { fetchDevices } from "../controllers/deviceController.js";
+import {
+  fetchDevices,
+  getDeviceById,
+} from "../controllers/deviceController.js";
 import { isAuthOperator } from "../middlewares/middlewares.js";
 import { logout } from "../controllers/otherController.js";
 
@@ -66,6 +69,12 @@ operatorRouter.get("/load-ads", isAuthOperator, loadAds);
 // @access Private
 
 operatorRouter.get("/load-device-details", isAuthOperator, loadDevices);
+
+// @desc GET a device by id
+// @route GET /api/operator/device/:id
+// @access Private
+
+operatorRouter.get("/device/:id", isAuthOperator, getDeviceById);
 
 // @desc Logout
 // @route DELETE /api/operator/logout

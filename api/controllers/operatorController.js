@@ -45,19 +45,16 @@ export const operatorLogin = expressAsyncHandler(async (req, res) => {
       const token = generateToken(operator._id);
       res.cookie("Viznx_Secure_Operator_Session_ID", token, {
         maxAge: maxAge * 1000,
-        domain: 'viznx.in',
-        path: '/',
+        // domain: "viznx.in",
+        path: "/",
         httpOnly: true,
-        secure: true,
-        sameSite: 'none'
+        // secure: true,
+        // sameSite: "none",
       });
       res.cookie("Viznx_operator_Status", operator._id, {
         maxAge: maxAge * 1000,
-        domain: 'viznx.in',
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none'
+        // domain: "viznx.in",
+        path: "/",
       });
       res.status(201).json(operator.toJSON());
     } else {
@@ -661,6 +658,23 @@ export const loadDevices = expressAsyncHandler(async (req, res) => {
       },
     ]);
     res.json(devices);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+// @desc Get the data of a operator by id
+// @access Private
+
+export const getOperatorById = expressAsyncHandler(async (req, res) => {
+  try {
+    const operator = await Operator.findById(req.params.id);
+    if (!operator) {
+      res.status(404);
+      throw new Error("No operator found,try again");
+    }
+
+    res.status(200).json(operator.toJSON());
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
