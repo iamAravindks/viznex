@@ -139,11 +139,10 @@ const config = {
     return(
         <div className='relative'>
             
-          { slot !== null && <div>
+          { slot !== null && <div className=''>
                
               <ReactPlayer ref={videoRef}  playing={true} width="100vw" height="100vh" url={info.slots[slot].queue[currentUrlIndex].ad.url}  onEnded={()=>handleEnded(info.slots[slot].queue.length, info._id, info.slots[slot].name, info.slots[slot].queue[currentUrlIndex].ad._id, info.slots[slot].queue[currentUrlIndex].operator._id)} />
                
-
 
 
   
@@ -156,7 +155,8 @@ const config = {
             <div className='absolute left-0 bg-[#000000d6] top-0 right-0 flex justify-end '>
                 <img src={logo} alt=""  className='w-[8%]' />
             </div>
-            
+            <div className='absolute w-[100vw] bg-[black] h-[70px] bottom-0 left-0 z-100'></div>
+
         </div>        
 
     )
