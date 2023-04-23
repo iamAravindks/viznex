@@ -1,8 +1,8 @@
 import {
   CLEAR_ERROR,
   CLEAR_LOADING,
-/*   CREATE_QUEUE,
- */  LOAD_DEVICES,
+  /*   CREATE_QUEUE,
+   */ LOAD_DEVICES,
   REQUEST,
   SET_ERROR,
   SET_LOADING,
@@ -17,7 +17,6 @@ export const contextReducer = (state, action) => {
     case REQUEST:
       return { ...state, loading: true };
     case USER_LOGIN_SUCCESS:
-     
       return {
         ...state,
         loading: false,
@@ -40,7 +39,7 @@ export const contextReducer = (state, action) => {
     case USER_LOGOUT_SUCCESS:
       return {
         ...state,
-        userInfo: null,
+        userInfo: {},
         loading: false,
       };
 

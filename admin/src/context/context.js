@@ -7,7 +7,8 @@ import {
   USER_AUTH_FAIL,
   USER_LOGIN_SUCCESS,
   SET_LOADING,
-  CLEAR_LOADING
+  CLEAR_LOADING,
+  USER_LOGOUT_SUCCESS,
 } from "./types";
 import axios from "axios";
 
@@ -15,7 +16,6 @@ const initialState = {
   loading: false,
   userInfo: null,
   error: null,
- 
 };
 
 const BASE_URL = "https://api.viznx.in/api/admin";
@@ -31,18 +31,17 @@ const config = {
 const Provider = ({ children }) => {
   const [userState, dispatch] = useReducer(contextReducer, initialState);
 
-
-  // @actionsti wan 
+  // @actionsti wan
 
   // login
 
-  const login = async (name,email, password) => {
+  const login = async (name, email, password) => {
     try {
       dispatch({ type: REQUEST });
 
       const res = await axios.post(
         `${BASE_URL}/login`,
-        { name,email, password },
+        { name, email, password },
         config
       );
 
@@ -102,6 +101,20 @@ const Provider = ({ children }) => {
     dispatch({ type: CLEAR_ERROR });
   };
 
+  const logout = async () => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/logout`);
+      if (res.status === 200) dispatch({ type: USER_LOGOUT_SUCCESS });
+      else throw new Error("Please try again");
+    } catch (error) {
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      dispatch({ type: SET_ERROR, payload: err });
+    }
+  };
+
   return (
     <Context.Provider
       value={{
@@ -112,7 +125,7 @@ const Provider = ({ children }) => {
         clearError,
         loadProfile,
         setLoading,
-        
+        logOut,
       }}
     >
       {children}

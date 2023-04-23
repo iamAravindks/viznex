@@ -3,8 +3,8 @@ import { contextReducer } from "./contextReducer";
 import {
   CLEAR_ERROR,
   CLEAR_LOADING,
-/*   CREATE_QUEUE,
- */  LOAD_DEVICES,
+  /*   CREATE_QUEUE,
+   */ LOAD_DEVICES,
   REQUEST,
   SET_ERROR,
   SET_LOADING,
@@ -47,7 +47,6 @@ const Provider = ({ children }) => {
         { email, password },
         config
       );
-     
 
       dispatch({ type: USER_LOGIN_SUCCESS, payload: res.data });
     } catch (error) {
@@ -107,8 +106,9 @@ const Provider = ({ children }) => {
   //logout
   const logout = async () => {
     try {
-    
-      dispatch({ type: USER_LOGOUT_SUCCESS });
+      const res = await axios.delete(`${BASE_URL}/logout`);
+      if (res.status === 200) dispatch({ type: USER_LOGOUT_SUCCESS });
+      else throw new Error("Please try again");
     } catch (error) {
       const err =
         error.response && error.response.data.message
@@ -163,9 +163,11 @@ const Provider = ({ children }) => {
         loadProfile,
         logout,
         setLoading,
-/*         loadDevices,
- *//*         addAd,
- */      }}
+        /*         loadDevices,
+         */
+        /*         addAd,
+         */
+      }}
     >
       {children}
     </Context.Provider>

@@ -6,8 +6,8 @@ import {
   USER_AUTH_FAIL,
   USER_LOGIN_SUCCESS,
   SET_LOADING,
-  CLEAR_LOADING
-  
+  CLEAR_LOADING,
+  USER_LOGOUT_SUCCESS,
 } from "./types";
 
 export const contextReducer = (state, action) => {
@@ -23,6 +23,12 @@ export const contextReducer = (state, action) => {
       };
     case USER_AUTH_FAIL:
       return { ...state, loading: false, userInfo: null };
+    case USER_LOGOUT_SUCCESS:
+      return {
+        ...state,
+        userInfo: {},
+        loading: false,
+      };
     case SET_ERROR:
       return { ...state, error: action.payload };
     case CLEAR_ERROR:
