@@ -44,6 +44,10 @@ const DeviceSchema = mongoose.Schema({
             "slotEight",
             "slotNine",
             "slotTen",
+            "slotEleven",
+            "slotTwelve",
+            "slotThirteen",
+            "slotFourteen"
           ],
         },
         queue: [QueueSchema],
@@ -88,6 +92,22 @@ const DeviceSchema = mongoose.Schema({
       },
       {
         name: "slotTen",
+        queue: [],
+      },
+      {
+        name: "slotEleven",
+        queue: [],
+      },
+      {
+        name: "slotTwelve",
+        queue: [],
+      },
+      {
+        name: "slotThirteen",
+        queue: [],
+      },
+      {
+        name: "slotFourteen",
         queue: [],
       },
     ],
