@@ -12,6 +12,7 @@ import {
   import { Bar } from 'react-chartjs-2';
 
 import ClipLoader from "react-spinners/ClipLoader"
+import { BarChart } from "../../components/Charts/BarChart";
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -28,31 +29,12 @@ const AdDetailPage = () => {
     const id= location.pathname.split("/")[2]
 
     const {data, loading, error} = useFetch(`/load-ad/${id}`)
-    console.log("hello")
-    const labels = ['Slot 1', 'SLot 2', 'Slot 3', 'Slot 4', 'Slot 5', 'SLot 6', 'slot 7', 'Slot 8', 'Slot 9', 'Slot 10'];
-    const options = {
-        responsive: true
-      }; 
-    const datas = {
-    labels,
-    datasets: [
-        {
-        label: 'Frequency',
-        data: labels.map(() => 5),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        },
-        {
-        label: 'No. of Times Played',
-        data: labels.map(() => 7),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        },
-    ],
-    };
+   
     
 
     return(
         <div>
-            {data && data.ad &&
+            
             <div>
                 {
                      loading ? 
@@ -60,6 +42,7 @@ const AdDetailPage = () => {
                          <ClipLoader />
                      </div>
                      :
+                     data && data.ad &&
                       <div>
                          <div className="device-gradient px-12 py-8">  
                              <h1 className="font-bold text-3xl">{data.ad.ad.name}</h1>
@@ -79,9 +62,9 @@ const AdDetailPage = () => {
                                      {
                                          data.groupedSlots && data.groupedSlots.map((itm) =>(
                                             <div className="border rounded px-8 py-4">
-                                                <h1 className="font-semibold text-xl pb-2">Device 1 {itm.deviceId}</h1>
+                                                <h1 className="font-semibold text-xl pb-2">Device 1 {itm.deviceid}</h1>
                                                 <hr />
-                                                <Bar options={options} data={datas} />
+                                                <BarChart obj={itm}/>
                                             </div>
                                          ))
                                      }
@@ -92,7 +75,7 @@ const AdDetailPage = () => {
                      </div>
                 }
             </div>
-           }
+           
         </div>
     )
 }

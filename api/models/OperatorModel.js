@@ -39,7 +39,7 @@ const DeployedDevices = mongoose.Schema({
       type: Number,
       default: 1,
     },
-    noOfTimesPlayed: { type: String, default: 0 },
+    noOfTimesPlayed: { type: Number, default: 0 },
   },
 });
 

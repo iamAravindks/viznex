@@ -604,22 +604,47 @@ export const loadAd = expressAsyncHandler( async(req,res)=>{
     }})
 
    const ad = operator.adsUnderOperator.id(adId);
-   const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
-    const deviceId = curr.device;
-    if (!acc[deviceId]) {
-      acc[deviceId] = [];
-    }
-    acc[deviceId].push(curr);
-    return acc;
-  }, {});
+   
+    // Next, group the deployeddevices array by deviceid
+    const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+      const deviceid = curr.device;
+      if (!acc[deviceid]) {
+        acc[deviceid] = [];
+      }
+      acc[deviceid].push(curr);
+      return acc;
+    }, {});
+    
+
+    // Finally, map the groupedDevices object to an array of objects
+    const groupedSlots = Object.keys(groupedDevices).map(deviceid => {
+      const slots = groupedDevices[deviceid];
+
+      // Group frequencies for each device
+      const frequencies = slots.reduce((acc, curr) => {
+        const freq = curr.slot.frequency;
+        
+          acc.push(freq);
+      
+        return acc;
+      }, []);
+      const noOfTimesPlayedarray = slots.reduce((acc, curr) => {
+        const noof = curr.slot.noOfTimesPlayed;
+        
+          acc.push(noof);
+      
+        return acc;
+      }, []);
+
+      return {
+        deviceid: deviceid,
+        slots: slots,
+        frequencies: frequencies,
+        noOfTimesPlayedarray:noOfTimesPlayedarray
+      };
+    });
   
-  // Finally, map the groupedDevices object to an array of objects
-  const groupedSlots = Object.keys(groupedDevices).map(deviceId => {
-    return {
-      deviceId: deviceId,
-      slots: groupedDevices[deviceId]
-    };
-  });
+  
   
   // Send the response with the ad object and the grouped slots
   res.send({ ad: ad, groupedSlots: groupedSlots });
