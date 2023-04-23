@@ -69,7 +69,7 @@ adminRouter.post("/create-device", isAuthAdmin, createDevice);
 // @route PATCH /api/admin/device/:id
 // @access Private
 
-adminRouter.patch("/device/:id", isAuthAdmin, updateDevice);
+adminRouter.patch("/device/:id", updateDevice);
 
 // @desc delete a device
 // @route DELETE /api/admin/device/:id
@@ -93,7 +93,7 @@ adminRouter.get("/load-admin-operators", isAuthAdmin, fetchOperators);
 // @route PATCH /api/admin/edit-operator/:id
 // @access Private
 
-adminRouter.patch("/edit-operator/:id", isAuthAdmin, editOperatorId);
+adminRouter.patch("/edit-operator/:id", editOperatorId);
 
 // @desc DELETE a operator by id
 // @route DELETE /api/admin/delete-operator/:id
