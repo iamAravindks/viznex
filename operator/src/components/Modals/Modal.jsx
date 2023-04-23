@@ -442,7 +442,7 @@ const Modal = () => {
                   <input
                     type="checkbox"
                     name=""
-                    id="slotSix"
+                    id="slotEleven"
                     onChange={() => onCheckboxchange(10, "slotEleven")}
                   />
                   <label htmlFor="">Slot 11 7pm to 8pm </label>{" "}
@@ -462,7 +462,7 @@ const Modal = () => {
                   <input
                     type="checkbox"
                     name=""
-                    id="slotSix"
+                    id="slotTwelve"
                     onChange={() => onCheckboxchange(11, "slotTwelve")}
                   />
                   <label htmlFor="">Slot 12 8pm to 9pm </label>{" "}
@@ -482,7 +482,7 @@ const Modal = () => {
                   <input
                     type="checkbox"
                     name=""
-                    id="slotSix"
+                    id="slotThirteen"
                     onChange={() => onCheckboxchange(12, "slotThirteen")}
                   />
                   <label htmlFor="">Slot 13 9pm to 10pm </label>{" "}
@@ -502,7 +502,7 @@ const Modal = () => {
                   <input
                     type="checkbox"
                     name=""
-                    id="slotSix"
+                    id="slotFourteen"
                     onChange={() => onCheckboxchange(13, "slotFourteen")}
                   />
                   <label htmlFor="">Slot 14 10pm to 11pm </label>{" "}
