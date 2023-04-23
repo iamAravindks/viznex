@@ -453,7 +453,7 @@ const Modal = () => {
                     type="number"
                     className="input"
                     onChange={onFrequencyChange(10, "slotEleven")}
-                    value={slots[5].adFrequency}
+                    value={slots[10].adFrequency}
                   />{" "}
                 </div>
               </div>
@@ -473,7 +473,7 @@ const Modal = () => {
                     type="number"
                     className="input"
                     onChange={onFrequencyChange(11, "slotTwelve")}
-                    value={slots[5].adFrequency}
+                    value={slots[11].adFrequency}
                   />{" "}
                 </div>
               </div>
@@ -493,7 +493,7 @@ const Modal = () => {
                     type="number"
                     className="input"
                     onChange={onFrequencyChange(12, "slotThirteen")}
-                    value={slots[5].adFrequency}
+                    value={slots[12].adFrequency}
                   />{" "}
                 </div>
               </div>
@@ -513,7 +513,7 @@ const Modal = () => {
                     type="number"
                     className="input"
                     onChange={onFrequencyChange(13, "slotFourteen")}
-                    value={slots[5].adFrequency}
+                    value={slots[13].adFrequency}
                   />{" "}
                 </div>
               </div>
