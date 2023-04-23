@@ -101,7 +101,7 @@ const Provider = ({ children }) => {
     dispatch({ type: CLEAR_ERROR });
   };
 
-  const logout = async () => {
+  const logOut = async () => {
     try {
       const res = await axios.delete(`${BASE_URL}/logout`);
       if (res.status === 200) dispatch({ type: USER_LOGOUT_SUCCESS });
