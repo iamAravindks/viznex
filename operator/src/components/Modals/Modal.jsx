@@ -443,7 +443,7 @@ const Modal = () => {
                     type="checkbox"
                     name=""
                     id="slotSix"
-                    onChange={() => onCheckboxchange(10, "slotSix")}
+                    onChange={() => onCheckboxchange(10, "slotEleven")}
                   />
                   <label htmlFor="">Slot 11 7pm to 8pm </label>{" "}
                 </div>
@@ -452,7 +452,7 @@ const Modal = () => {
                   <input
                     type="number"
                     className="input"
-                    onChange={onFrequencyChange(10, "slotSix")}
+                    onChange={onFrequencyChange(10, "slotEleven")}
                     value={slots[5].adFrequency}
                   />{" "}
                 </div>
@@ -463,7 +463,7 @@ const Modal = () => {
                     type="checkbox"
                     name=""
                     id="slotSix"
-                    onChange={() => onCheckboxchange(11, "slotSix")}
+                    onChange={() => onCheckboxchange(11, "slotTwelve")}
                   />
                   <label htmlFor="">Slot 12 8pm to 9pm </label>{" "}
                 </div>
@@ -472,7 +472,7 @@ const Modal = () => {
                   <input
                     type="number"
                     className="input"
-                    onChange={onFrequencyChange(11, "slotSix")}
+                    onChange={onFrequencyChange(11, "slotTwelve")}
                     value={slots[5].adFrequency}
                   />{" "}
                 </div>
@@ -483,7 +483,7 @@ const Modal = () => {
                     type="checkbox"
                     name=""
                     id="slotSix"
-                    onChange={() => onCheckboxchange(12, "slotSix")}
+                    onChange={() => onCheckboxchange(12, "slotThirteen")}
                   />
                   <label htmlFor="">Slot 13 9pm to 10pm </label>{" "}
                 </div>
@@ -492,7 +492,7 @@ const Modal = () => {
                   <input
                     type="number"
                     className="input"
-                    onChange={onFrequencyChange(12, "slotSix")}
+                    onChange={onFrequencyChange(12, "slotThirteen")}
                     value={slots[5].adFrequency}
                   />{" "}
                 </div>
@@ -503,7 +503,7 @@ const Modal = () => {
                     type="checkbox"
                     name=""
                     id="slotSix"
-                    onChange={() => onCheckboxchange(13, "slotSix")}
+                    onChange={() => onCheckboxchange(13, "slotFourteen")}
                   />
                   <label htmlFor="">Slot 14 10pm to 11pm </label>{" "}
                 </div>
@@ -512,7 +512,7 @@ const Modal = () => {
                   <input
                     type="number"
                     className="input"
-                    onChange={onFrequencyChange(13, "slotSix")}
+                    onChange={onFrequencyChange(13, "slotFourteen")}
                     value={slots[5].adFrequency}
                   />{" "}
                 </div>
