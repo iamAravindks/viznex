@@ -103,12 +103,14 @@ export const loadQueues = expressAsyncHandler(async (req, res) => {
 
 export const fetchDevices = expressAsyncHandler(async (req, res) => {
   try {
-    const devices = await Device.find({}).select("deviceId name location slots").populate({
-      path:"slots.queue.ad",
-      populate: {
-        path:"customer operator"
-      }
-    })
+    const devices = await Device.find({})
+      .select("deviceId name location slots")
+      .populate({
+        path: "slots.queue.ad",
+        populate: {
+          path: "customer operator",
+        },
+      });
     res.status(200).json(devices);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server Error");
@@ -158,7 +160,7 @@ export const getDeviceById = expressAsyncHandler(async (req, res) => {
         select: "name ",
         populate: {
           path: "queue.ad",
-          select: "name url adFrequency customer",
+          select: "name url adFrequency customer startDate endDate",
           populate: {
             path: "customer",
             select: "name email",
@@ -170,6 +172,50 @@ export const getDeviceById = expressAsyncHandler(async (req, res) => {
         select: "name email",
       })
       .lean();
+    if (!device) {
+      res.status(404);
+      throw new Error("No device found,try again");
+    }
+
+    res.status(200).json(device);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+export const getDeviceByIdDate = expressAsyncHandler(async (req, res) => {
+  try {
+    const { date } = req.body;
+    const filterDate = new Date(date);
+
+    const device = await Device.findById(req.params.id)
+      .select("-password")
+      .populate({
+        path: "slots",
+        select: "name",
+        populate: {
+          path: "queue.ad",
+          select: "name url adFrequency customer startDate endDate",
+          populate: {
+            path: "customer",
+            select: "name email",
+          },
+        },
+      })
+      .populate({
+        path: "slots.queue.operator",
+        select: "name email",
+      });
+
+    for (const slot of device.slots) {
+      slot.queue = slot.queue.filter((adItem) => {
+        return (
+          new Date(adItem.startDate) <= filterDate &&
+          new Date(adItem.endDate) >= filterDate
+        );
+      });
+    }
+
     if (!device) {
       res.status(404);
       throw new Error("No device found,try again");

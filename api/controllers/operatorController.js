@@ -98,10 +98,7 @@ export const updateCustomer = expressAsyncHandler(async (req, res) => {
       throw new Error("Customer not found");
     }
 
-    const {
-      name = customer.name,
-      email = customer.email,
-    } = req.body;
+    const { name = customer.name, email = customer.email } = req.body;
 
     const result = await Customer.updateOne(
       {
@@ -125,9 +122,6 @@ export const updateCustomer = expressAsyncHandler(async (req, res) => {
     );
   }
 });
-
-
-
 
 export const deleteCustomer = expressAsyncHandler(async (req, res) => {
   try {
@@ -157,7 +151,6 @@ export const deleteCustomer = expressAsyncHandler(async (req, res) => {
   }
 });
 
-
 // @desc Get Profile of the operator
 // @access Private
 
@@ -183,7 +176,9 @@ const addToDevices = async (
   slotsWithFrequencies = [],
   devices,
   ad,
-  operator
+  operator,
+  startDate,
+  endDate
 ) => {
   try {
     const rawData = devices
@@ -229,6 +224,8 @@ const addToDevices = async (
                 ad: ad._id,
                 adFrequency: data.adFrequency,
                 operator: operator._id,
+                startDate,
+                endDate,
               },
             },
           }
@@ -324,7 +321,9 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
       slotsWithFrequencies,
       devices,
       ad,
-      operator
+      operator,
+      startDate,
+      endDate
     );
     const uniqueArr = successFullUpdate.filter(
       (obj, index, self) => index === self.findIndex((o) => o._id === obj._id)
@@ -668,8 +667,10 @@ export const loadDevices = expressAsyncHandler(async (req, res) => {
 
 export const getOperatorById = expressAsyncHandler(async (req, res) => {
   try {
-    const operator = await Operator.findById(req.params.id).populate({path:"adsUnderOperator.ad"})
-    
+    const operator = await Operator.findById(req.params.id).populate({
+      path: "adsUnderOperator.ad",
+    });
+
     if (!operator) {
       res.status(404);
       throw new Error("No operator found,try again");

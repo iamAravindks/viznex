@@ -14,6 +14,7 @@ import {
 import {
   fetchDevices,
   getDeviceById,
+  getDeviceByIdDate,
 } from "../controllers/deviceController.js";
 import { isAuthOperator } from "../middlewares/middlewares.js";
 import { logout } from "../controllers/otherController.js";
@@ -75,6 +76,12 @@ operatorRouter.get("/load-device-details", isAuthOperator, loadDevices);
 // @access Private
 
 operatorRouter.get("/device/:id", isAuthOperator, getDeviceById);
+
+// @desc GET a device by id and filter ads with dat
+// @route POST /api/operator/device/:id
+// @access Private
+
+operatorRouter.post("/device/:id/", isAuthOperator, getDeviceByIdDate);
 
 // @desc Logout
 // @route DELETE /api/operator/logout
