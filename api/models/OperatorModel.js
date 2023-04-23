@@ -29,6 +29,10 @@ const DeployedDevices = mongoose.Schema({
         "slotEight",
         "slotNine",
         "slotTen",
+        "slotEleven",
+        "slotTwelve",
+        "slotThirteen",
+        "slotFourteen",
       ],
     },
     frequency: {

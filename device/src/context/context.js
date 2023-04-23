@@ -15,9 +15,10 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = "https://api.viznx.in/api/device";
 
 export const Context = createContext(initialState);
+const BASE_URL = "http://localhost:5000/api/device";
+
 const config = {
   headers: {
     "Content-Type": "application/json",

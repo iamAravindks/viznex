@@ -4,6 +4,9 @@ import {
   createCustomer,
   deleteCustomer,
   fetchCustomers,
+  getIncPlayed,
+  incPlayed,
+  loadAd,
   loadAds,
   loadDevices,
   loadProfile,
@@ -15,7 +18,7 @@ import {
   fetchDevices,
   getDeviceById,
 } from "../controllers/deviceController.js";
-import { isAuthOperator } from "../middlewares/middlewares.js";
+import { isAuthDevice, isAuthOperator } from "../middlewares/middlewares.js";
 import { logout } from "../controllers/otherController.js";
 
 const operatorRouter = Router();
@@ -46,6 +49,7 @@ operatorRouter.get("/load-devices", isAuthOperator, fetchDevices);
 operatorRouter.get("/load-customers", isAuthOperator, fetchCustomers);
 operatorRouter.delete("/customer/:id", isAuthOperator, deleteCustomer);
 operatorRouter.patch("/customer/:id", isAuthOperator, updateCustomer);
+operatorRouter.post("/incvalue",  getIncPlayed);
 
 // @desc Fetch the Profile
 // @route Get /api/operator/profile
@@ -63,6 +67,7 @@ operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
 // @access Private
 
 operatorRouter.get("/load-ads", isAuthOperator, loadAds);
+operatorRouter.get("/load-ad/:id", isAuthOperator, loadAd);
 
 // @desc Load ads from operator
 //@route GET /api/operator/load-device-details

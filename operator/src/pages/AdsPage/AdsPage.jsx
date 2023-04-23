@@ -6,12 +6,14 @@ import { useContext } from "react";
 import { Context } from "../../context/context";
 import useFetch from "../../hooks/useFetch";
 import AdPageModal from "../../components/Modals/AdPageModal";
+import { useNavigate } from "react-router-dom";
 
 const AdsPage = () => {
+  const navigate = useNavigate()
   const { userInfo } = useContext(Context);
   const [selectedCard, setSelectedCard] = useState(null);
-  const handleClick = (card) => {
-    setSelectedCard(card);
+  const handleClick = (id) => {
+    navigate(`/ad/${id}`)
   };
   return (
     <div className="w-full px-12 pt-20 ">
@@ -29,7 +31,7 @@ const AdsPage = () => {
                   {itm.ad.name}
                   
                 </p>
-                <button onClick={()=>handleClick(itm)}
+                <button onClick={()=>handleClick(itm._id)}
                   
                   className="btn border-0 hover:bg-[#FFB800] min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px] w-[202px] h-[45]  bg-[#FFB800] text-[#fff] text-[21.07px] font-bold"
                 >
@@ -40,8 +42,8 @@ const AdsPage = () => {
              
             </div>
           ))}
-                          { selectedCard  && <AdPageModal itm={selectedCard} setOpen={setSelectedCard}/>}
-
+{/*                           { selectedCard  && <AdPageModal itm={selectedCard} setOpen={setSelectedCard}/>}
+ */}
       </div>
     </div>
   );

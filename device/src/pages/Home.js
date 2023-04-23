@@ -2,10 +2,20 @@ import logo from '../assets/logotrans.png'
 import ReactPlayer from 'react-player'
 import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
+import axios from 'axios'
 const Home = () => {
+  const BASE_URL = "http://localhost:5000/api/device";
+
+const config = {
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+};
+
     const { userInfo } = useContext(Context);
     const [info, setInfo] = useState(userInfo)
-    const [slot, setSlot] = useState(8)
+    const [slot, setSlot] = useState(0)
     const checkTime = () => {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
@@ -48,6 +58,21 @@ const Home = () => {
           case 18:
             setSlot(9)
             break;
+          case 19:
+            setSlot(10)
+            break;
+          case 20:
+            setSlot(11)
+            break;
+          case 21:
+            setSlot(12)
+            break;
+          case 22:
+            setSlot(13)
+            break;
+          case 23:
+            setSlot(14);
+            break;
 
       }       
     } 
@@ -70,8 +95,13 @@ const Home = () => {
     const videoRef = useRef(null);
       
    
-      const handleEnded = (val) => {
+      const handleEnded = async (val, deviceId,slotType, adId, operatorId) => {
         // decrementing adFrequency value by 1
+        let inc = {
+          deviceId,slotType,adId,operatorId
+        }
+        await axios.post(`${BASE_URL}/increment`,inc, config)
+        console.log(inc)
         let newInfo = { ...info };
         newInfo.slots[slot].queue[currentUrlIndex].adFrequency =
           newInfo.slots[slot].queue[currentUrlIndex].adFrequency - 1;
@@ -111,7 +141,7 @@ const Home = () => {
             
           { slot !== null && <div>
                
-              <ReactPlayer ref={videoRef}  playing={true} width="100vw" height="100vh" url={info.slots[slot].queue[currentUrlIndex].ad.url}  onEnded={()=>handleEnded(info.slots[slot].queue.length)} /> : <h1>No ads are added in this session</h1>
+              <ReactPlayer ref={videoRef}  playing={true} width="100vw" height="100vh" url={info.slots[slot].queue[currentUrlIndex].ad.url}  onEnded={()=>handleEnded(info.slots[slot].queue.length, info._id, info.slots[slot].name, info.slots[slot].queue[currentUrlIndex].ad._id, info.slots[slot].queue[currentUrlIndex].operator._id)} />
                
 
 

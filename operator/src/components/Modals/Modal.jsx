@@ -421,6 +421,86 @@ const Modal = () => {
                   />{" "}
                 </div>
               </div>
+              <div>
+                <div>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="slotSix"
+                    onChange={() => onCheckboxchange(5, "slotSix")}
+                  />
+                  <label htmlFor="">Slot 11 7pm to 8pm </label>{" "}
+                </div>
+                <div>
+                  <label htmlFor="">Ad frequency</label>
+                  <input
+                    type="number"
+                    className="input"
+                    onChange={onFrequencyChange(5, "slotSix")}
+                    value={slots[5].adFrequency}
+                  />{" "}
+                </div>
+              </div>
+              <div>
+                <div>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="slotSix"
+                    onChange={() => onCheckboxchange(5, "slotSix")}
+                  />
+                  <label htmlFor="">Slot 12 8pm to 9pm </label>{" "}
+                </div>
+                <div>
+                  <label htmlFor="">Ad frequency</label>
+                  <input
+                    type="number"
+                    className="input"
+                    onChange={onFrequencyChange(5, "slotSix")}
+                    value={slots[5].adFrequency}
+                  />{" "}
+                </div>
+              </div>
+              <div>
+                <div>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="slotSix"
+                    onChange={() => onCheckboxchange(5, "slotSix")}
+                  />
+                  <label htmlFor="">Slot 13 9pm to 10pm </label>{" "}
+                </div>
+                <div>
+                  <label htmlFor="">Ad frequency</label>
+                  <input
+                    type="number"
+                    className="input"
+                    onChange={onFrequencyChange(5, "slotSix")}
+                    value={slots[5].adFrequency}
+                  />{" "}
+                </div>
+              </div>
+              <div>
+                <div>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="slotSix"
+                    onChange={() => onCheckboxchange(5, "slotSix")}
+                  />
+                  <label htmlFor="">Slot 14 10pm to 11pm </label>{" "}
+                </div>
+                <div>
+                  <label htmlFor="">Ad frequency</label>
+                  <input
+                    type="number"
+                    className="input"
+                    onChange={onFrequencyChange(5, "slotSix")}
+                    value={slots[5].adFrequency}
+                  />{" "}
+                </div>
+              </div>
             </div>
             <div className="pb-6 button-section flex items-center gap-4">
               <label

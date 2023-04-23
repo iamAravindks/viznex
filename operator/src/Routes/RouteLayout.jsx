@@ -9,6 +9,7 @@ import GroupPage from "../pages/GroupPage/GroupPage";
 import DevicePage from "../pages/DevicePage/DevicePage";
 import AdsPage from "../pages/AdsPage/AdsPage";
 import CustomerPage from "../pages/CustomerPage/CustomerPage";
+import AdDetailPage from "../pages/AdDetailPage/AdDetailPage";
 const RouteLayout = () => {
   return (
     <>
@@ -20,6 +21,8 @@ const RouteLayout = () => {
             <Route path="/devices" element={<DevicePage />}></Route>
             <Route path="/ads" element={<AdsPage />}></Route>
             <Route path="/customer" element={<CustomerPage />}></Route>
+            <Route path="/ad/:id" element={<AdDetailPage />} />
+
           </Route>
         </Route>
 

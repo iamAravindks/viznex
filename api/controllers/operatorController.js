@@ -596,6 +596,90 @@ export const loadAds = expressAsyncHandler(async (req, res) => {
   }
 });
 
+export const loadAd = expressAsyncHandler( async(req,res)=>{
+  try{
+    const adId = req.params.id;
+     const operator = await Operator.findById(req.operator.id).populate({path:'adsUnderOperator.ad',
+    populate: {
+      path:'customer'
+    }})
+
+   const ad = operator.adsUnderOperator.id(adId);
+   const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+    const deviceId = curr.device;
+    if (!acc[deviceId]) {
+      acc[deviceId] = [];
+    }
+    acc[deviceId].push(curr);
+    return acc;
+  }, {});
+  
+  // Finally, map the groupedDevices object to an array of objects
+  const groupedSlots = Object.keys(groupedDevices).map(deviceId => {
+    return {
+      deviceId: deviceId,
+      slots: groupedDevices[deviceId]
+    };
+  });
+  
+  // Send the response with the ad object and the grouped slots
+  res.send({ ad: ad, groupedSlots: groupedSlots });
+
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+
+})
+
+
+export const incPlayed = expressAsyncHandler(async (req,res)=>{
+  const { operatorId, adId,deviceId,  slotType} = req.body;
+    const operator = await Operator.findById(operatorId);
+    // find the ad object with the given ID
+     const adObject = operator.adsUnderOperator.find(
+      (ad) => ad.ad._id.toString() === adId
+    );
+
+    // find the deployed device object for the given device ID and slot type
+    const deployedDevice = adObject.deployedDevices.find(
+      (device) =>
+        device.device.toString() === deviceId && device.slot.slotType === slotType
+    );
+
+  
+    // find the play count of the deployed device for the given slot type
+    deployedDevice.slot.noOfTimesPlayed++;
+
+    // save the updated operator object to the database
+    await operator.save();
+  
+    return res.status(200).json(deployedDevice.slot.noOfTimesPlayed)
+     
+  
+  
+})
+
+
+export const getIncPlayed = expressAsyncHandler(async(req,res) => {
+  const { operatorId, adId,deviceId,  slotType} = req.body;
+    const operator = await Operator.findById(operatorId);
+    // find the ad object with the given ID
+     const adObject = operator.adsUnderOperator.find(
+      (ad) => ad.ad._id.toString() === adId
+    );
+
+    // find the deployed device object for the given device ID and slot type
+    const deployedDevice = adObject.deployedDevices.find(
+      (device) =>
+        device.device.toString() === deviceId && device.slot.slotType === slotType
+    );
+
+    const playCount = deployedDevice.slot.noOfTimesPlayed;
+    res.status(200).json({ success: true, playCount });
+
+
+})
+
 // @desc Load devices from operator
 // @access Private
 
