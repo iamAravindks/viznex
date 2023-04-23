@@ -4,6 +4,8 @@ const QueueSchema = mongoose.Schema({
   ad: { type: mongoose.Types.ObjectId, ref: "Ad" },
   operator: { type: mongoose.Types.ObjectId, ref: "Operator" },
   adFrequency: { type: Number, default: 1 },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
 });
 
 const DeviceSchema = mongoose.Schema({
