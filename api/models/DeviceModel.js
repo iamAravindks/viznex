@@ -116,7 +116,7 @@ const DeviceSchema = mongoose.Schema({
         validator: function (slots) {
           return slots.length <= 14;
         },
-        message: "Device can only have a maximum of 10 slots.",
+        message: "Device can only have a maximum of 14 slots.",
       },
       {
         validator: function (slots) {

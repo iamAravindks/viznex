@@ -1,26 +1,11 @@
 import { useLocation } from "react-router-dom"
+import ReactPlayer from 'react-player'
+
 import useFetch from "../../hooks/useFetch"
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-  } from 'chart.js';
-  import { Bar } from 'react-chartjs-2';
 
 import ClipLoader from "react-spinners/ClipLoader"
 import { BarChart } from "../../components/Charts/BarChart";
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+
  
 
 
@@ -47,8 +32,9 @@ const AdDetailPage = () => {
                          <div className="device-gradient px-12 py-8">  
                              <h1 className="font-bold text-3xl">{data.ad.ad.name}</h1>
                          </div>
-                         <div className="px-12 py-8">
-                             <div className="border rounded px-8 py-8">
+                         <div className="px-12 py-8 ">
+                             <div className="flex gap-[10%]">
+                             <div className="border rounded px-8 py-8 w-[45%]">
                                  <h1 className="font-semibold text-xl pb-4">Customer Details</h1>
                                  <div>
                                      <h1><b>Customer Name :</b> {data.ad.ad.customer.name}</h1>
@@ -56,7 +42,12 @@ const AdDetailPage = () => {
 
                                  </div>
                              </div>
-                             <div className="my-8">
+                             <div className="w-[45%]">
+                                <ReactPlayer url={data.ad.ad.url} />
+
+
+                             </div></div>
+                             <div className="my-28">
                                  <h1 className="text-xl font-semibold">Deployed Devices and statistics for Today</h1>
                                  <div className="my-4">
                                      {
@@ -64,7 +55,10 @@ const AdDetailPage = () => {
                                             <div className="border rounded px-8 py-4">
                                                 <h1 className="font-semibold text-xl pb-2">Device 1 {itm.deviceid}</h1>
                                                 <hr />
+                                                <div className="w-[60%] max-h-[400px]">
                                                 <BarChart obj={itm}/>
+
+                                                </div>
                                             </div>
                                          ))
                                      }

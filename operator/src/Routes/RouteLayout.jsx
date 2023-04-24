@@ -10,6 +10,7 @@ import DevicePage from "../pages/DevicePage/DevicePage";
 import AdsPage from "../pages/AdsPage/AdsPage";
 import CustomerPage from "../pages/CustomerPage/CustomerPage";
 import AdDetailPage from "../pages/AdDetailPage/AdDetailPage";
+import DeviceDetailPage from "../pages/DeviceDetailPage/DeviceDetailPage";
 const RouteLayout = () => {
   return (
     <>
@@ -22,6 +23,8 @@ const RouteLayout = () => {
             <Route path="/ads" element={<AdsPage />}></Route>
             <Route path="/customer" element={<CustomerPage />}></Route>
             <Route path="/ad/:id" element={<AdDetailPage />} />
+            <Route path="/device/:id" element={<DeviceDetailPage />}> </Route>
+
 
           </Route>
         </Route>

@@ -19,15 +19,22 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-};
 
 const labels = ['Slot 1', 'Slot 2', 'Slot 3', 'Slot 4', 'Slot 5', 'Slot 6', 'Slot 7', 'Slot 8', 'Slot 9', 'Slot 10','Slot 11', 'Slot 12', 'Slot 13','Slot 14'];
 
 
 
 export function BarChart({obj}) {
+  const options = {
+    scales: {
+      y: {
+          ticks: {
+              precision: 0
+          }
+      }
+  }
+  };
+  
 console.log(obj)
     const data = {
         labels,
