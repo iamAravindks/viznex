@@ -4,6 +4,7 @@ import {
   createCustomer,
   deleteCustomer,
   fetchCustomers,
+  getAdHistory,
   getIncPlayed,
   incPlayed,
   loadAd,
@@ -50,7 +51,7 @@ operatorRouter.get("/load-devices", isAuthOperator, fetchDevices);
 operatorRouter.get("/load-customers", isAuthOperator, fetchCustomers);
 operatorRouter.delete("/customer/:id", isAuthOperator, deleteCustomer);
 operatorRouter.patch("/customer/:id", isAuthOperator, updateCustomer);
-operatorRouter.post("/incvalue",  getIncPlayed);
+operatorRouter.post("/incvalue", getIncPlayed);
 
 // @desc Fetch the Profile
 // @route Get /api/operator/profile
@@ -69,6 +70,12 @@ operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
 
 operatorRouter.get("/load-ads", isAuthOperator, loadAds);
 operatorRouter.get("/load-ad/:id", isAuthOperator, loadAd);
+
+// @desc Generate report based on a ad
+// @route GET /api/operator/report/ad/:id
+// @access Public
+
+operatorRouter.get("/report/ad/:id", getAdHistory);
 
 // @desc Load ads from operator
 //@route GET /api/operator/load-device-details

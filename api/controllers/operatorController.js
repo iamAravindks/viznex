@@ -773,3 +773,72 @@ export const getOperatorById = expressAsyncHandler(async (req, res) => {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+
+// get the report of an ad from all of the operators
+export const getAdHistory = expressAsyncHandler(async (req, res) => {
+  try {
+    const adInfo = await Operator.aggregate([
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          email: 1,
+          adsUnderOperator: {
+            $filter: {
+              input: "$adsUnderOperator",
+              as: "ads",
+              cond: {
+                $eq: ["$$ads.ad", new mongoose.Types.ObjectId(req.params.id)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "devices",
+          localField: "adsUnderOperator.deployedDevices.device",
+          foreignField: "_id",
+          as: "devices",
+        },
+      },
+    ]);
+
+    const adHistory = adInfo.map((item) => {
+      if (item.adsUnderOperator.length === 0 || item.devices.length === 0) {
+        delete item.devices;
+        return item;
+      } else {
+        const devices = item.devices;
+        const obj = {
+          name: item.name,
+          email: item.email,
+          adsUnderOperator: item.adsUnderOperator.map((adObj) => {
+            return {
+              ad: adObj.ad,
+              deployedDevices: adObj.deployedDevices.map((deviceObj) => {
+                const deviceInd = devices.findIndex((d) =>
+                  d._id.equals(deviceObj.device)
+                );
+                return {
+                  ...deviceObj,
+                  device: {
+                    name: devices[deviceInd].name,
+                    location: devices[deviceInd].location,
+                    deviceId: devices[deviceInd].deviceId,
+                    _id: devices[deviceInd]._id,
+                  },
+                };
+              }),
+            };
+          }),
+        };
+        return obj;
+      }
+    });
+
+    res.json(adHistory);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
