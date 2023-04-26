@@ -78,8 +78,8 @@ const ReportsPage = () => {
           >
             <option>Select Ad</option>
 
-            {userInfo.adsUnderOperator?.map((itm) => (
-              <option value={itm.ad._id}>{itm.ad.name}</option>
+            {userInfo.ads?.map((itm) => (
+              <option value={itm._id}>{itm.name}</option>
             ))}
           </select>
         </div>
