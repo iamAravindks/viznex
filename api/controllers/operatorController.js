@@ -837,7 +837,6 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
     let mm = String(today.getMonth() + 1).padStart(2, "0");
     let dd = String(today.getDate()).padStart(2, "0");
     let formattedDate = yyyy + "-" + mm + "-" + dd;
-
     const operator = await Operator.findById(operatorId);
 
     const adObjInd = operator.adsUnderOperator.findIndex(
