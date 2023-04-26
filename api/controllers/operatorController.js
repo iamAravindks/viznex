@@ -807,7 +807,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
     ]);
 
     let adHistory = adInfo.map((item) => {
-      if (item.adsUnderOperator.length === 0 || item.devices.length === 0) {
+      if (!item.adsUnderOperator || !item.devices) {
         delete item.devices;
         return item;
       } else {
@@ -840,7 +840,9 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
     });
 
     adHistory = adHistory
-      .filter((item) => item.adsUnderOperator.length > 0)
+      .filter(
+        (item) => item.adsUnderOperator && item.adsUnderOperator.length > 0
+      )
       .reduce((acc, curr) => {
         acc = curr;
       });
@@ -855,7 +857,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
     );
 
     adHistory.adsUnderOperator[0].deployedDevices =
-      adHistory.adsUnderOperator[0].deployedDevices.reduce((acc, curr) => {
+      adHistory.adsUnderOperator[0].deployedDevices?.reduce((acc, curr) => {
         const deviceId = curr.device._id;
         if (!acc[deviceId]) {
           acc[deviceId] = [];
@@ -882,8 +884,10 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
         delete sObj.device;
       });
     });
+
     res.json(adHistory);
   } catch (error) {
+    console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
