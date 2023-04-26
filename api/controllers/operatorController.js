@@ -842,3 +842,57 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+
+export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
+  try {
+    const { operatorId, deviceId, slot, adId } = req.body;
+
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, "0");
+    let dd = String(today.getDate()).padStart(2, "0");
+    let formattedDate = yyyy + "-" + mm + "-" + dd;
+
+    const operator = await Operator.findById(operatorId);
+
+    const adObjInd = operator.adsUnderOperator.findIndex(
+      (item) => item.ad.toString() === adId.toString()
+    );
+
+    const deviceObjId = operator.adsUnderOperator[
+      adObjInd
+    ].deployedDevices.findIndex(
+      (item) =>
+        item.device.toString() === deviceId.toString() &&
+        item.slot.slotType === slot
+    );
+
+    const existsDateObj = operator.adsUnderOperator[adObjInd].deployedDevices[
+      deviceObjId
+    ].slot.datesPlayed.findIndex(
+      (item) => item.date.getTime() === new Date(formattedDate).getTime()
+    );
+
+    if (existsDateObj !== -1) {
+      // means there exists the dateObj
+      operator.adsUnderOperator[adObjInd].deployedDevices[
+        deviceObjId
+      ].slot.datesPlayed[existsDateObj].noOfTimesPlayedOnDate += 1;
+    } else {
+      operator.adsUnderOperator[adObjInd].deployedDevices[
+        deviceObjId
+      ].slot.datesPlayed.push({
+        date: new Date(formattedDate),
+        noOfTimesPlayedOnDate: 1,
+      });
+    }
+
+    await operator.save();
+
+    const updatedOperator = await Operator.findById(operatorId);
+
+    res.json(updatedOperator);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
