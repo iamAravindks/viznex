@@ -234,3 +234,41 @@ export const getDeviceByIdDate = expressAsyncHandler(async (req, res) => {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+
+export const getDeviceReport = expressAsyncHandler(async (req, res) => {
+  try {
+    const devices = await Device.findById(req.params.id)
+      .select("deviceId name location slots")
+      .populate({
+        path: "slots.queue.ad",
+        populate: [
+          {
+            path: "customer",
+            select: "name email",
+          },
+          {
+            path: "operator",
+            select: "name email location adsUnderOperator",
+          },
+        ],
+      });
+
+    devices.slots.forEach((item) => {
+      item.queue.forEach((qObj) => {
+        qObj.operator.adsUnderOperator.forEach(
+          (adObj) =>
+            (adObj.deployedDevices =
+              qObj.operator.adsUnderOperator.deployedDevices.filter(
+                (deviceObj) =>
+                  deviceObj.device.toString() === req.params.id.toString()
+              ))
+        );
+      });
+    });
+
+    res.status(200).json(devices);
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message ? error.message : "Internal server Error");
+  }
+});

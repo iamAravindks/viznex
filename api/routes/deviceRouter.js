@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   deviceLogin,
+  getDeviceReport,
   loadProfile,
   loadQueues,
 } from "../controllers/deviceController.js";
@@ -24,13 +25,15 @@ deviceRouter.get("/profile", isAuthDevice, loadProfile);
 // @desc Get all the videos for with respected queues
 // @route GET /api/device/load-queues
 // @access Private
-deviceRouter.post("/increment",  incPlayed);
+deviceRouter.post("/increment", incPlayed);
 
 deviceRouter.get("/load-queues", isAuthDevice, loadQueues);
 
-// @desc Update noOfTimesPlayed of ad on a slot by a device
-// @route PATCH /api/device/update-times/:slot/:ad
-// @access Private
+// @desc Get the report of all deices
+// @route POST /api/device/report/device/:id
+// @access Public
+
+deviceRouter.post("/report/device/:id", getDeviceReport);
 
 // @desc Logout
 // @route DELETE /api/admins/logout

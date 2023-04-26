@@ -853,6 +853,34 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       })
     );
 
+    adHistory.adsUnderOperator[0].deployedDevices =
+      adHistory.adsUnderOperator[0].deployedDevices.reduce((acc, curr) => {
+        const deviceId = curr.device._id;
+        if (!acc[deviceId]) {
+          acc[deviceId] = [];
+        }
+        acc[deviceId].push(curr);
+        return acc;
+      }, {});
+
+    const groupedSlots = Object.keys(
+      adHistory.adsUnderOperator[0].deployedDevices
+    ).map((id) => {
+      // console.log(adHistory.adsUnderOperator[0].deployedDevices[id][0].device);
+      return {
+        device: adHistory.adsUnderOperator[0].deployedDevices[id][0].device,
+        slots: adHistory.adsUnderOperator[0].deployedDevices[id],
+      };
+    });
+
+    adHistory.groupedSlots = groupedSlots;
+    delete adHistory.adsUnderOperator;
+
+    adHistory.groupedSlots.forEach((item) => {
+      item.slots.forEach((sObj) => {
+        delete sObj.device;
+      });
+    });
     res.json(adHistory);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
