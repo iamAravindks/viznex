@@ -489,7 +489,7 @@ export const createCustomer = expressAsyncHandler(async (req, res) => {
 export const updateQueue = expressAsyncHandler(async (req, res) => {
   try {
     // fetch the queue with ad id and slot name
-    const { ad, slots, customerEmail, url, startDate, endDate, devices } =
+    let { name, ad, slots, customerEmail, url, startDate, endDate, devices } =
       req.body;
     const operator = await Operator.findById(req.operator._id);
     const customer = await Customer.findOne({
@@ -497,7 +497,10 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
     });
 
     // first update the ad url , for that
-    if (url) {
+    if (url || name) {
+      const adObj = await Ad.findById(ad);
+      url = req.body.url || adObj.url;
+      name = req.body.name || adObj.name;
       const updateAd = await Ad.updateOne(
         {
           _id: ad,
@@ -505,79 +508,15 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
         {
           $set: {
             url,
+            name,
           },
         }
       );
     }
 
-    // add devices to the customer
-    const devicesObj = devices.map((deviceId) => {
-      return {
-        _id: new mongoose.Types.ObjectId(deviceId),
-        type: mongoose.Types.ObjectId,
-        ref: "Device",
-        totalPlayHrs: 0,
-      };
-    });
+    await operator.save();
 
-    await Customer.updateOne(
-      { _id: customer._id },
-      { $addToSet: { devices: devicesObj } }
-    );
-
-    // set up the devices queue according to the session , duplication is avoided , expected new devices that
-    // is either updated or removed
-    // TODO : we need another method to remove the ad from old devices after all process
-
-    const successFullUpdate = await addToDevices(
-      slots,
-      devices,
-      ad,
-      operator,
-      adFrequency
-    );
-
-    if (
-      successFullUpdate.length !== devices.length ||
-      !successFullUpdate.every((device) => devices.includes(device._id))
-    ) {
-      throw new Error("Error on device update with queue");
-    }
-
-    // next update the operator side
-
-    // find the index of the object with ad
-
-    const existingAdIndex = operator.adsUnderOperator.findIndex(
-      (adObj) => adObj.ad.toString() === ad._id.toString()
-    );
-    const defaultStartDate =
-      operator.adsUnderOperator[existingAdIndex].startDate;
-    const defaultEndDate = operator.adsUnderOperator[existingAdIndex].endDate;
-
-    // since it is editing , ad with an id is already present
-
-    // for that create an array with combinations of both devices and slots
-    // it has objects of devices with slots , we need to update the date also
-
-    const combinationDeployedDevices = slots.flatMap((slot) =>
-      devices.map((deviceId) => ({
-        device: new mongoose.Types.ObjectId(deviceId),
-        startDate: startDate ? startDate : defaultStartDate,
-        endDate: endDate ? endDate : defaultEndDate,
-
-        slot: {
-          slotType: slot,
-        }, // only include the slotType value as a string
-      }))
-    );
-
-    // combinationDeployedDevices is the new deployedDevices of the object with ad ID
-
-    // find the object with ad , iterate over the deployedDevices ,
-    //TODO: if already a device is present update only the startDate and endDate else copy the new device
-
-    operator.save();
+    res.json(operator.toJSON());
   } catch (error) {
     console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");
@@ -646,7 +585,7 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
   }
 });
 
- export const incPlayed = expressAsyncHandler(async (req, res) => {
+export const incPlayed = expressAsyncHandler(async (req, res) => {
   const { operatorId, adId, deviceId, slotType } = req.body;
   const operator = await Operator.findById(operatorId);
   // find the ad object with the given ID
@@ -661,14 +600,11 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
   );
 
   // find the play count of the deployed device for the given slot type
- 
-  const date = new Date().toISOString()
 
- 
-
+  const date = new Date().toISOString();
 
   return res.status(200).json(deployedDevice.slot.noOfTimesPlayed);
-}); 
+});
 
 export const getIncPlayed = expressAsyncHandler(async (req, res) => {
   const { operatorId, adId, deviceId, slotType } = req.body;
