@@ -4,7 +4,7 @@ import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
 import axios from 'axios'
 const Home = () => {
-  const BASE_URL = "http://localhost:5000/api/device";
+  const BASE_URL = "https://api.viznx.in/api/device";
 
 const config = {
   headers: {

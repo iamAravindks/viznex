@@ -21,7 +21,7 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = "http://localhost:5000/api/operator";
+const BASE_URL = "https://api.viznx.in/api/operator";
 
 export const Context = createContext(initialState);
 const config = {

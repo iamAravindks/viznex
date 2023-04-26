@@ -86,7 +86,7 @@ const Modal = () => {
     },
     withCredentials: true,
   };
-  const BASE_URL = "http://localhost:5000/api/operator";
+  const BASE_URL = "https://api.viznx.in/api/operator";
   const onFrequencyChange = (v, id) => (e) => {
     if (document.getElementById(id).checked == true) {
       let newa = [...slots];
@@ -101,7 +101,7 @@ const Modal = () => {
   }, []);
  */
   const axiosInstance = axios.create({
-    baseURL: "http://localhost:5000/api/operator",
+    baseURL: "https://api.viznx.in/api/operator",
   });
   const [devices, setDevices] = useState([]);
   const handleLoadDevices = async () => {
