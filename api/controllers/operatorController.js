@@ -778,6 +778,7 @@ export const getOperatorById = expressAsyncHandler(async (req, res) => {
 // get the report of an ad from all of the operators
 export const getAdHistory = expressAsyncHandler(async (req, res) => {
   try {
+    const { startDate, endDate } = req.body;
     const adInfo = await Operator.aggregate([
       {
         $project: {
@@ -805,7 +806,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       },
     ]);
 
-    const adHistory = adInfo.map((item) => {
+    let adHistory = adInfo.map((item) => {
       if (item.adsUnderOperator.length === 0 || item.devices.length === 0) {
         delete item.devices;
         return item;
@@ -838,7 +839,76 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       }
     });
 
+    adHistory = adHistory
+      .filter((item) => item.adsUnderOperator.length > 0)
+      .reduce((acc, curr) => {
+        acc = curr;
+      });
+
+    adHistory.adsUnderOperator.forEach((adObj) =>
+      adObj.deployedDevices.forEach((item) => {
+        item.slot.datesPlayed = item.slot.datesPlayed.filter(
+          (data) =>
+            data.date >= new Date(startDate) && data.date <= new Date(endDate)
+        );
+      })
+    );
+
     res.json(adHistory);
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
+  try {
+    const { operatorId, deviceId, slot, adId } = req.body;
+
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, "0");
+    let dd = String(today.getDate()).padStart(2, "0");
+    let formattedDate = yyyy + "-" + mm + "-" + dd;
+
+    const operator = await Operator.findById(operatorId);
+
+    const adObjInd = operator.adsUnderOperator.findIndex(
+      (item) => item.ad.toString() === adId.toString()
+    );
+
+    const deviceObjId = operator.adsUnderOperator[
+      adObjInd
+    ].deployedDevices.findIndex(
+      (item) =>
+        item.device.toString() === deviceId.toString() &&
+        item.slot.slotType === slot
+    );
+
+    const existsDateObj = operator.adsUnderOperator[adObjInd].deployedDevices[
+      deviceObjId
+    ].slot.datesPlayed.findIndex(
+      (item) => item.date.getTime() === new Date(formattedDate).getTime()
+    );
+
+    if (existsDateObj !== -1) {
+      // means there exists the dateObj
+      operator.adsUnderOperator[adObjInd].deployedDevices[
+        deviceObjId
+      ].slot.datesPlayed[existsDateObj].noOfTimesPlayedOnDate += 1;
+    } else {
+      operator.adsUnderOperator[adObjInd].deployedDevices[
+        deviceObjId
+      ].slot.datesPlayed.push({
+        date: new Date(formattedDate),
+        noOfTimesPlayedOnDate: 1,
+      });
+    }
+
+    await operator.save();
+
+    const updatedOperator = await Operator.findById(operatorId);
+
+    res.json(updatedOperator);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }

@@ -6,6 +6,8 @@ import {
   fetchCustomers,
   getAdHistory,
   getIncPlayed,
+  incNoTimesPlayed,
+  incPlayed,
   loadAd,
   loadAds,
   loadDevices,
@@ -74,7 +76,7 @@ operatorRouter.get("/load-ad/:id", isAuthOperator, loadAd);
 // @route GET /api/operator/report/ad/:id
 // @access Public
 
-operatorRouter.get("/report/ad/:id", getAdHistory);
+operatorRouter.post("/report/ad/:id", getAdHistory);
 
 // @desc Load ads from operator
 //@route GET /api/operator/load-device-details
@@ -93,6 +95,12 @@ operatorRouter.get("/device/:id", isAuthOperator, getDeviceById);
 // @access Private
 
 operatorRouter.post("/device/:id/", isAuthOperator, getDeviceByIdDate);
+
+// @desc increment a ads noOfTimesPlayed for date under a device in a slot
+// @route POST /api/operator/inc-ad
+// @access Public
+
+operatorRouter.post("/inc-ad", incNoTimesPlayed);
 
 // @desc Logout
 // @route DELETE /api/operator/logout
