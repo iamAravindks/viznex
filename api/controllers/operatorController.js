@@ -742,6 +742,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       },
     ]);
 
+    console.log(adInfo);
     let adHistory = adInfo.map((item) => {
       if (!item.adsUnderOperator || !item.devices) {
         delete item.devices;
@@ -851,6 +852,7 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
         item.slot.slotType === slot
     );
 
+    console.log(deviceObjId);
     const existsDateObj = operator.adsUnderOperator[adObjInd].deployedDevices[
       deviceObjId
     ].slot.datesPlayed.findIndex(
