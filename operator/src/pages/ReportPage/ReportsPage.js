@@ -15,14 +15,16 @@ const ReportsPage = () => {
       };
       const BASE_URL = "http://localhost:5000/api/operator";
       const [id, setId] = useState("")
+      const [data, setData] = useState({})
     const [info, setInfo] = useState({})
+    const [adInfo, setAdInfo] = useState([])
     const handleChange = (e) =>{
         setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
         console.log(info);
     }
     const handleSelectChange = () => {
         setId(document.querySelector('#ad').value)
-        console.log(id)
+        
       }
     const handleClick = async(e)=>{
         e.preventDefault();
@@ -30,11 +32,14 @@ const ReportsPage = () => {
             const newReport = {
                 ...info
             }
+            setAdInfo(userInfo.adsUnderOperator.filter((obj)=> obj.ad._id === id))
+            console.log(id)
             const res = await axios.post(
                 `${BASE_URL}/report/ad/${id}`,
                 newReport,
                 config
               );
+              setData(res.data)
         }
         catch(error){
             console.log(error)
@@ -66,58 +71,66 @@ const ReportsPage = () => {
                 </div>
                  </form>
             <div className="px-12 py-12">
-                <table className="border bg-[white] my-8 "> 
-                    <tr><td>Advertisement Name</td></tr>
-                    <tr><td>URL</td></tr>
-                    <tr><td>Customer Name</td></tr>
-                    <tr><td>Customer Email</td></tr>
-                    <tr><td>Operator Name</td></tr>
-                    <tr><td>Operator Email</td></tr>
+              { adInfo[0] != undefined && <table className="border bg-[white] my-8 "> 
+                    <tr><td><b>Advertisement Name :</b> {adInfo[0].ad.name}</td></tr>
+                    <tr><td><b>URL :</b> {adInfo[0].ad.url}</td></tr>
+                    <tr><td><b>Customer Name :</b> {adInfo[0].ad.customer.name}</td></tr>
+                    <tr><td><b>Customer Email :</b> {adInfo[0].ad.customer.email}</td></tr>
 
-                </table>
+                </table>}
                <div>
-                   <h1 className="font-bold text-xl mb-4">Device wise analysis</h1>
-                   <div className=" border rounded px-8 py-8">
-                    <h1 className="font-bold text-lg">Device Name</h1>
-                        <h1 className="font-bold text-lg">Device Location</h1>
-                    <table className="border bg-[white] my-4 ">
-                        
-                        <tr className="bg-[grey]">
-                            <th >Time Slot</th>
-                            <th >No. of Times Played</th>
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                   
+                    {
+                        data.adsUnderOperator?.map((itm)=> (
+                            <div>
+                            <h1 className="font-bold text-xl mb-4">Device wise analysis</h1>
 
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                            <div className=" border rounded px-8 py-8">
 
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                            <h1 className="font-bold text-lg">Device Name</h1>
+                                <h1 className="font-bold text-lg">Device Location</h1>
+                            <table className="border bg-[white] my-4 ">
+                                
+                                <tr className="bg-[grey]">
+                                    <th >Time Slot</th>
+                                    <th >No. of Times Played</th>
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
 
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
 
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
 
-                        </tr>
-                        <tr>
-                            <td>9am to 10am</td>
-                            <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
 
-                        </tr>
-                    </table>
-                </div>
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
+
+                                </tr>
+                                <tr>
+                                    <td>9am to 10am</td>
+                                    <td>2</td>
+
+                                </tr>
+                            </table>
+                        </div>
+                        </div>))
+                    }
+
+
                </div>
             </div>
         </div>
