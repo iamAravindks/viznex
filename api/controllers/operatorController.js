@@ -646,7 +646,7 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
   }
 });
 
-export const incPlayed = expressAsyncHandler(async (req, res) => {
+ export const incPlayed = expressAsyncHandler(async (req, res) => {
   const { operatorId, adId, deviceId, slotType } = req.body;
   const operator = await Operator.findById(operatorId);
   // find the ad object with the given ID
@@ -661,13 +661,14 @@ export const incPlayed = expressAsyncHandler(async (req, res) => {
   );
 
   // find the play count of the deployed device for the given slot type
-  deployedDevice.slot.noOfTimesPlayed++;
+ 
+  const date = new Date().toISOString()
 
-  // save the updated operator object to the database
-  await operator.save();
+ 
+
 
   return res.status(200).json(deployedDevice.slot.noOfTimesPlayed);
-});
+}); 
 
 export const getIncPlayed = expressAsyncHandler(async (req, res) => {
   const { operatorId, adId, deviceId, slotType } = req.body;
