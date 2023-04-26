@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const ReportsPage = () => {
-  const { userInfo } = useContext(Context);
+  const { userInfo, getTimeSlot } = useContext(Context);
   console.log(userInfo);
   const generatePdf = (e) => {
     e.preventDefault();
@@ -116,7 +116,7 @@ const ReportsPage = () => {
         </div>
       </form>
       <div className="px-12 py-12" id="adReport">
-        {adInfo[0] != undefined && (
+        {adInfo[0] !== undefined && (
           <table className="border bg-[white] my-8 ">
             <tr>
               <td>
@@ -160,7 +160,11 @@ const ReportsPage = () => {
                     <>
                       {object.slot.datesPlayed?.map((obj, i) => (
                         <tr>
-                            {i == 0 && <td rowSpan={object.slot.datesPlayed.length}>9am to 10am</td>}
+                          {i === 0 && (
+                            <td rowSpan={object.slot.datesPlayed.length}>
+                              {getTimeSlot(object.slot.slotType)}
+                            </td>
+                          )}
                           <td>{obj.date.slice(0, 10)}</td>
                           <td>{obj.noOfTimesPlayedOnDate}</td>
                         </tr>

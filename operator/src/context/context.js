@@ -151,6 +151,40 @@ const Provider = ({ children }) => {
     }
   }; */
 
+  const getTimeSlot = (slot) => {
+    switch (slot) {
+      case "slotOne":
+        return "9-10 A.M";
+      case "slotTwo":
+        return "10-11 A.M";
+      case "slotThree":
+        return "11-12 A.M";
+      case "slotFour":
+        return "12-13 P.M";
+      case "slotFive":
+        return "13-14 P.M";
+      case "slotSix":
+        return "14-15 P.M";
+      case "slotSeven":
+        return "15-16 P.M";
+      case "slotEight":
+        return "16-17 P.M";
+      case "slotNine":
+        return "17-18 P.M";
+      case "slotTen":
+        return "19-20 P.M";
+      case "slotEleven":
+        return "20-21 P.M";
+      case "slotTwelve":
+        return "21-22 P.M";
+      case "slotThirteen":
+        return "22-23 P.M";
+      case "slotFourteen":
+        return "23-24 P.M";
+      default:
+        break;
+    }
+  };
   return (
     <Context.Provider
       value={{
@@ -167,6 +201,7 @@ const Provider = ({ children }) => {
          */
         /*         addAd,
          */
+        getTimeSlot,
       }}
     >
       {children}
