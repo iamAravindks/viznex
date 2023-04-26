@@ -53,7 +53,7 @@ const AdDetailPage = () => {
                                      {
                                          data.groupedSlots && data.groupedSlots.map((itm) =>(
                                             <div className="border rounded px-8 py-4">
-                                                <h1 className="font-semibold text-xl pb-2">Device 1 {itm.deviceid}</h1>
+                                                <h1 className="font-semibold text-xl pb-2">Device  {itm.deviceid}</h1>
                                                 <hr />
                                                 <div className="w-[60%] max-h-[400px]">
                                                 <BarChart obj={itm}/>

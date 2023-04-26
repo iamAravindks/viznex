@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom"
 import ClipLoader from "react-spinners/ClipLoader";
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import { AiFillCaretDown } from "react-icons/ai";
 import useFetch from "../../hooks/useFetch";
 import axios from 'axios'
@@ -10,10 +10,9 @@ const DeviceDetailPage = () => {
     const location = useLocation();
     const id = location.pathname.split("/")[2];
     const {data, loading, error} = useFetch(`/device/${id}`)
-    
-    console.log(
-        data
-    )
+    const [shedule, setShedule] = useState([])
+    const [sheduleLoading, setSheduleLoading] = useState(false)
+    console.log(shedule)
     const config = {
         headers: {
           "Content-Type": "application/json",
@@ -22,16 +21,24 @@ const DeviceDetailPage = () => {
       };
 
     const axiosInstance = axios.create({
-        baseURL: "https://api.viznx.in/api/operator",
+        baseURL: "http://localhost:5000/api/operator",
     })
+    useEffect(()=>{
+        setSheduleLoading(true)
+        axiosInstance.post(`/device/${id}`, {date: date},config )
+            .then(res => {
+                setShedule(res.data);
+                setSheduleLoading(false);
+            })
+            .catch(err => console.log(err));
+    },[date])
     const handleDate =(val)=> {
         if(val == ""){
             alert('please enter a date')
         }
         else{
             setDate(val)
-            const res = axiosInstance.post(`/device/${id}`, {date: date},config )
-            console.log(res)
+            
         }
     }
     return(
@@ -70,19 +77,20 @@ const DeviceDetailPage = () => {
 
                </div>
                </div>
-
+               {sheduleLoading ?<ClipLoader /> : <div>
                 {
-                data.slots?.map((itm)=>(
+                shedule.slots?.map((itm)=>(
                     <div className="px-8 py-4 bg-[#fff1c4]">
                     <h1 className="font-bold text-lg pb-4">{itm.name}</h1>
                     {itm.queue != undefined &&
+                    itm.queue.length != 0 ? 
                     itm.queue.map((obj,i)=>(
-                        obj.adFrequency !== 0 ?
+                        obj.adFrequency != 0 ?
                         <div className="bg-[#ffe78a] py-4 px-8 mb-4">
-                        <h1 className="font-semibold">Advertisement {i+1}</h1>
                         <div className="py-2 font-semibold">
                             <h1>{obj.ad.name}</h1>
                             <h1>Url: {obj.ad.url}</h1>
+                            <h1>Ad Frequency: {obj.adFrequency}</h1>
                         </div>
                         <div className="collapse">
                             <input type="checkbox" />
@@ -102,12 +110,12 @@ const DeviceDetailPage = () => {
                                 <p>Customer Name: {obj.ad.customer.name}</p>
                             </div>
                         </div>
-                    </div>: <h1>No ads in this session</h1>
+                    </div> : <h1>No ads in this session</h1>
                         
-                    ))}
+                    )): <h1>No ads in this session</h1>}
                 </div>
                 ))
-                }
+                }</div>}
             </div>
 
 

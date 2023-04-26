@@ -101,13 +101,23 @@ const Modal = () => {
   }, []);
  */
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api/operator",
+    baseURL: "http://localhost:5000/api/operator",
   });
   const [devices, setDevices] = useState([]);
   const handleLoadDevices = async () => {
     const res = await axiosInstance.get("/load-devices", config);
     setDevices(res.data);
   };
+  const [customers, setCustomers] = useState([])
+  console.log(customers)
+  const [customer, setCustomer] = useState("")
+  const handleLoadCustomers = async () => {
+    const res = await axiosInstance.get("/load-customers", config);
+    setCustomers(res.data);
+  };
+  const handleSelectChange = () => {
+    setCustomer(document.querySelector('#customer').value)
+  }
   const [info, setinfo] = useState({});
   const handleChange = (e) => {
     setinfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -125,6 +135,8 @@ const Modal = () => {
         ...info,
         devices: selectedDevices,
         slotsWithFrequencies: slots,
+        customerEmail: customer
+
       };
       const res = await axios.post(
         `${BASE_URL}/create-queue`,
@@ -143,7 +155,7 @@ const Modal = () => {
       {/* The button to open modal */}
       <label
         htmlFor="my-modal-3"
-        onClick={handleLoadDevices}
+        onClick={()=>{handleLoadDevices();handleLoadCustomers()}}
         className="btn border-0 hover:bg-[#FFB800] min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px] w-[202px] h-[45]  bg-[#FFB800] text-[#fff] text-[21.07px] font-bold"
       >
         Add Video
@@ -165,42 +177,44 @@ const Modal = () => {
             </h1>
           </div>
           <form
-            className="flex flex-col gap-2  mt-[30px] min-w-[300px] min-h-[200px] w-[500px] items-center"
+            className="flex flex-col gap-8  mt-[30px] min-w-[300px] min-h-[200px] w-[500px] items-center"
             action=""
           >
-            <div className="flex items-center gap-3 input-container  min-w-[80%]">
+            <div className="input-container  w-[80%]">
+             <label htmlFor="">Name of the advertisement</label>
               <input
                 id="name"
                 type="text"
                 placeholder="Name"
                 name="name"
                 onChange={handleChange}
-                className="w-full max-w-xs input"
+                className="w-full  input"
               />
             </div>
-            <div className="flex items-center gap-3 input-container   min-w-[80%]">
-              <input
-                id="customer"
-                type="text"
-                name="customerEmail"
-                placeholder="Customer"
-                className="w-full max-w-xs input"
-                onChange={handleChange}
-              />
+            <div className=" input-container   w-[80%]">
+              <h1>Select the customer</h1>
+              <select onChange={handleSelectChange} id="customer" className="w-full border px-2 bg-[white] rounded py-3 outline-none">
+              <option>Select customer</option>
+
+                {customers?.map((itm)=>(
+                  <option value={itm.email} >{itm.name}</option>
+                ))}
+              </select>
             </div>
-            <div className="flex items-center  gap-3 input-container   min-w-[80%]">
+            <div className=" input-container  w-[80%]">
+              <h1>URL of the advertisement</h1>
               <input
                 id="videolink"
                 type="text"
                 placeholder="Video Link"
-                className="w-full max-w-xs input"
+                className="w-full input"
                 name="url"
                 onChange={handleChange}
               />
             </div>
 
-            <div className="flex-col items-center gap-3 input-container   min-w-[80%]">
-              <label htmlFor="">Add devices</label>
+            <div className="flex-col items-center gap-3 input-container  py-12  min-w-[80%]">
+              <label htmlFor="">Select the devices to publish this advertisement</label>
               <Multiselect
                 options={devices}
                 displayValue="name"
@@ -214,304 +228,304 @@ const Modal = () => {
                 }}
               />
             </div>
-            <div className="flex items-center gap-3 input-container   min-w-[80%]">
-              <label htmlFor="enddate">Start Date</label>
+            <div className=" input-container  w-[80%]">
+              <h1>Start Date</h1>
               <input
                 id="startdate"
                 type="date"
                 name="startDate"
                 onChange={handleChange}
-                className="w-full max-w-xs input"
+                className="w-full input"
               />
             </div>
-            <div className="flex items-center gap-3 input-container min-w-[80%]">
-              <label htmlFor="enddate">End Date</label>
+            <div className="input-container w-[80%]">
+              <h1 htmlFor="enddate">End Date</h1>
               <input
                 id="enddate"
                 type="date"
                 name="endDate"
                 onChange={handleChange}
-                className="w-full max-w-xs input"
+                className="w-full input"
               />
             </div>
-            <div className="min-w-[80%] flex flex-col gap-8">
-              <h3>Select slots</h3>
-              <div>
-                <div>
+            <div className="w-[80%] flex flex-col gap-8 py-12">
+              <h3>Select Time slots for the advertisement</h3>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotOne"
                     onChange={() => onCheckboxchange(0, "slotOne")}
                   />
-                  <label htmlFor="">Slot 1 9am to 10am</label>{" "}
+                  <label htmlFor="">9am to 10am</label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     name="slotOne"
                     onChange={onFrequencyChange(0, "slotOne")}
                     value={slots[0].adFrequency}
                   />
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotTwo"
                     onChange={() => onCheckboxchange(1, "slotTwo")}
                   />
-                  <label htmlFor="">Slot 2 10am to 11am </label>{" "}
+                  <label htmlFor="">10am to 11am </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(1, "slotTwo")}
                     value={slots[1].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotThree"
                     onChange={() => onCheckboxchange(2, "slotThree")}
                   />
-                  <label htmlFor="">Slot 3 11am to 12pm </label>{" "}
+                  <label htmlFor="">11am to 12pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(2, "slotThree")}
                     value={slots[2].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotFour"
                     onChange={() => onCheckboxchange(3, "slotFour")}
                   />
-                  <label htmlFor="">Slot 4 12pm to 1pm </label>{" "}
+                  <label htmlFor="">12pm to 1pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(3, "slotFour")}
                     value={slots[3].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotFive"
                     onChange={() => onCheckboxchange(4, "slotFive")}
                   />
-                  <label htmlFor="">Slot 5 1pm to 2pm </label>{" "}
+                  <label htmlFor="">1pm to 2pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(4, "slotFive")}
                     value={slots[4].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotSix"
                     onChange={() => onCheckboxchange(5, "slotSix")}
                   />
-                  <label htmlFor="">Slot 6 2pm to 3pm </label>{" "}
+                  <label htmlFor="">2pm to 3pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(5, "slotSix")}
                     value={slots[5].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotSeven"
                     onChange={() => onCheckboxchange(6, "slotSeven")}
                   />
-                  <label htmlFor="">Slot 7 3pm to 4pm </label>{" "}
+                  <label htmlFor="">3pm to 4pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(6, "slotSeven")}
                     value={slots[6].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotEight"
                     onChange={() => onCheckboxchange(7, "slotEight")}
                   />
-                  <label htmlFor="">Slot 8 4pm to 5pm </label>{" "}
+                  <label htmlFor="">4pm to 5pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(7, "slotEight")}
                     value={slots[7].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotNine"
                     onChange={() => onCheckboxchange(8, "slotNine")}
                   />
-                  <label htmlFor="">Slot 9 5pm to 6pm </label>{" "}
+                  <label htmlFor="">5pm to 6pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(8, "slotNine")}
                     value={slots[8].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotTen"
                     onChange={() => onCheckboxchange(9, "slotTen")}
                   />
-                  <label htmlFor="">Slot 10 6pm to 7pm </label>{" "}
+                  <label htmlFor="">6pm to 7pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(9, "slotTen")}
                     value={slots[9].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotEleven"
                     onChange={() => onCheckboxchange(10, "slotEleven")}
                   />
-                  <label htmlFor="">Slot 11 7pm to 8pm </label>{" "}
+                  <label htmlFor="">7pm to 8pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(10, "slotEleven")}
                     value={slots[10].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotTwelve"
                     onChange={() => onCheckboxchange(11, "slotTwelve")}
                   />
-                  <label htmlFor="">Slot 12 8pm to 9pm </label>{" "}
+                  <label htmlFor="">8pm to 9pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(11, "slotTwelve")}
                     value={slots[11].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotThirteen"
                     onChange={() => onCheckboxchange(12, "slotThirteen")}
                   />
-                  <label htmlFor="">Slot 13 9pm to 10pm </label>{" "}
+                  <label htmlFor="">9pm to 10pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(12, "slotThirteen")}
                     value={slots[12].adFrequency}
                   />{" "}
                 </div>
               </div>
-              <div>
-                <div>
+              <div className="border rounded px-2 py-2 text-sm">
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     name=""
                     id="slotFourteen"
                     onChange={() => onCheckboxchange(13, "slotFourteen")}
                   />
-                  <label htmlFor="">Slot 14 10pm to 11pm </label>{" "}
+                  <label htmlFor="">10pm to 11pm </label>{" "}
                 </div>
-                <div>
+                <div className="flex gap-4 px-7">
                   <label htmlFor="">Ad frequency</label>
                   <input
                     type="number"
-                    className="input"
+                    className="border px-2  rounded"
                     onChange={onFrequencyChange(13, "slotFourteen")}
                     value={slots[13].adFrequency}
                   />{" "}

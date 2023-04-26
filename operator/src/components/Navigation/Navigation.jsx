@@ -6,6 +6,7 @@ import { MdDevicesOther, MdDashboard, MdGroups } from "react-icons/md";
 import { FaPlay, FaPowerOff } from "react-icons/fa";
 import { HiUser } from "react-icons/hi";
 import { Context } from "../../context/context";
+import { TbFileReport } from "react-icons/tb";
 
 const Navbar = () => {
   const [title, setTitle] = useState("My Ads");
@@ -33,6 +34,9 @@ const Navbar = () => {
         break;
       case "/customer":
         setTitle("Customer");
+        break;
+      case "/reports":
+        setTitle("Reports");
         break;
       default:
         break;
@@ -88,6 +92,10 @@ const Sidebar = () => {
           {
             icon: <HiUser className="text-[30px]" />,
             text: "Customer",
+          },
+          {
+            icon: <TbFileReport className="text-[30px]" />,
+            text: "Reports",
           },
         ].map((item, index) => (
           <NavLink

@@ -6,3 +6,7 @@
   background: linear-gradient(91.7deg, #ff7b00 -2.74%, #ffd600 99.62%);
   border: none;
 }
+.input{
+  border: 1px solid rgb(151, 151, 151) !important;
+  width: 100%;
+}

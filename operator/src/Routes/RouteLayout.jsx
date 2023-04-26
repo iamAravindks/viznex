@@ -11,6 +11,7 @@ import AdsPage from "../pages/AdsPage/AdsPage";
 import CustomerPage from "../pages/CustomerPage/CustomerPage";
 import AdDetailPage from "../pages/AdDetailPage/AdDetailPage";
 import DeviceDetailPage from "../pages/DeviceDetailPage/DeviceDetailPage";
+import ReportsPage from "../pages/ReportPage/ReportsPage";
 const RouteLayout = () => {
   return (
     <>
@@ -20,6 +21,8 @@ const RouteLayout = () => {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/groups" element={<GroupPage />} />
             <Route path="/devices" element={<DevicePage />}></Route>
+            <Route path="/reports" element={<ReportsPage />}></Route>
+
             <Route path="/ads" element={<AdsPage />}></Route>
             <Route path="/customer" element={<CustomerPage />}></Route>
             <Route path="/ad/:id" element={<AdDetailPage />} />
