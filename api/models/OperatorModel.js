@@ -39,7 +39,18 @@ const DeployedDevices = mongoose.Schema({
       type: Number,
       default: 1,
     },
-    noOfTimesPlayed: { type: Number, default: 0 },
+    datesPlayed: [
+      {
+        date: {
+          type: Date,
+          required: true,
+        },
+        noOfTimesPlayedOnDate: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
   },
 });
 

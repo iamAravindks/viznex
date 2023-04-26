@@ -69,7 +69,9 @@ export const customerLogin = expressAsyncHandler(async (req, res) => {
   }
 
   try {
-    const customer = await Customer.findOne({ email }).populate({path:"ads"}).populate({path:"devices"});
+    const customer = await Customer.findOne({ email })
+      .populate({ path: "ads" })
+      .populate({ path: "devices" });
 
     if (!customer) {
       res.status(404);

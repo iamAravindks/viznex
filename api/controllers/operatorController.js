@@ -258,6 +258,22 @@ const addToDevices = async (
   }
 };
 
+const removeAdDevices = async (slotsWithFrequencies, devices, ad, operator) => {
+  try {
+    const rawData = devices
+      .map((device) => {
+        return slotsWithFrequencies.map((item) => {
+          return {
+            device,
+            slot: item.slot,
+            adFrequency: item.adFrequency,
+          };
+        });
+      })
+      .flat();
+  } catch (error) {}
+};
+
 export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
   const {
     name,
@@ -328,7 +344,7 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     const uniqueArr = successFullUpdate.filter(
       (obj, index, self) => index === self.findIndex((o) => o._id === obj._id)
     );
-
+    await removeAdDevices(slotsWithFrequencies, devices, ad, operator);
     if (
       successFullUpdate.length !==
         devices.length * slotsWithFrequencies.length ||
@@ -595,114 +611,81 @@ export const loadAds = expressAsyncHandler(async (req, res) => {
   }
 });
 
-export const loadAd = expressAsyncHandler( async(req,res)=>{
-  try{
+export const loadAd = expressAsyncHandler(async (req, res) => {
+  try {
     const adId = req.params.id;
-     const operator = await Operator.findById(req.operator.id).populate({path:'adsUnderOperator.ad',
-    populate: {
-      path:'customer'
-    }})
+    const operator = await Operator.findById(req.operator.id).populate({
+      path: "adsUnderOperator.ad",
+      populate: {
+        path: "customer",
+      },
+    });
 
-   const ad = operator.adsUnderOperator.id(adId);
-   
-    // Next, group the deployeddevices array by deviceid
+    const ad = operator.adsUnderOperator.id(adId);
     const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
-      const deviceid = curr.device;
-      if (!acc[deviceid]) {
-        acc[deviceid] = [];
+      const deviceId = curr.device;
+      if (!acc[deviceId]) {
+        acc[deviceId] = [];
       }
-      acc[deviceid].push(curr);
+      acc[deviceId].push(curr);
       return acc;
     }, {});
-    
 
     // Finally, map the groupedDevices object to an array of objects
-    const groupedSlots = Object.keys(groupedDevices).map(deviceid => {
-      const slots = groupedDevices[deviceid];
-
-      // Group frequencies for each device
-      const frequencies = slots.reduce((acc, curr) => {
-        const freq = curr.slot.frequency;
-        
-          acc.push(freq);
-      
-        return acc;
-      }, []);
-      const noOfTimesPlayedarray = slots.reduce((acc, curr) => {
-        const noof = curr.slot.noOfTimesPlayed;
-        
-          acc.push(noof);
-      
-        return acc;
-      }, []);
-
+    const groupedSlots = Object.keys(groupedDevices).map((deviceId) => {
       return {
-        deviceid: deviceid,
-        slots: slots,
-        frequencies: frequencies,
-        noOfTimesPlayedarray:noOfTimesPlayedarray
+        deviceId: deviceId,
+        slots: groupedDevices[deviceId],
       };
     });
-  
-  
-  
-  // Send the response with the ad object and the grouped slots
-  res.send({ ad: ad, groupedSlots: groupedSlots });
 
+    // Send the response with the ad object and the grouped slots
+    res.send({ ad: ad, groupedSlots: groupedSlots });
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
+});
 
-})
+export const incPlayed = expressAsyncHandler(async (req, res) => {
+  const { operatorId, adId, deviceId, slotType } = req.body;
+  const operator = await Operator.findById(operatorId);
+  // find the ad object with the given ID
+  const adObject = operator.adsUnderOperator.find(
+    (ad) => ad.ad._id.toString() === adId
+  );
 
+  // find the deployed device object for the given device ID and slot type
+  const deployedDevice = adObject.deployedDevices.find(
+    (device) =>
+      device.device.toString() === deviceId && device.slot.slotType === slotType
+  );
 
-export const incPlayed = expressAsyncHandler(async (req,res)=>{
-  const { operatorId, adId,deviceId,  slotType} = req.body;
-    const operator = await Operator.findById(operatorId);
-    // find the ad object with the given ID
-     const adObject = operator.adsUnderOperator.find(
-      (ad) => ad.ad._id.toString() === adId
-    );
+  // find the play count of the deployed device for the given slot type
+  deployedDevice.slot.noOfTimesPlayed++;
 
-    // find the deployed device object for the given device ID and slot type
-    const deployedDevice = adObject.deployedDevices.find(
-      (device) =>
-        device.device.toString() === deviceId && device.slot.slotType === slotType
-    );
+  // save the updated operator object to the database
+  await operator.save();
 
-  
-    // find the play count of the deployed device for the given slot type
-    deployedDevice.slot.noOfTimesPlayed++;
+  return res.status(200).json(deployedDevice.slot.noOfTimesPlayed);
+});
 
-    // save the updated operator object to the database
-    await operator.save();
-  
-    return res.status(200).json(deployedDevice.slot.noOfTimesPlayed)
-     
-  
-  
-})
+export const getIncPlayed = expressAsyncHandler(async (req, res) => {
+  const { operatorId, adId, deviceId, slotType } = req.body;
+  const operator = await Operator.findById(operatorId);
+  // find the ad object with the given ID
+  const adObject = operator.adsUnderOperator.find(
+    (ad) => ad.ad._id.toString() === adId
+  );
 
+  // find the deployed device object for the given device ID and slot type
+  const deployedDevice = adObject.deployedDevices.find(
+    (device) =>
+      device.device.toString() === deviceId && device.slot.slotType === slotType
+  );
 
-export const getIncPlayed = expressAsyncHandler(async(req,res) => {
-  const { operatorId, adId,deviceId,  slotType} = req.body;
-    const operator = await Operator.findById(operatorId);
-    // find the ad object with the given ID
-     const adObject = operator.adsUnderOperator.find(
-      (ad) => ad.ad._id.toString() === adId
-    );
-
-    // find the deployed device object for the given device ID and slot type
-    const deployedDevice = adObject.deployedDevices.find(
-      (device) =>
-        device.device.toString() === deviceId && device.slot.slotType === slotType
-    );
-
-    const playCount = deployedDevice.slot.noOfTimesPlayed;
-    res.status(200).json({ success: true, playCount });
-
-
-})
+  const playCount = deployedDevice.slot.noOfTimesPlayed;
+  res.status(200).json({ success: true, playCount });
+});
 
 // @desc Load devices from operator
 // @access Private
@@ -786,6 +769,75 @@ export const getOperatorById = expressAsyncHandler(async (req, res) => {
     }
 
     res.status(200).json(operator.toJSON());
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+// get the report of an ad from all of the operators
+export const getAdHistory = expressAsyncHandler(async (req, res) => {
+  try {
+    const adInfo = await Operator.aggregate([
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          email: 1,
+          adsUnderOperator: {
+            $filter: {
+              input: "$adsUnderOperator",
+              as: "ads",
+              cond: {
+                $eq: ["$$ads.ad", new mongoose.Types.ObjectId(req.params.id)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "devices",
+          localField: "adsUnderOperator.deployedDevices.device",
+          foreignField: "_id",
+          as: "devices",
+        },
+      },
+    ]);
+
+    const adHistory = adInfo.map((item) => {
+      if (item.adsUnderOperator.length === 0 || item.devices.length === 0) {
+        delete item.devices;
+        return item;
+      } else {
+        const devices = item.devices;
+        const obj = {
+          name: item.name,
+          email: item.email,
+          adsUnderOperator: item.adsUnderOperator.map((adObj) => {
+            return {
+              ad: adObj.ad,
+              deployedDevices: adObj.deployedDevices.map((deviceObj) => {
+                const deviceInd = devices.findIndex((d) =>
+                  d._id.equals(deviceObj.device)
+                );
+                return {
+                  ...deviceObj,
+                  device: {
+                    name: devices[deviceInd].name,
+                    location: devices[deviceInd].location,
+                    deviceId: devices[deviceInd].deviceId,
+                    _id: devices[deviceInd]._id,
+                  },
+                };
+              }),
+            };
+          }),
+        };
+        return obj;
+      }
+    });
+
+    res.json(adHistory);
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
