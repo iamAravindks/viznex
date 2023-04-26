@@ -79,11 +79,11 @@ const ReportsPage = () => {
 
                 </table>}
                <div>
+
                    
                     {
-                        data.adsUnderOperator?.map((itm)=> (
+                        data.groupedSlots?.map((itm)=> (
                             <div>
-                            <h1 className="font-bold text-xl mb-4">Device wise analysis</h1>
 
                             <div className=" border rounded px-8 py-8">
 
@@ -95,36 +95,13 @@ const ReportsPage = () => {
                                     <th >Time Slot</th>
                                     <th >No. of Times Played</th>
                                 </tr>
-                                <tr>
+                                {itm.slots?.map((ob)=>(<tr>
                                     <td>9am to 10am</td>
                                     <td>2</td>
 
-                                </tr>
-                                <tr>
-                                    <td>9am to 10am</td>
-                                    <td>2</td>
-
-                                </tr>
-                                <tr>
-                                    <td>9am to 10am</td>
-                                    <td>2</td>
-
-                                </tr>
-                                <tr>
-                                    <td>9am to 10am</td>
-                                    <td>2</td>
-
-                                </tr>
-                                <tr>
-                                    <td>9am to 10am</td>
-                                    <td>2</td>
-
-                                </tr>
-                                <tr>
-                                    <td>9am to 10am</td>
-                                    <td>2</td>
-
-                                </tr>
+                                </tr>))}
+                               
+                               
                             </table>
                         </div>
                         </div>))

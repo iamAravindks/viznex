@@ -17,7 +17,7 @@ const Navbar = () => {
       case "/":
         setTitle("Dashboard");
         break;
-      case "/groups":
+      case "/operators":
         setTitle("Operators");
         break;
       case "/devices":
