@@ -34,7 +34,7 @@ const CustomerPage = () => {
     <div className=" pt-20 pl-16 pb-16">
         <CustomerModal reFetch={reFetch}/>
         <div className="pt-20">
-      <h1 className="font-bold text-2xl">List of devices</h1>
+      <h1 className="font-bold text-2xl">List of Customers</h1>
       <div className="py-4 ">
     {loading ? (
       <div className="flex justify-center items-center my-40"><ClipLoader /></div>

@@ -5,6 +5,7 @@ import "./Navigation.css";
 import { AiFillPlayCircle, AiOutlineUser } from "react-icons/ai";
 import { MdDevicesOther } from "react-icons/md";
 import { SiGoogleanalytics } from "react-icons/si";
+import { TbFileReport } from "react-icons/tb";
 
 const Navbar = () => {
   const [title, setTitle] = useState("My Ads");
@@ -23,6 +24,9 @@ const Navbar = () => {
         break;
       case "/user-details":
         setTitle("User Details");
+      case "/reports":
+        setTitle("Reports");
+
         break;
       default:
         break;
@@ -69,6 +73,10 @@ const Sidebar = () => {
           {
             icon: <AiOutlineUser className="text-[34px]" />,
             text: "User Details",
+          },
+          {
+            icon: <TbFileReport className="text-[34px]" />,
+            text: "Reports",
           },
         ].map((item, index) => (
           <NavLink
