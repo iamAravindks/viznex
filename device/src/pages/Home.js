@@ -4,7 +4,7 @@ import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
 import axios from 'axios'
 const Home = () => {
-  const BASE_URL = "https://api.viznx.in/api/device";
+  const BASE_URL = "https://api.viznx.in/api/operator";
 
 const config = {
   headers: {
@@ -98,9 +98,9 @@ const config = {
       const handleEnded = async (val, deviceId,slotType, adId, operatorId) => {
         // decrementing adFrequency value by 1
         let inc = {
-          deviceId,slotType,adId,operatorId
+          deviceId,slot,adId,operatorId
         }
-        await axios.post(`${BASE_URL}/increment`,inc, config)
+        await axios.post(`${BASE_URL}/inc-ad`,inc, config)
         console.log(inc)
         let newInfo = { ...info };
         newInfo.slots[slot].queue[currentUrlIndex].adFrequency =
