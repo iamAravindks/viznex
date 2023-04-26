@@ -777,6 +777,7 @@ export const getOperatorById = expressAsyncHandler(async (req, res) => {
 // get the report of an ad from all of the operators
 export const getAdHistory = expressAsyncHandler(async (req, res) => {
   try {
+    const { startDate, endDate } = req.body;
     const adInfo = await Operator.aggregate([
       {
         $project: {
@@ -804,7 +805,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       },
     ]);
 
-    const adHistory = adInfo.map((item) => {
+    let adHistory = adInfo.map((item) => {
       if (item.adsUnderOperator.length === 0 || item.devices.length === 0) {
         delete item.devices;
         return item;
@@ -836,6 +837,21 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
         return obj;
       }
     });
+
+    adHistory = adHistory
+      .filter((item) => item.adsUnderOperator.length > 0)
+      .reduce((acc, curr) => {
+        acc = curr;
+      });
+
+    adHistory.adsUnderOperator.forEach((adObj) =>
+      adObj.deployedDevices.forEach((item) => {
+        item.slot.datesPlayed = item.slot.datesPlayed.filter(
+          (data) =>
+            data.date >= new Date(startDate) && data.date <= new Date(endDate)
+        );
+      })
+    );
 
     res.json(adHistory);
   } catch (error) {

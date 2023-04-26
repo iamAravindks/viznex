@@ -76,7 +76,7 @@ operatorRouter.get("/load-ad/:id", isAuthOperator, loadAd);
 // @route GET /api/operator/report/ad/:id
 // @access Public
 
-operatorRouter.get("/report/ad/:id", getAdHistory);
+operatorRouter.post("/report/ad/:id", getAdHistory);
 
 // @desc Load ads from operator
 //@route GET /api/operator/load-device-details
