@@ -20,17 +20,22 @@ const CustomerSchema = new mongoose.Schema({
     validate: isEmail,
   },
   password: { type: String, required: true },
-  ads: [
+  deviceWithAds: [
     {
-      type: mongoose.Types.ObjectId,
-      ref: "Ad",
-    },
-  ],
-  devices: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: "Device",
+      device: {
+        type: mongoose.Types.ObjectId,
+        ref: "Device",
+      },
       totalPlayHrs: { type: Number, default: "0" },
+
+      operator: {
+        type: mongoose.Types.ObjectId,
+        ref: "Operator",
+      },
+      ad: {
+        type: mongoose.Types.ObjectId,
+        ref: "Ad",
+      },
     },
   ],
   passwordResetToken: String,
