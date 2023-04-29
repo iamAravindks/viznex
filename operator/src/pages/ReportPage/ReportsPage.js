@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const ReportsPage = () => {
-  const { userInfo, getTimeSlot } = useContext(Context);
+  const { userInfo } = useContext(Context);
   console.log(userInfo);
   const generatePdf = (e) => {
     e.preventDefault();
@@ -67,7 +67,8 @@ const ReportsPage = () => {
   return (
     <div className="px-12 py-20">
       <h1 className="text-3xl font-bold mb-20">Reports</h1>
-      <p>Please select the start date and end date </p>
+      <h1 className="text-xl font-bold">Advertaisement Report</h1>
+      <p>Here you can create the report for a particular Ad you have published. Please select the time range that you want to create the report. To get more details about the ad on each devices and time slots, visit the ads page and select the particular ad.  </p>
       <form action="">
         <div className="my-8">
           <label htmlFor="">Select the advertaisement</label>
@@ -116,7 +117,7 @@ const ReportsPage = () => {
         </div>
       </form>
       <div className="px-12 py-12" id="adReport">
-        {adInfo[0] !== undefined && (
+        {adInfo[0] != undefined && (
           <table className="border bg-[white] my-8 ">
             <tr>
               <td>
@@ -160,11 +161,7 @@ const ReportsPage = () => {
                     <>
                       {object.slot.datesPlayed?.map((obj, i) => (
                         <tr>
-                          {i === 0 && (
-                            <td rowSpan={object.slot.datesPlayed.length}>
-                              {getTimeSlot(object.slot.slotType)}
-                            </td>
-                          )}
+                            {i == 0 && <td rowSpan={object.slot.datesPlayed.length}>{}</td>}
                           <td>{obj.date.slice(0, 10)}</td>
                           <td>{obj.noOfTimesPlayedOnDate}</td>
                         </tr>
@@ -177,6 +174,8 @@ const ReportsPage = () => {
           ))}
         </div>
       </div>
+
+
     </div>
   );
 };

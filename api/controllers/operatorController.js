@@ -551,6 +551,7 @@ export const loadAds = expressAsyncHandler(async (req, res) => {
 });
 
 export const loadAd = expressAsyncHandler(async (req, res) => {
+  let {datereq} = req.body
   try {
     const adId = req.params.id;
     const operator = await Operator.findById(req.operator.id).populate({
@@ -577,9 +578,45 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
         slots: groupedDevices[deviceId],
       };
     });
+    let result = [];
+    groupedSlots.forEach((groupedSlot) => {
+      let deviceFrequencies = {};
+      groupedSlot.slots.forEach((slot) => {
+        let frequency = slot.slot.frequency;
+        let datesPlayed = slot.slot.datesPlayed;
+        let timesPlayedOnDate = 0;
+        datesPlayed.forEach((datePlayed) => {
+          if (datePlayed.date === datereq) {
+            timesPlayedOnDate = datePlayed.nooftimesplayed;
+          }
+        });
+        deviceFrequencies[slot.slot.slotType] = {
+          frequency,
+          timesPlayedOnDate,
+        };
+      });
+      result.push({
+        deviceid: groupedSlot.deviceid,
+        frequencies: deviceFrequencies,
+      });
+    });
+
+    const frequenciesArray = result.map(item => {
+      const { frequencies } = item;
+      return Object.values(frequencies).map(slot => slot.frequency);
+    });
+    const timesPlayedOnDateArray = [];
+
+    result.forEach(item => {
+      const { frequencies } = item;
+      const timesPlayedOnDateForDevice = Object.values(frequencies).map(slot => slot.timesPlayedOnDate);
+      timesPlayedOnDateArray.push(timesPlayedOnDateForDevice);
+    });
+
+
 
     // Send the response with the ad object and the grouped slots
-    res.send({ ad: ad, groupedSlots: groupedSlots });
+    res.send({ ad: ad, groupedSlots: groupedSlots , result:result, frequency:frequenciesArray,timesPlayedOnDateArray:timesPlayedOnDateArray });
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }

@@ -24,7 +24,7 @@ const labels = ['Slot 1', 'Slot 2', 'Slot 3', 'Slot 4', 'Slot 5', 'Slot 6', 'Slo
 
 
 
-export function BarChart({obj}) {
+export function BarChart({obj, count}) {
   const options = {
     scales: {
       y: {
@@ -41,12 +41,12 @@ console.log(obj)
         datasets: [
           {
             label: 'Frequency',
-            data:  obj.frequencies,
+            data:  obj,
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
           },
           {
             label: 'No of Times Video Played',
-            data: obj.noOfTimesPlayedarray,
+            data: count,
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
           },
         ],

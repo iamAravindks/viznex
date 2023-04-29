@@ -1,79 +1,160 @@
-import { useLocation } from "react-router-dom"
-import ReactPlayer from 'react-player'
+import { useLocation } from "react-router-dom";
+import ReactPlayer from "react-player";
 
-import useFetch from "../../hooks/useFetch"
+import useFetch from "../../hooks/useFetch";
 
-import ClipLoader from "react-spinners/ClipLoader"
+import ClipLoader from "react-spinners/ClipLoader";
 import { BarChart } from "../../components/Charts/BarChart";
-
- 
-
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const AdDetailPage = () => {
-    const location = useLocation()
-    const id= location.pathname.split("/")[2]
+  const today = new Date();
 
-    const {data, loading, error} = useFetch(`/load-ad/${id}`)
-   
-    
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
+  const [sheduleLoading, setSheduleLoading] = useState(false);
 
-    return(
-        <div>
-            
+  const [datereq, setDatereq] = useState(
+    `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDay()}`
+  );
+  const [data, setdata] = useState(null);
+  const handleDateChange = (e) => {
+    setDatereq(e.target.value);
+    console.log(datereq);
+  };
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  };
+  const BASE_URL = "http://localhost:5000/api/operator";
+
+  useEffect(() => {
+    setSheduleLoading(true);
+
+    const res = axios
+      .post(
+        `${BASE_URL}/load-ad/${id}`,
+        {
+          datereq: datereq,
+        },
+        config
+      )
+      .then((res) => {
+        setdata(res.data);
+        setSheduleLoading(false);
+      })
+      .catch((err) => console.log(err));
+  }, [datereq]);
+  const handleGetad = (val) => {
+    setDatereq(val);
+  };
+
+  return (
+    <div>
+      <div>
+        {sheduleLoading ? (
+          <div className="flex justify-center my-20">
+            <ClipLoader />
+          </div>
+        ) : (
+          data && (
             <div>
-                {
-                     loading ? 
-                     <div className="w-full h-[70vh] flex justify-center items-center">
-                         <ClipLoader />
-                     </div>
-                     :
-                     data && data.ad &&
-                      <div>
-                         <div className="device-gradient px-12 py-8">  
-                             <h1 className="font-bold text-3xl">{data.ad.ad.name}</h1>
-                         </div>
-                         <div className="px-12 py-8 ">
-                             <div className="flex gap-[10%]">
-                             <div className="border rounded px-8 py-8 w-[45%]">
-                                 <h1 className="font-semibold text-xl pb-4">Customer Details</h1>
-                                 <div>
-                                     <h1><b>Customer Name :</b> {data.ad.ad.customer.name}</h1>
-                                     <h1><b>Customer Email :</b> {data.ad.ad.customer.email}</h1>
+              <div className="device-gradient px-12 py-8">
+                <h1 className="font-bold text-3xl">{data.ad.ad.name}</h1>
+              </div>
+              <div className="px-12 py-8 ">
+                <div className="flex gap-[10%]">
+                  <div className="border rounded px-8 py-8 w-[45%]">
+                    <h1 className="font-semibold text-xl pb-4">
+                      Customer Details
+                    </h1>
+                    <div>
+                      <h1>
+                        <b>Customer Name : {data.ad.ad.customer.name}</b>{" "}
+                      </h1>
+                      <h1>
+                        <b>Customer Email :{data.ad.ad.customer.email}</b>{" "}
+                      </h1>
+                    </div>
+                  </div>
+                </div>
+                <div className="my-28">
+                  <h1 className="font-bold text-3xl mb-4">
+                    Date wise Ad report
+                  </h1>
+                  <label htmlFor="">
+                    Select a particular date to show the ad report for that day
+                  </label>
+                  <div className="my-4 flex gap-4">
 
-                                 </div>
-                             </div>
-                             <div className="w-[45%]">
-                                <ReactPlayer url={data.ad.ad.url} />
-
-
-                             </div></div>
-                             <div className="my-28">
-                                 <h1 className="text-xl font-semibold">Deployed Devices and statistics for Today</h1>
-                                 <div className="my-4">
-                                     {
-                                         data.groupedSlots && data.groupedSlots.map((itm) =>(
-                                            <div className="border rounded px-8 py-4">
-                                                <h1 className="font-semibold text-xl pb-2">Device  {itm.deviceid}</h1>
-                                                <hr />
-                                                <div className="w-[60%] max-h-[400px]">
-                                                <BarChart obj={itm}/>
-
-                                                </div>
-                                            </div>
-                                         ))
-                                     }
-                                     
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                }
+                    <input
+                      type="date"
+                      className="border border-[orange] rounded px-4 py-2"
+                      id="datereq"
+                      min={data.ad.deployedDevices[0].startDate.slice(0,10)}
+                      max={data.ad.deployedDevices[0].endDate.slice(0,10)}
+                    />
+                    <button
+                      className="device-gradient px-4 py-1 rounded"
+                      onClick={() =>
+                        handleGetad(document.querySelector("#datereq").value)
+                      }
+                    >
+                      Get details
+                    </button>
+                  </div>
+                  <h1 className="text-xl font-semibold">
+                    Deployed Devices and statistics for {datereq}
+                  </h1>
+                  <div className="my-4">
+                    {data.groupedSlots &&
+                      data.groupedSlots.map((itm, i) => (
+                        <div className="border rounded px-8 py-4">
+                          <h1 className="font-semibold text-xl pb-2">
+                            Device {itm.deviceId}
+                          </h1>
+                          <hr />
+                          <div className="flex">
+                            <div className="w-[60%] max-h-[300px]">
+                              <BarChart
+                                obj={data.frequency[0]}
+                                count={data.timesPlayedOnDateArray[i]}
+                              />
+                            </div>
+                            <div className="w-[40%]">
+                              <table className="bg-[white] text-xs">
+                                <tr>
+                                  <th>Slot</th>
+                                  <th>Sheduled frequency</th>
+                                  <th>Air time count</th>
+                                </tr>
+                                {data.frequency[0]?.map((object, ind) => (
+                                  <tr>
+                                    <td>Slot {i + 1}</td>
+                                    <td>{object}</td>
+                                    <td>
+                                      {data.timesPlayedOnDateArray[i][ind]}
+                                    </td>
+                                  </tr>
+                                ))}
+                                <caption className="font-bold my-2">Air time Ad Count</caption>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
             </div>
-           
-        </div>
-    )
-}
+          )
+        )}
+      </div>
+    </div>
+  );
+};
 
-export default AdDetailPage
-
-
+export default AdDetailPage;

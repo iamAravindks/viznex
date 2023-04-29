@@ -70,7 +70,7 @@ operatorRouter.post("/create-customer", isAuthOperator, createCustomer);
 // @access Private
 
 operatorRouter.get("/load-ads", isAuthOperator, loadAds);
-operatorRouter.get("/load-ad/:id", isAuthOperator, loadAd);
+operatorRouter.post("/load-ad/:id", isAuthOperator, loadAd);
 
 // @desc Generate report based on a ad
 // @route GET /api/operator/report/ad/:id

@@ -7,10 +7,13 @@ import { Context } from "../../context/context";
 import useFetch from "../../hooks/useFetch";
 import AdPageModal from "../../components/Modals/AdPageModal";
 import { useNavigate } from "react-router-dom";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const AdsPage = () => {
   const navigate = useNavigate();
-  const { userInfo } = useContext(Context);
+  const {data, loading, error, reFetch} = useFetch("/load-ads")
+  
+  console.log(data)
   const [selectedCard, setSelectedCard] = useState(null);
   const handleClick = (id) => {
     navigate(`/ad/${id}`);
@@ -22,11 +25,11 @@ const AdsPage = () => {
         Here you can see all the ads you have published and their statistics
       </p>
       <div className="flex justify-end button-section">
-        <Modal />
+        <Modal reFetch={reFetch}/>
       </div>
       <div className="mt-12 add-videos-section flex flex-col gap-8">
-        {userInfo.adsUnderOperator !== undefined &&
-          userInfo.adsUnderOperator.map((itm) => (
+        {loading ? <div className="flex justify-center my-20"><ClipLoader /></div> :
+          data?.map((itm) => (
             <div className="flex flex-col items-center bg-[#FFF7E7] p-[1.1vw_1vw] rounded-[15px] min-w-min w-[40%] justify-between">
               <div className=" w-full  gap-48">
                 <p className="text-2xl font-semibold text-[#FFA800]">

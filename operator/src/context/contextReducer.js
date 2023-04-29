@@ -15,7 +15,7 @@ import {
 export const contextReducer = (state, action) => {
   switch (action.type) {
     case REQUEST:
-      return { ...state, loading: true };
+      return { ...state };
     case USER_LOGIN_SUCCESS:
       return {
         ...state,

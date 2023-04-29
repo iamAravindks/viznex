@@ -7,11 +7,8 @@ import { useContext } from "react";
 import { Context } from "../../context/context";
 import ClipLoader from "react-spinners/ClipLoader";
 
-const Modal = () => {
-  const [showClip, setShowClip] = useState(false);
-  const [msg, setmsg] = useState("");
-  const { loadProfile } = useContext(Context);
-  const [slots, setslots] = useState([
+const Modal = ({reFetch}) => {
+  const slotModel = [
     {
       slot: "slotOne",
       adFrequency: 0,
@@ -68,7 +65,11 @@ const Modal = () => {
       slot: "slotFourteen",
       adFrequency: 0,
     }
-  ]);
+  ]
+  const [showClip, setShowClip] = useState(false);
+  const [msg, setmsg] = useState("");
+  const { loadProfile } = useContext(Context);
+  const [slots, setslots] = useState(slotModel);
   const onCheckboxchange = (v, id) => {
     if (document.getElementById(id).checked == true) {
       let newa = [...slots];
@@ -86,7 +87,7 @@ const Modal = () => {
     },
     withCredentials: true,
   };
-  const BASE_URL = "https://api.viznx.in/api/operator";
+  const BASE_URL = "http://localhost:5000/api/operator";
   const onFrequencyChange = (v, id) => (e) => {
     if (document.getElementById(id).checked == true) {
       let newa = [...slots];
@@ -101,7 +102,7 @@ const Modal = () => {
   }, []);
  */
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api/operator",
+    baseURL: "http://localhost:5000/api/operator",
   });
   const [devices, setDevices] = useState([]);
   const handleLoadDevices = async () => {
@@ -143,7 +144,13 @@ const Modal = () => {
         newVideo,
         config
       );
-      loadProfile();
+     
+      setinfo({})
+      setslots(slotModel)
+      setSelectedDevices([])
+      setCustomer("")
+      document.querySelector('#my-modal-3').checked = false
+      reFetch()
     } catch (error) {
       setmsg(error.response.data.message);
     }
@@ -165,6 +172,7 @@ const Modal = () => {
       <input type="checkbox" id="my-modal-3" className="modal-toggle" />
       <div className="modal">
         <div className="modal-box relative w-[100%] max-w-max p-0">
+          <div className="sticky top-0 w-full">
           <label
             htmlFor="my-modal-3"
             className="btn btn-md btn-circle absolute right-5 top-6 bg-white text-[#333] hover:bg-white hover:text-[#333]"
@@ -175,6 +183,7 @@ const Modal = () => {
             <h1 className="text-device-name font-bold text-[1.7rem]">
               Add Video
             </h1>
+          </div>
           </div>
           <form
             className="flex flex-col gap-8  mt-[30px] min-w-[300px] min-h-[200px] w-[500px] items-center"
@@ -189,6 +198,7 @@ const Modal = () => {
                 name="name"
                 onChange={handleChange}
                 className="w-full  input"
+                defaultValue={info.name ? info.name : ""}
               />
             </div>
             <div className=" input-container   w-[80%]">
