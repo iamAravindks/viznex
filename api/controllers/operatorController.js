@@ -779,6 +779,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       },
     ]);
 
+    console.log(adInfo);
     let adHistory = adInfo.map((item) => {
       if (!item.adsUnderOperator || !item.devices) {
         delete item.devices;
@@ -869,16 +870,18 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
   try {
     const { operatorId, deviceId, slot, adId } = req.body;
 
-    let today = new Date();
-    let yyyy = today.getFullYear();
-    let mm = String(today.getMonth() + 1).padStart(2, "0");
-    let dd = String(today.getDate()).padStart(2, "0");
-    let formattedDate = yyyy + "-" + mm + "-" + dd;
     const operator = await Operator.findById(operatorId);
+    if (!operator) {
+      throw new Error("Operator not found");
+    }
 
     const adObjInd = operator.adsUnderOperator.findIndex(
       (item) => item.ad.toString() === adId.toString()
     );
+
+    if (adObjInd === -1) {
+      throw new Error("Ad not found");
+    }
 
     const deviceObjId = operator.adsUnderOperator[
       adObjInd
@@ -888,14 +891,17 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
         item.slot.slotType === slot
     );
 
+    if (deviceObjId === -1) {
+      throw new Error("Device not found");
+    }
+
     const existsDateObj = operator.adsUnderOperator[adObjInd].deployedDevices[
       deviceObjId
     ].slot.datesPlayed.findIndex(
-      (item) => item.date.getTime() === new Date(formattedDate).getTime()
+      (item) => item.date.getTime() === new Date().getTime()
     );
 
     if (existsDateObj !== -1) {
-      // means there exists the dateObj
       operator.adsUnderOperator[adObjInd].deployedDevices[
         deviceObjId
       ].slot.datesPlayed[existsDateObj].noOfTimesPlayedOnDate += 1;
@@ -903,7 +909,7 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
       operator.adsUnderOperator[adObjInd].deployedDevices[
         deviceObjId
       ].slot.datesPlayed.push({
-        date: new Date(formattedDate),
+        date: new Date(),
         noOfTimesPlayedOnDate: 1,
       });
     }
@@ -911,9 +917,13 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
     await operator.save();
 
     const updatedOperator = await Operator.findById(operatorId);
+    if (!updatedOperator) {
+      throw new Error("Updated operator not found");
+    }
 
     res.json(updatedOperator);
   } catch (error) {
-    throw new Error(error.message ? error.message : "Internal server error");
+    console.error(error);
+    res.status(500).json({ message: error.message || "Internal server error" });
   }
 });
