@@ -1,61 +1,51 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useFetch from "../../hooks/useFetch";
 import axios from "axios";
 import { Context } from "../../context/context";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import ClipLoader from "react-spinners/ClipLoader";
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
 const ReportsPage = () => {
-  const { userInfo } = useContext(Context);
-  console.log(userInfo);
-  const generatePdf = (e) => {
-    e.preventDefault();
-    const input = document.getElementById("adReport");
+  const { data: ads, loading, error, reFetch } = useFetch("/load-ads");
 
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.setFontSize(8);
-      pdf.addImage(imgData, "PNG", 10, 10, pdfWidth, pdfHeight);
-      pdf.save("filename.pdf");
-    });
-  };
   const config = {
     headers: {
       "Content-Type": "application/json",
     },
     withCredentials: true,
   };
-  const BASE_URL = "https://api.viznx.in/api/operator";
-  const [id, setId] = useState(null);
+  const BASE_URL = "http://localhost:5000/api/operator";
+  const [selectedAd, setSelectedAd] = useState({});
   const [data, setData] = useState({});
   const [info, setInfo] = useState({});
   const [adInfo, setAdInfo] = useState([]);
+  const [reportloading, setreportloading] = useState(false)
   const handleChange = (e) => {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     console.log(info);
   };
   const handleSelectChange = () => {
-    setId(document.querySelector("#ad").value);
+    let selectedAdOption = ads[document.querySelector("#ad").value];
+    setSelectedAd(selectedAdOption);
   };
+
   const handleClick = async (e) => {
+
     e.preventDefault();
     try {
-      if (id !== null && info.startDate && info.endDate) {
+      setreportloading(true)
+      if (selectedAd.ad._id !== null && info.startDate && info.endDate) {
         const newReport = {
           ...info,
         };
-        setAdInfo(userInfo.adsUnderOperator.filter((obj) => obj.ad._id === id));
-        console.log(id);
+        setAdInfo(ads.filter((obj) => obj.ad._id === selectedAd.ad._id));
         const res = await axios.post(
-          `${BASE_URL}/report/ad/${id}`,
+          `${BASE_URL}/report/ad/${selectedAd.ad._id}`,
           newReport,
           config
         );
         setData(res.data);
+        setreportloading(false)
       } else {
         alert("Please enter the correct details");
       }
@@ -68,7 +58,12 @@ const ReportsPage = () => {
     <div className="px-12 py-20">
       <h1 className="text-3xl font-bold mb-20">Reports</h1>
       <h1 className="text-xl font-bold">Advertaisement Report</h1>
-      <p>Here you can create the report for a particular Ad you have published. Please select the time range that you want to create the report. To get more details about the ad on each devices and time slots, visit the ads page and select the particular ad.  </p>
+      <p>
+        Here you can create the report for a particular Ad you have published.
+        Please select the time range that you want to create the report. To get
+        more details about the ad on each devices and time slots, visit the ads
+        page and select the particular ad.{" "}
+      </p>
       <form action="">
         <div className="my-8">
           <label htmlFor="">Select the advertaisement</label>
@@ -80,8 +75,8 @@ const ReportsPage = () => {
           >
             <option>Select Ad</option>
 
-            {userInfo.adsUnderOperator?.map((itm) => (
-              <option value={itm.ad._id}>{itm.ad.name}</option>
+            {ads?.map((itm, i) => (
+              <option value={i}>{itm.ad.name}</option>
             ))}
           </select>
         </div>
@@ -106,76 +101,54 @@ const ReportsPage = () => {
           >
             Generate Report
           </button>
-          {id !== null && (
-            <button
-              className="device-gradient rounded px-4 py-2"
-              onClick={generatePdf}
-            >
-              Download PDF
-            </button>
-          )}
         </div>
       </form>
-      <div className="px-12 py-12" id="adReport">
-        {adInfo[0] != undefined && (
-          <table className="border bg-[white] my-8 ">
+      {reportloading ? <div><ClipLoader /></div>
+      :
+      Object.keys(selectedAd).length !== 0  && Object.keys(data).length !== 0  &&
+      <div className="my-20">
+        <table id="adreport" className="bg-white">
+          <caption className="text-xl font-bold">Air-Time Report</caption>
+          <tr>
+            <th colSpan="2">Customer Name:</th>
+            <th colSpan="6">{selectedAd.ad.customer.name}</th>
+          </tr>
+          <tr>
+            <th colSpan="2">Customer Email:</th>
+            <th colSpan="6">{selectedAd.ad.customer.email}</th>
+          </tr>
+          <tr>
+            <th>Sl No</th>
+            <th>Ads Name</th>
+            <th>Device</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Scheduled Ad Count</th>
+            <th>Air Time Count</th>
+            <th>Balance</th>
+          </tr>
+          {data.adHistory.groupedSlots?.map((itm, i) => (
             <tr>
-              <td>
-                <b>Advertisement Name :</b> {adInfo[0].ad.name}
-              </td>
+              {i === 0 && <td rowSpan={data.adHistory.groupedSlots.length}>{i + 1}</td>}
+              {i ===0 && <td rowSpan={data.adHistory.groupedSlots.length}>{selectedAd.ad.name}</td>}
+              <td>{itm.device.name}({itm.device.location})</td>
+              <td>{info.startDate}</td>
+              <td>{info.endDate}</td>
+              <td>{itm.sheduledFrequency}</td>
+              <td>{itm.totalSumPlayed}</td>
+              <td>{itm.sheduledFrequency - itm.totalSumPlayed}</td>
             </tr>
-            <tr>
-              <td>
-                <b>URL :</b> {adInfo[0].ad.url}
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Customer Name :</b> {adInfo[0].ad.customer.name}
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Customer Email :</b> {adInfo[0].ad.customer.email}
-              </td>
-            </tr>
-          </table>
-        )}
-        <div>
-          {data.groupedSlots?.map((itm) => (
-            <div>
-              <div className=" border rounded px-8 py-8">
-                <h1 className="font-bold text-lg">
-                  Device Name : {itm.device.name}
-                </h1>
-                <h1 className="font-bold text-lg">
-                  Device Location : {itm.device.location}
-                </h1>
-                <table className="border bg-[white] my-4">
-                  <tr className="bg-[grey]">
-                    <th>Time Slot</th>
-                    <th>Dates</th>
-                    <th>No. of Times Played</th>
-                  </tr>
-                  {itm.slots?.map((object) => (
-                    <>
-                      {object.slot.datesPlayed?.map((obj, i) => (
-                        <tr>
-                            {i == 0 && <td rowSpan={object.slot.datesPlayed.length}>{}</td>}
-                          <td>{obj.date.slice(0, 10)}</td>
-                          <td>{obj.noOfTimesPlayedOnDate}</td>
-                        </tr>
-                      ))}
-                    </>
-                  ))}
-                </table>
-              </div>
-            </div>
           ))}
-        </div>
-      </div>
-
-
+        </table>
+        <ReactHTMLTableToExcel
+        id="test-table-xls-button"
+        className="download-table-xls-button px-4 py-2 rounded device-gradient my-8"
+        table="adreport"
+        filename="tablexls"
+        sheet="tablexls"
+        buttonText="Download as XLS"
+      />
+      </div>}
     </div>
   );
 };

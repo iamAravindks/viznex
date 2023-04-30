@@ -858,8 +858,39 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
         delete sObj.device;
       });
     });
+    let totalSum = 0;
+    for (let i = 0; i < adHistory.groupedSlots.length; i++) {
+      let slotobj = adHistory.groupedSlots[i];
+      let frequencySum = 0;
+      let start = new Date(startDate);
+      let end = new Date(endDate);
+      let numDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    
+      for (let j = 0; j < slotobj.slots.length; j++) {
+        let frequency = slotobj.slots[j].slot.frequency ;
+        frequencySum =frequencySum+(frequency * numDays);
+      }
+    
+      let slotSum = frequencySum;
+      totalSum += slotSum;
+      adHistory.groupedSlots[i].sheduledFrequency = totalSum
+    }
+    let totalSumPlayed = 0;
+    for (let i = 0; i < adHistory.groupedSlots.length; i++) {
+      let slot = adHistory.groupedSlots[i];
+      let datesPlayed = slot.slots[0].slot.datesPlayed;
+      let sum = 0;
+      for (let j = 0; j < datesPlayed.length; j++) {
+        sum += parseInt(datesPlayed[j].noOfTimesPlayedOnDate);
+      }
+      totalSumPlayed += sum;
+      adHistory.groupedSlots[i].totalSumPlayed = totalSumPlayed
 
-    res.json(adHistory);
+    }
+    console.log(totalSum);
+
+
+    res.json({adHistory});
   } catch (error) {
     console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");

@@ -4,7 +4,7 @@ import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
 import axios from 'axios'
 const Home = () => {
-  const BASE_URL = "https://api.viznx.in/api/operator";
+  const BASE_URL = "http://localhost:5000/operator";
 
 const config = {
   headers: {
@@ -20,7 +20,7 @@ const config = {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
         switch(currentHour){
-          case 9:
+          case 7:
             setSlot(0)
             break;
           case 10:
@@ -100,7 +100,7 @@ const config = {
         let inc = {
           deviceId,slot,adId,operatorId
         }
-        await axios.post(`${BASE_URL}/inc-ad`,inc, config)
+        await axios.post(`${BASE_URL}/incad`,inc, config)
         console.log(inc)
         let newInfo = { ...info };
         newInfo.slots[slot].queue[currentUrlIndex].adFrequency =

@@ -100,7 +100,7 @@ operatorRouter.post("/device/:id/", isAuthOperator, getDeviceByIdDate);
 // @route POST /api/operator/inc-ad
 // @access Public
 
-operatorRouter.post("/inc-ad", incNoTimesPlayed);
+operatorRouter.post("/incad", incNoTimesPlayed);
 
 // @desc Logout
 // @route DELETE /api/operator/logout
