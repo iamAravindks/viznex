@@ -5,7 +5,7 @@ import {
   loadProfile,
   loadQueues,
 } from "../controllers/deviceController.js";
-import { incPlayed } from "../controllers/operatorController.js";
+import { incNoTimesPlayed } from "../controllers/operatorController.js";
 import { logout } from "../controllers/otherController.js";
 import { isAuthDevice } from "../middlewares/middlewares.js";
 
@@ -25,7 +25,7 @@ deviceRouter.get("/profile", isAuthDevice, loadProfile);
 // @desc Get all the videos for with respected queues
 // @route GET /api/device/load-queues
 // @access Private
-deviceRouter.post("/increment", incPlayed);
+deviceRouter.post("/increment", incNoTimesPlayed);
 
 deviceRouter.get("/load-queues", isAuthDevice, loadQueues);
 

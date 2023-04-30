@@ -151,6 +151,41 @@ export const deleteCustomer = expressAsyncHandler(async (req, res) => {
   }
 });
 
+export const createCustomer = expressAsyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(200).json({
+      message: "Customer fields are required",
+    });
+  }
+
+  try {
+    const customerExists = await Customer.findOne({ email });
+
+    if (customerExists) {
+      res.status(400);
+      throw new Error(`Customer with email id ${email} is already exists`);
+    }
+    const customer = await Customer.create({
+      name,
+      email,
+      password,
+    });
+    if (customer) {
+      const customers = await Customer.find({}).select(
+        "-password -passwordResetToken -passwordResetExpires"
+      );
+      res.status(201).json(customers);
+    } else {
+      res.status(500);
+      throw new Error("Oops, something is not working! try again");
+    }
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
 // @desc Get Profile of the operator
 // @access Private
 
@@ -258,20 +293,159 @@ const addToDevices = async (
   }
 };
 
-const removeAdDevices = async (slotsWithFrequencies, devices, ad, operator) => {
+const removeAdDevices = async (
+  slotsWithFrequencies,
+  devices,
+  ad,
+  operator,
+  startDate,
+  endDate
+) => {
   try {
-    const rawData = devices
-      .map((device) => {
-        return slotsWithFrequencies.map((item) => {
-          return {
-            device,
-            slot: item.slot,
-            adFrequency: item.adFrequency,
-          };
+    const Queue = (ad, operator, adFrequency, startDate, endDate) => ({
+      ad: ad,
+      operator: operator._id,
+      adFrequency: adFrequency,
+      startDate: startDate,
+      endDate: endDate,
+    });
+    // get all the devices which have an ad set by the operator
+
+    let allDevicesWithAdIdOperatorId = await Device.find({
+      slots: {
+        $elemMatch: {
+          "queue.ad": new mongoose.Types.ObjectId(ad),
+          "queue.operator": new mongoose.Types.ObjectId(operator._id),
+        },
+      },
+    }).select("_id");
+
+    allDevicesWithAdIdOperatorId = allDevicesWithAdIdOperatorId.map(
+      (item) => item._id
+    );
+
+    console.log(allDevicesWithAdIdOperatorId);
+
+    for (const _id of allDevicesWithAdIdOperatorId) {
+      if (!devices.includes(_id)) {
+        try {
+          const currDevice = await Device.findById(_id);
+          if (currDevice) {
+            for (const item of slotsWithFrequencies) {
+              for (const deviceSlot of currDevice.slots) {
+                if (deviceSlot.name === item.slot) {
+                  // update the queue by removing that object
+                  deviceSlot.queue = deviceSlot.queue.filter(
+                    (qObj) =>
+                      qObj.ad.toString() !== ad.toString() &&
+                      qObj.operator.toString() !== operator._id.toString()
+                  );
+                }
+              }
+            }
+            await currDevice.save();
+          }
+        } catch (err) {
+          console.error(`Error processing device with ID ${_id}: ${err}`);
+        }
+      }
+    }
+
+    // traverse through all the devices
+    const updatePromises = devices.map(async (_id) => {
+      // find if any of the device is present in the devices array
+      const existingDeviceIndex = allDevicesWithAdIdOperatorId.findIndex(
+        (device) => device.toString() === _id.toString()
+      );
+      // if present it means we have to update it
+      // !updating device
+      if (existingDeviceIndex !== -1) {
+        const currDevice = await Device.findById(_id);
+
+        slotsWithFrequencies.forEach((item) => {
+          // for each slot in the slotFrequencies
+          currDevice.slots.forEach((slot) => {
+            // check whether the current slot is in the current device
+            if (slot.name === item.slot) {
+              // grab the index of the adObj from that queue
+              const adInd = slot.queue.findIndex(
+                (qObj) =>
+                  qObj.ad.toString() === ad.toString() &&
+                  qObj.operator.toString() === operator._id.toString()
+              );
+              if (adInd !== -1) {
+                // replace that adObj with new one
+
+                slot.queue[adInd] = Queue(
+                  ad,
+                  operator._id,
+                  item.adFrequency,
+                  new Date(startDate),
+                  new Date(endDate)
+                );
+              } else {
+                // !unreachble code
+                // it means the slot is extended so that ad that adObj in the array
+                slot.queue.push(
+                  Queue(
+                    ad,
+                    operator._id,
+                    item.adFrequency,
+                    new Date(startDate),
+                    new Date(endDate)
+                  )
+                );
+              }
+            }
+          });
         });
-      })
-      .flat();
-  } catch (error) {}
+
+        await currDevice.save();
+
+        return _id;
+      }
+      // if _id is present in the devices array  , it means the device is present in the
+      // allDevices but not in device => delete the ad from all of the available slots given
+      // in the slotsFrequencies array
+      else {
+        const currDevice = await Device.findById(_id);
+
+        slotsWithFrequencies.forEach((item) => {
+          currDevice.slots.forEach((slot) => {
+            // check with slot names
+            if (slot.name === item.slot) {
+              // update the queue by removing that object
+              // slot.queue = slot.queue.filter(
+              //   (qObj) =>
+              //     qObj.ad.toString() !== ad.toString() &&
+              //     qObj.operator.toString() !== operator._id.toString()
+              // );
+
+              slot.queue.push(
+                Queue(
+                  ad,
+                  operator._id,
+                  item.adFrequency,
+                  new Date(startDate),
+                  new Date(endDate)
+                )
+              );
+            }
+          });
+        });
+        await currDevice.save();
+        return null;
+      }
+
+      // else if delete the ad with operator id from all of the slots
+    });
+    const updatedDevices = await Promise.all(updatePromises);
+
+    return updatedDevices.filter((id) => id !== null);
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message || "Internal server error");
+  }
 };
 
 export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
@@ -344,7 +518,6 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
     const uniqueArr = successFullUpdate.filter(
       (obj, index, self) => index === self.findIndex((o) => o._id === obj._id)
     );
-    await removeAdDevices(slotsWithFrequencies, devices, ad, operator);
     if (
       successFullUpdate.length !==
         devices.length * slotsWithFrequencies.length ||
@@ -353,27 +526,31 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
       throw new Error("Error on device update with queue");
     }
 
-    // update the customer's ads section, avoid the duplication
-
-    await Customer.updateOne(
-      { _id: customer._id },
-      { $addToSet: { ads: { $each: [ad._id] } } }
-    );
-
     const devicesObj = devices.map((deviceId) => {
       return {
-        _id: new mongoose.Types.ObjectId(deviceId),
-        type: mongoose.Types.ObjectId,
-        ref: "Device",
-        totalPlayHrs: 0,
+        device: new mongoose.Types.ObjectId(deviceId),
+        ad: ad._id,
+        operator: operator._id,
       };
     });
 
-    await Customer.updateOne(
-      { _id: customer._id },
-      { $addToSet: { devices: devicesObj } }
-    );
+    devicesObj.forEach((item) => {
+      if (
+        !customer.deviceWithAds.some((data) => {
+          return (
+            JSON.stringify({
+              device: data.device,
+              ad: data.ad,
+              operator: data.operator,
+            }) === JSON.stringify(item)
+          );
+        })
+      ) {
+        customer.deviceWithAds.push(item);
+      }
+    });
 
+    await customer.save();
     // avoid the duplication
     // Check if the ad already exists under the operator
     const combinationDeployedDevices = devices
@@ -390,17 +567,6 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
       .flat();
 
     // for that create an array with combinations of both devices and slots
-
-    // const combinationDeployedDevices = slots.flatMap((slot) =>
-    //   devices.map((deviceId) => ({
-    //     device: new mongoose.Types.ObjectId(deviceId),
-    //     startDate: new Date(startDate),
-    //     endDate: new Date(endDate),
-    //     slot: {
-    //       slotType: slot,
-    //     }, // only include the slotType value as a string
-    //   }))
-    // );
 
     const existingAdIndex = operator.adsUnderOperator.findIndex(
       (adObj) => adObj.ad.toString() === ad._id.toString()
@@ -451,50 +617,43 @@ export const addTheAdToQueue = expressAsyncHandler(async (req, res) => {
   }
 });
 
-export const createCustomer = expressAsyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(200).json({
-      message: "Customer fields are required",
-    });
-  }
-
-  try {
-    const customerExists = await Customer.findOne({ email });
-
-    if (customerExists) {
-      res.status(400);
-      throw new Error(`Customer with email id ${email} is already exists`);
-    }
-    const customer = await Customer.create({
-      name,
-      email,
-      password,
-    });
-    if (customer) {
-      const customers = await Customer.find({}).select(
-        "-password -passwordResetToken -passwordResetExpires"
-      );
-      res.status(201).json(customers);
-    } else {
-      res.status(500);
-      throw new Error("Oops, something is not working! try again");
-    }
-  } catch (error) {
-    throw new Error(error.message ? error.message : "Internal server error");
-  }
-});
-
 export const updateQueue = expressAsyncHandler(async (req, res) => {
   try {
     // fetch the queue with ad id and slot name
-    let { name, ad, slots, customerEmail, url, startDate, endDate, devices } =
-      req.body;
-    const operator = await Operator.findById(req.operator._id);
-    const customer = await Customer.findOne({
+    let {
+      name,
+      ad,
       customerEmail,
-    });
+      url,
+      startDate,
+      endDate,
+      devices,
+      slotsWithFrequencies,
+    } = req.body;
+
+    console.log(slotsWithFrequencies);
+    if (!ad) {
+      res.status(400);
+      throw new Error("Please specify the ad queue");
+    }
+
+    if (devices.length > 0 && !startDate && !endDate) {
+      res.status(400);
+      throw new Error("Specify the start and end Dates");
+    }
+
+    if (!slotsWithFrequencies) {
+      res.status(400);
+      throw new Error(
+        "You must provide slots and frequencies along with dates"
+      );
+    }
+    const operator = await Operator.findById(req.operator._id);
+
+    const adObjInd = operator.adsUnderOperator.findIndex(
+      (item) => item.ad.toString() === ad.toString()
+    );
+    if (adObjInd === -1) throw new Error("No ad found");
 
     // first update the ad url , for that
     if (url || name) {
@@ -513,6 +672,124 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
         }
       );
     }
+
+    if (devices.length === 0) {
+      res.status(200);
+      return res.json(operator.toJSON());
+    }
+
+    const customer = await Customer.findOne({
+      email: customerEmail,
+    }).select("-password -passwordResetToken -passwordResetExpires");
+
+    const updatedDevices = await removeAdDevices(
+      slotsWithFrequencies,
+      devices,
+      ad,
+      operator._id,
+      startDate,
+      endDate
+    );
+
+    // grab all the devices set by the operator with ad in the customer
+
+    const allDevicesWithAdIdOperatorId = customer.deviceWithAds
+      .map((item) => {
+        if (
+          item.ad.toString() === ad.toString() &&
+          item.operator.toString() === operator._id.toString()
+        ) {
+          return item.device;
+        } else {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    //update the
+    customer.deviceWithAds = customer.deviceWithAds.filter((item) => {
+      if (
+        item.ad.toString() === ad.toString() &&
+        item.operator.toString() === operator._id.toString()
+      ) {
+        if (!devices.includes(item.device)) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Add the new devices to the customer.devices array
+    customer.deviceWithAds.push(
+      ...devices
+        .filter((id) => !allDevicesWithAdIdOperatorId.includes(id))
+        .map((deviceId) => ({
+          device: new mongoose.Types.ObjectId(deviceId),
+          ad: ad,
+          operator: operator._id,
+        }))
+    );
+
+    await customer.save();
+    // now operator
+    let devicesForUpdate = [...devices];
+    const allDevicesWithSlots = operator.adsUnderOperator[
+      adObjInd
+    ].deployedDevices.map((item) => item.device);
+    console.log("operator");
+    console.log(allDevicesWithAdIdOperatorId);
+
+    // deletion of devices
+    operator.adsUnderOperator[adObjInd].deployedDevices =
+      operator.adsUnderOperator[adObjInd].deployedDevices.filter((item) => {
+        return devices.includes(item.device.toString());
+      });
+    const updatedIds = [];
+
+    // !issue here
+    const updatedDeployedDevices = operator.adsUnderOperator[
+      adObjInd
+    ].deployedDevices.map((item) => {
+      if (
+        devicesForUpdate.includes(item.device.toString()) &&
+        allDevicesWithSlots.includes(item.device)
+      ) {
+        const slotObj = slotsWithFrequencies.find(
+          (slot) => slot.slot === item.slot.slotType
+        );
+        if (slotObj) {
+          item.slot.slotType = slotObj.slot;
+          item.slot.frequency = slotObj.adFrequency;
+          item.startDate = new Date(startDate);
+          item.endDate = new Date(endDate);
+
+          devicesForUpdate.filter((id) => id !== item.device.toString());
+        }
+      }
+      return item;
+    });
+
+    operator.adsUnderOperator[adObjInd].deployedDevices =
+      updatedDeployedDevices;
+
+    // devicesForUpdate.forEach(async (_id) => {
+    //   if (!allDevicesWithSlots.includes(new mongoose.Types.ObjectId(_id))) {
+    //     console.log("adding new devices to operator");
+    //     const newDeployedDevices = slotsWithFrequencies.map((data) => ({
+    //       device: new mongoose.Types.ObjectId(_id),
+    //       startDate: new Date(startDate),
+    //       endDate: new Date(endDate),
+    //       slot: {
+    //         slotType: data.slot,
+    //         frequency: data.frequency,
+    //       },
+    //     }));
+
+    //     operator.adsUnderOperator[adObjInd].deployedDevices.push(
+    //       ...newDeployedDevices
+    //     );
+    //   }
+    // });
 
     await operator.save();
 
@@ -626,27 +903,6 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
   } catch (error) {
     throw new Error(error.message ? error.message : "Internal server error");
   }
-});
-
-export const incPlayed = expressAsyncHandler(async (req, res) => {
-  const { operatorId, adId, deviceId, slotType } = req.body;
-  const operator = await Operator.findById(operatorId);
-  // find the ad object with the given ID
-  const adObject = operator.adsUnderOperator.find(
-    (ad) => ad.ad._id.toString() === adId
-  );
-
-  // find the deployed device object for the given device ID and slot type
-  const deployedDevice = adObject.deployedDevices.find(
-    (device) =>
-      device.device.toString() === deviceId && device.slot.slotType === slotType
-  );
-
-  // find the play count of the deployed device for the given slot type
-
-  const date = new Date().toISOString();
-
-  return res.status(200).json(deployedDevice.slot.noOfTimesPlayed);
 });
 
 export const getIncPlayed = expressAsyncHandler(async (req, res) => {
