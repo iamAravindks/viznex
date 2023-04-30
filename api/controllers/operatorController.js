@@ -586,8 +586,14 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
         let datesPlayed = slot.slot.datesPlayed;
         let timesPlayedOnDate = 0;
         datesPlayed.forEach((datePlayed) => {
-          if (datePlayed.date === datereq) {
-            timesPlayedOnDate = datePlayed.nooftimesplayed;
+          if(Object.keys(datePlayed).length !== 0){
+            let dat = new Date(datePlayed.date).toISOString().slice(0, 10);
+            if (dat == datereq) {
+              timesPlayedOnDate = datePlayed.noOfTimesPlayedOnDate;
+            }else{
+              console.log(dat)
+              console.log(datereq)
+            }
           }
         });
         deviceFrequencies[slot.slot.slotType] = {
@@ -751,8 +757,8 @@ export const getOperatorById = expressAsyncHandler(async (req, res) => {
 // get the report of an ad from all of the operators
 export const getAdHistory = expressAsyncHandler(async (req, res) => {
   try {
-    const { startDate, endDate } = req.body;
-    const adInfo = await Operator.aggregate([
+     const { startDate, endDate } = req.body;
+   /* const adInfo = await Operator.aggregate([
       {
         $project: {
           _id: 0,
@@ -857,10 +863,38 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
       item.slots.forEach((sObj) => {
         delete sObj.device;
       });
+    }); */
+
+    const adId = req.params.id;
+    const operator = await Operator.findById(req.body.operatorid).populate({
+      path: "adsUnderOperator.ad",
+      populate: {
+        path: "customer",
+      },
     });
+
+    const ad = operator.adsUnderOperator.id(adId);
+    const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+      const deviceId = curr.device;
+      if (!acc[deviceId]) {
+        acc[deviceId] = [];
+      }
+      acc[deviceId].push(curr);
+      return acc;
+    }, {});
+
+    // Finally, map the groupedDevices object to an array of objects
+    const groupedSlots = await Promise.all(Object.keys(groupedDevices).map(async (deviceId) => {
+      const device = await Device.findById(deviceId).exec();
+      return {
+        device:device.toJSON(),
+        deviceId: deviceId,
+        slots: groupedDevices[deviceId],
+      };
+    }));
     let totalSum = 0;
-    for (let i = 0; i < adHistory.groupedSlots.length; i++) {
-      let slotobj = adHistory.groupedSlots[i];
+    for (let i = 0; i < groupedSlots.length; i++) {
+      let slotobj = groupedSlots[i];
       let frequencySum = 0;
       let start = new Date(startDate);
       let end = new Date(endDate);
@@ -873,24 +907,26 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
     
       let slotSum = frequencySum;
       totalSum += slotSum;
-      adHistory.groupedSlots[i].sheduledFrequency = totalSum
+      groupedSlots[i].sheduledFrequency = totalSum
     }
     let totalSumPlayed = 0;
-    for (let i = 0; i < adHistory.groupedSlots.length; i++) {
-      let slot = adHistory.groupedSlots[i];
-      let datesPlayed = slot.slots[0].slot.datesPlayed;
+    for (let i = 0; i < groupedSlots.length; i++) {
+      let groupedSlot = groupedSlots[i];
       let sum = 0;
-      for (let j = 0; j < datesPlayed.length; j++) {
-        sum += parseInt(datesPlayed[j].noOfTimesPlayedOnDate);
+      for (let j = 0; j < groupedSlot.slots.length; j++) {
+        let slot = groupedSlot.slots[j];
+        let datesPlayed = slot.slot.datesPlayed;
+        for (let k = 0; k < datesPlayed.length; k++) {
+          sum += parseInt(datesPlayed[k].noOfTimesPlayedOnDate);
+        }
       }
-      totalSumPlayed += sum;
-      adHistory.groupedSlots[i].totalSumPlayed = totalSumPlayed
-
+      groupedSlots[i].totalSumPlayed = sum;
     }
+    
     console.log(totalSum);
 
 
-    res.json({adHistory});
+    res.json({adId, operator,ad, groupedSlots});
   } catch (error) {
     console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");

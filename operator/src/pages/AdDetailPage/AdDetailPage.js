@@ -10,14 +10,15 @@ import axios from "axios";
 
 const AdDetailPage = () => {
   const today = new Date();
-
+  const year = today.getFullYear();
+const month = ('0' + (today.getMonth() + 1)).slice(-2);
+const day = ('0' + today.getDate()).slice(-2);
+const formattedDate = `${year}-${month}-${day}`;
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const [sheduleLoading, setSheduleLoading] = useState(false);
 
-  const [datereq, setDatereq] = useState(
-    `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDay()}`
-  );
+  const [datereq, setDatereq] = useState(formattedDate);
   const [data, setdata] = useState(null);
   const handleDateChange = (e) => {
     setDatereq(e.target.value);
@@ -130,14 +131,16 @@ const AdDetailPage = () => {
                                   <th>Slot</th>
                                   <th>Sheduled frequency</th>
                                   <th>Air time count</th>
+                                  <th>Balance</th>
                                 </tr>
                                 {data.frequency[0]?.map((object, ind) => (
                                   <tr>
-                                    <td>Slot {i + 1}</td>
+                                    <td>Slot {ind + 1}</td>
                                     <td>{object}</td>
                                     <td>
                                       {data.timesPlayedOnDateArray[i][ind]}
                                     </td>
+                                    <td>{object - data.timesPlayedOnDateArray[i][ind]}</td>
                                   </tr>
                                 ))}
                                 <caption className="font-bold my-2">Air time Ad Count</caption>

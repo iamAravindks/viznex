@@ -160,7 +160,7 @@ const ReportsPage = () => {
                     <>
                       {object.slot.datesPlayed?.map((obj, i) => (
                         <tr>
-                            {i == 0 && <td rowSpan={object.slot.datesPlayed.length}>9am to 10am</td>}
+                            {i == 0 && <td rowSpan={object.slot.datesPlayed.length}>{}</td>}
                           <td>{obj.date.slice(0, 10)}</td>
                           <td>{obj.noOfTimesPlayedOnDate}</td>
                         </tr>

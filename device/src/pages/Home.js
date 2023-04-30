@@ -4,7 +4,7 @@ import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
 import axios from 'axios'
 const Home = () => {
-  const BASE_URL = "http://localhost:5000/operator";
+  const BASE_URL = "http://localhost:5000/api/operator";
 
 const config = {
   headers: {
@@ -20,7 +20,7 @@ const config = {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
         switch(currentHour){
-          case 7:
+          case 9:
             setSlot(0)
             break;
           case 10:
@@ -95,69 +95,69 @@ const config = {
     const videoRef = useRef(null);
       
    
-      const handleEnded = async (val, deviceId,slotType, adId, operatorId) => {
-        // decrementing adFrequency value by 1
+    const handleEnded = async (val, deviceId, slotType, adId, operatorId) => {
+      let newInfo = { ...info };
+      if (
+        newInfo.slots[slot] &&
+        newInfo.slots[slot].queue[currentUrlIndex] &&
+        newInfo.slots[slot].queue[currentUrlIndex].adFrequency !== undefined
+      ) {
         let inc = {
-          deviceId,slot,adId,operatorId
-        }
-        await axios.post(`${BASE_URL}/incad`,inc, config)
+          deviceId,
+          slot:slotType,
+          adId,
+          operatorId,
+        };
+         await axios.post(`${BASE_URL}/incad`,inc, config)
         console.log(inc)
-        let newInfo = { ...info };
         newInfo.slots[slot].queue[currentUrlIndex].adFrequency =
           newInfo.slots[slot].queue[currentUrlIndex].adFrequency - 1;
         setInfo(newInfo);
-        console.log(info)
-      
+        console.log(info);
+    
         if (currentUrlIndex < val - 1) {
           let nextIndex = currentUrlIndex + 1;
-          while (newInfo.slots[slot].queue[nextIndex].adFrequency === 0) {
+          while (
+            newInfo.slots[slot].queue[nextIndex] &&
+            newInfo.slots[slot].queue[nextIndex].adFrequency === 0
+          ) {
             // skip over videos with adFrequency 0
             nextIndex++;
             if (nextIndex >= val) {
               // reached the end of the queue, start from the beginning
-              setCurrentUrlIndex(0)
+              setCurrentUrlIndex(0);
             }
           }
           setCurrentUrlIndex(nextIndex);
         } else {
           setCurrentUrlIndex(0);
-         
-        
-      };
-      
-
-          
-
-        
-       
+        }
+      }
+    };
     
-        
-      };
 
     
 
     return(
-        <div className='relative'>
-            
-          { slot !== null && <div className=''>
-               
-              <ReactPlayer ref={videoRef}  playing={true} width="100vw" height="100vh" url={info.slots[slot].queue[currentUrlIndex].ad.url}  onEnded={()=>handleEnded(info.slots[slot].queue.length, info._id, info.slots[slot].name, info.slots[slot].queue[currentUrlIndex].ad._id, info.slots[slot].queue[currentUrlIndex].operator._id)} />
-               
-
-
-  
-
-
-                 
-                </div>}
-         
-
-            <div className='absolute left-0 bg-[#000000d6] top-0 right-0 flex justify-end '>
-                <img src={logo} alt=""  className='w-[8%]' />
-            </div>
-            <div className='absolute w-[100vw] bg-[black] h-[70px] bottom-0 left-0 z-100'></div>
-
-        </div>        
+      <div className='relative'>
+      {slot !== null && info.slots[slot] && info.slots[slot].queue[currentUrlIndex] && info.slots[slot].queue[currentUrlIndex].ad && (
+        <div className=''>
+          <ReactPlayer
+            ref={videoRef}
+            playing={true}
+            width="100vw"
+            height="100vh"
+            url={info.slots[slot].queue[currentUrlIndex].ad.url}
+            onEnded={() => handleEnded(info.slots[slot].queue.length, info._id, info.slots[slot].name, info.slots[slot].queue[currentUrlIndex].ad._id, info.slots[slot].queue[currentUrlIndex].operator._id)}
+          />
+        </div>
+      )}
+      <div className='absolute left-0 bg-[#000000d6] top-0 right-0 flex justify-end '>
+        <img src={logo} alt="" className='w-[8%]' />
+      </div>
+      <div className='absolute w-[100vw] bg-[black] h-[70px] bottom-0 left-0 z-100'></div>
+    </div>
+          
 
     )
 }
