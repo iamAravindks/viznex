@@ -3,11 +3,10 @@ import useFetch from "../../hooks/useFetch";
 import axios from "axios";
 import { Context } from "../../context/context";
 import ClipLoader from "react-spinners/ClipLoader";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
 
 const ReportsPage = () => {
-  const {userInfo} = useContext(Context)
-  console.log(userInfo)
+  const { userInfo } = useContext(Context);
   const { data: ads, loading, error, reFetch } = useFetch("/load-ads");
 
   const config = {
@@ -21,27 +20,23 @@ const ReportsPage = () => {
   const [data, setData] = useState({});
   const [info, setInfo] = useState({});
   const [adInfo, setAdInfo] = useState([]);
-  const [reportloading, setreportloading] = useState(false)
+  const [reportloading, setreportloading] = useState(false);
   const handleChange = (e) => {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    console.log(info);
   };
   const handleSelectChange = () => {
     let selectedAdOption = ads[document.querySelector("#ad").value];
     setSelectedAd(selectedAdOption);
   };
-  useEffect(()=>{
-    console.log(selectedAd)
-  }, [selectedAd])
 
   const handleClick = async (e) => {
-
     e.preventDefault();
     try {
-      setreportloading(true)
+      setreportloading(true);
       if (selectedAd._id !== null && info.startDate && info.endDate) {
         const newReport = {
-          ...info,operatorid: userInfo._id
+          ...info,
+          operatorid: userInfo._id,
         };
         setAdInfo(ads.filter((obj) => obj._id === selectedAd._id));
         const res = await axios.post(
@@ -50,7 +45,7 @@ const ReportsPage = () => {
           config
         );
         setData(res.data);
-        setreportloading(false)
+        setreportloading(false);
       } else {
         alert("Please enter the correct details");
       }
@@ -108,52 +103,69 @@ const ReportsPage = () => {
           </button>
         </div>
       </form>
-       {reportloading ? <div><ClipLoader /></div>
-      :
-      Object.keys(selectedAd).length !== 0  && Object.keys(data).length !== 0  &&
-      <div className="my-20">
-        <table id="adreport" className="bg-white">
-          <caption className="text-xl font-bold">Air-Time Report</caption>
-          <tr>
-            <th colSpan="2">Customer Name:</th>
-            <th colSpan="6">{selectedAd.ad.customer.name}</th>
-          </tr>
-          <tr>
-            <th colSpan="2">Customer Email:</th>
-            <th colSpan="6">{selectedAd.ad.customer.email}</th>
-          </tr>
-          <tr>
-            <th>Sl No</th>
-            <th>Ads Name</th>
-            <th>Device</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Scheduled Ad Count</th>
-            <th>Air Time Count</th>
-            <th>Balance</th>
-          </tr>
-          {data.groupedSlots?.map((itm, i) => (
-            <tr>
-              {i === 0 && <td rowSpan={data.groupedSlots.length}>{i + 1}</td>}
-              {i ===0 && <td rowSpan={data.groupedSlots.length}>{selectedAd.ad.name}</td>}
-              <td>{itm.device.name}({itm.device.location})</td>
-              <td>{info.startDate}</td>
-              <td>{info.endDate}</td>
-              <td>{itm.sheduledFrequency}</td>
-              <td>{itm.totalSumPlayed}</td>
-              <td>{itm.sheduledFrequency - itm.totalSumPlayed}</td>
-            </tr>
-          ))}
-        </table>
-        <ReactHTMLTableToExcel
-        id="test-table-xls-button"
-        className="download-table-xls-button px-4 py-2 rounded device-gradient my-8"
-        table="adreport"
-        filename="tablexls"
-        sheet="tablexls"
-        buttonText="Download as XLS"
-      />
-      </div>} 
+      {reportloading ? (
+        <div>
+          <ClipLoader />
+        </div>
+      ) : (
+        Object.keys(selectedAd).length !== 0 &&
+        Object.keys(data).length !== 0 && (
+          <div className="my-20">
+            <table id="adreport" className="bg-white">
+              <caption className="text-xl font-bold">Air-Time Report</caption>
+              <tr>
+                <th colSpan="2">Customer Name:</th>
+                <th colSpan="6">{selectedAd.ad.customer.name}</th>
+              </tr>
+              <tr>
+                <th colSpan="2">Customer Email:</th>
+                <th colSpan="6">{selectedAd.ad.customer.email}</th>
+              </tr>
+              <tr>
+                <th>Sl No</th>
+                <th>Ads Name</th>
+                <th>Device</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Scheduled Ad Count</th>
+                <th>Air Time Count</th>
+                <th>Balance</th>
+              </tr>
+              {data.groupedSlots?.map((itm, i) => {
+                console.log(itm);
+                return (
+                  <tr>
+                    {i === 0 && (
+                      <td rowSpan={data.groupedSlots.length}>{i + 1}</td>
+                    )}
+                    {i === 0 && (
+                      <td rowSpan={data.groupedSlots.length}>
+                        {selectedAd.ad.name}
+                      </td>
+                    )}
+                    <td>
+                      {itm.device.name}({itm.device.location})
+                    </td>
+                    <td>{info.startDate}</td>
+                    <td>{info.endDate}</td>
+                    <td>{itm.sheduledFrequency}</td>
+                    <td>{itm.totalSumPlayed}</td>
+                    <td>{itm.sheduledFrequency - itm.totalSumPlayed}</td>
+                  </tr>
+                );
+              })}
+            </table>
+            <ReactHTMLTableToExcel
+              id="test-table-xls-button"
+              className="download-table-xls-button px-4 py-2 rounded device-gradient my-8"
+              table="adreport"
+              filename="tablexls"
+              sheet="tablexls"
+              buttonText="Download as XLS"
+            />
+          </div>
+        )
+      )}
     </div>
   );
 };
