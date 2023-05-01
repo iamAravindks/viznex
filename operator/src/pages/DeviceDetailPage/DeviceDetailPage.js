@@ -15,9 +15,9 @@ const DeviceDetailPage = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const { data, loading, error } = useFetch(`/device/${id}`);
-  const [shedule, setShedule] = useState([]);
-  const [sheduleLoading, setSheduleLoading] = useState(false);
-  console.log(shedule);
+  const [schedule, setSchedule] = useState([]);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  console.log(schedule);
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -29,12 +29,12 @@ const DeviceDetailPage = () => {
     baseURL: "https://api.viznx.in/api/operator",
   });
   useEffect(() => {
-    setSheduleLoading(true);
+    setScheduleLoading(true);
     axiosInstance
       .post(`/device/${id}`, { date: date }, config)
       .then((res) => {
-        setShedule(res.data);
-        setSheduleLoading(false);
+        setSchedule(res.data);
+        setScheduleLoading(false);
       })
       .catch((err) => console.log(err));
   }, [date]);
@@ -93,13 +93,13 @@ const DeviceDetailPage = () => {
                 </div>
               </div>
 
-              {sheduleLoading ? (
+              {scheduleLoading ? (
                 <ClipLoader />
               ) : (
                 <div>
                   <h1 className="text-xl font-bold">Slot details for {date}</h1>
                   <div>
-                    {shedule.slots?.map((itm) => (
+                    {schedule.slots?.map((itm) => (
                       <div className="px-8 py-4 border rounded" key={itm.id}>
                         <h1 className="font-bold text-lg pb-4">
                           {getTimeSlot(itm.name.trim().toLowerCase())}
