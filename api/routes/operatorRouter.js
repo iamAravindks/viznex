@@ -7,6 +7,7 @@ import {
   getAdHistory,
   incNoTimesPlayed,
   loadAd,
+  loadAdData,
   loadAds,
   loadDevices,
   loadProfile,
@@ -99,7 +100,7 @@ operatorRouter.post("/device/:id/", isAuthOperator, getDeviceByIdDate);
 // @access Public
 
 operatorRouter.post("/incad", incNoTimesPlayed);
-
+operatorRouter.get("/loadAdData/:id",isAuthOperator, loadAdData )
 // @desc Logout
 // @route DELETE /api/operator/logout
 // @access Private

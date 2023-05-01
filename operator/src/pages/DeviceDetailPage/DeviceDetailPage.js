@@ -23,7 +23,7 @@ const DeviceDetailPage = () => {
   };
 
   const axiosInstance = axios.create({
-    baseURL: "http://localhost:5000/api/operator",
+    baseURL: "https://api.viznx.in/api/operator",
   });
   useEffect(() => {
     setSheduleLoading(true);

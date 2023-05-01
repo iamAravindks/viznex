@@ -30,7 +30,7 @@ const formattedDate = `${year}-${month}-${day}`;
     },
     withCredentials: true,
   };
-  const BASE_URL = "http://localhost:5000/api/operator";
+  const BASE_URL = "https://api.viznx.in/api/operator";
 
   useEffect(() => {
     setSheduleLoading(true);

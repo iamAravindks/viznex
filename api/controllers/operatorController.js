@@ -1250,3 +1250,33 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
     res.status(500).json({ message: error.message || "Internal server error" });
   }
 });
+
+
+export const loadAdData = expressAsyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const operator = await Operator.findById(req.operator._id).populate({path:"adsUnderOperator.ad"}).lean();
+  const ad = operator.adsUnderOperator.find(ad => ad._id.toString() === id);
+  const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+    const deviceId = curr.device;
+    if (!acc[deviceId]) {
+      acc[deviceId] = [];
+    }
+    acc[deviceId].push(curr);
+    return acc;
+  }, {});
+
+  // Finally, map the groupedDevices object to an array of objects
+  const groupedSlots = await Promise.all(Object.keys(groupedDevices).map(async (deviceId) => {
+    const device = await Device.findById(deviceId).exec();
+    return {
+      device:device.toJSON(),
+      name:device.name,
+      _id: deviceId,
+      slots: groupedDevices[deviceId],
+    };
+  }));
+  let slotsWithFrequencies = [];
+  slotsWithFrequencies = groupedSlots[0].slots.map(slot => ({slot:slot.slot.slotType,adFrequency: slot.slot.frequency}))
+      
+  res.json({ad, groupedSlots,slotsWithFrequencies});
+});
