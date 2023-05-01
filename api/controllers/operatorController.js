@@ -1291,7 +1291,7 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
 
 export const loadAdData = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
-  const operator = await Operator.findById(req.operator._id).populate({path:"adsUnderOperator.ad"}).lean();
+  const operator = await Operator.findById(req.operator._id).populate({path:"adsUnderOperator.ad",populate:{path:"customer"}}).lean();
   const ad = operator.adsUnderOperator.find(ad => ad._id.toString() === id);
   const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
     const deviceId = curr.device;

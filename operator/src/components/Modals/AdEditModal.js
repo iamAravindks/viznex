@@ -10,26 +10,40 @@ const AdEditModal = ({
   devices,
 }) => {
   const [info, setinfo] = useState({});
+  useEffect(() => {
+    if (editData?.ad) {
+      setinfo(prev => ({
+        ...prev,
+        startDate: editData.ad.deployedDevices[0].startDate.slice(0, 10),
+        endDate: editData.ad.deployedDevices[0].endDate.slice(0, 10)
+      }));
+    }
+  }, [editData]);
+  
   console.log(editData);
   const handleChange = (e) => {
     setinfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     console.log(info);
   };
-  const [selectedDevices, setSelectedDevices] = useState(() => {
+  const [selectedDevices, setSelectedDevices] = useState()
+  useEffect(()=>{
     if (editData && devices && Object.keys(editData).length !== 0) {
       const deviceIds = editData.groupedSlots.map((itm) => itm._id);
-      return deviceIds;
-    } else {
-      return [];
+      setSelectedDevices(deviceIds)
+    }else{
+      setSelectedDevices([])
+
     }
-  });
+  },[editData])
   console.log(selectedDevices);
   const onFrequencyChange = (v, id) => (e) => {
     if (document.getElementById(id).checked == true) {
-      let newa = [...slots];
-      newa[v].adFrequency = e.target.value;
-      setslots(newa);
-      console.log(slots);
+      const newSlots = [...slots]; // Create a copy of the slots array
+      const slotIndex = newSlots.findIndex((slot) => slot.slot === id); // Find the index of the slot to be updated
+      if (slotIndex !== -1 && e.target.value > 0) {
+        newSlots[slotIndex] = { ...newSlots[slotIndex], adFrequency: e.target.value }; // Update the ad frequency of the slot
+        setslots(newSlots); // Update the state with the updated slots array
+      }
     }
   };
   const [slots, setslots] = useState([]);
@@ -52,9 +66,41 @@ const AdEditModal = ({
       console.log(slots)
     }
   };
-  const handleSubmit = () => {
-    console.log("hello");
+  const [msg, setmsg] = useState("");
+  const [showClip, setShowClip] = useState(false);
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
   };
+  const BASE_URL = "https://api.viznx.in/api/operator";
+  const handleSubmit = async (e) => {
+    setmsg("");
+
+    e.preventDefault();
+    setShowClip(true);
+    try {
+      const newVideo = {
+        ...info,
+        ad:editData.ad.ad._id,
+        customerEmail:editData.ad.ad.customer.email,
+        devices: selectedDevices,
+        slotsWithFrequencies: slots,
+      };
+      const res = await axios.patch(
+        `${BASE_URL}/update-queue`,
+        newVideo,
+        config
+      );
+
+      setEditModalOpen(false)
+    } catch (error) {
+      setmsg(error.response.data.message);
+    }
+    setShowClip(false);
+  };
+
   return (
     <div className="w-[50%] overflow-y-auto	overflow-x-hidden fixed top-[50%] z-[10000] left-[50%] translate-x-[-50%] translate-y-[-50%] max-h-[70vh] bg-white rounded-[20px] shadow-2xl ">
       <div className="device-gradient px-8 py-8 flex sticky top-0 w-full right-0 justify-between rounded-t-[20px]">
@@ -87,7 +133,7 @@ const AdEditModal = ({
                   name="name"
                   onChange={handleChange}
                   className="w-full  input"
-                  defaultValue={editData.ad.name}
+                  defaultValue={editData.ad.ad.name}
                 />
               </div>
 
@@ -99,8 +145,8 @@ const AdEditModal = ({
                   placeholder="Video Link"
                   className="w-full input"
                   name="url"
-                  defaultValue={editData.ad.url}
-                  onChange={handleChange}
+                  defaultValue={editData.ad.ad.url}
+                  onChange={handleChange}deviceIds
                 />
               </div>
 
@@ -539,18 +585,18 @@ const AdEditModal = ({
                   htmlFor="my-modal-3"
                   onClick={handleSubmit}
                 >
-                  Add Video
+                  Update Queue
                 </button>
-                {/*  {showClip && (
+                 {showClip && (
               <span className="flex  gap-4 items-center">
-                <ClipLoader color="#b600ff" /> Adding video{" "}
+                <ClipLoader color="#b600ff" /> Updating Ad{" "}
               </span>
             )}
             {msg && (
               <em>
                 <p className="text-[red]">{msg}</p>
               </em>
-            )} */}
+            )}
               </div>
             </form>
           </div>
