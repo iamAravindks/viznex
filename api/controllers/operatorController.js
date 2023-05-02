@@ -931,6 +931,7 @@ export const loadAd = expressAsyncHandler(async (req, res) => {
     // Send the response with the ad object and the grouped slots
     res.send({
       ad: ad,
+      groupedDevices: groupedDevices,
       groupedSlots: groupedSlots,
       result: result,
       frequency: frequenciesArray,

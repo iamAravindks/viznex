@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.device-gradient{
+  background: linear-gradient(94.26deg, #5940F5 -1.67%, #6FBFE8 100%);    
+  }
+  
+  table,th,td{
+    border: 1px solid rgb(154, 154, 154);
+    border-collapse: collapse !important;
+    }
+  td{
+    padding:0.5rem 1rem;
+  }
+  th{
+    text-align: left;
+    padding: 0.5rem 1rem;
+  }
+  

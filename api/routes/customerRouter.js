@@ -2,8 +2,11 @@ import { Router } from "express";
 import {
   customerLogin,
   customerSignUp,
+  getAds,
+  loadDevices,
   loadProfileCustomer,
 } from "../controllers/customerController.js";
+import { getAdHistory, loadAd } from "../controllers/operatorController.js";
 import { logout } from "../controllers/otherController.js";
 import { isAuthCustomer } from "../middlewares/middlewares.js";
 
@@ -29,4 +32,7 @@ customerRouter.delete(
   logout("Viznx_Secure_Customer_Session_ID", "Viznx_customer_Status")
 );
 
+customerRouter.get('/loadads/:id', getAds)
+customerRouter.post('/ad/:id', getAdHistory)
+customerRouter.post('/load-devices/:id', loadDevices)
 export default customerRouter;

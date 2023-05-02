@@ -37,7 +37,7 @@ const formattedDate = `${year}-${month}-${day}`;
 
     const res = axios
       .post(
-        `${BASE_URL}/load-ad/${id}`,
+        `${BASE_URL}/load-devices /${id}`,
         {
           datereq: datereq,
         },
@@ -48,7 +48,7 @@ const formattedDate = `${year}-${month}-${day}`;
         setSheduleLoading(false);
       })
       .catch((err) => console.log(err));
-  }, [datereq]);
+  }, []);
   const handleGetad = (val) => {
     setDatereq(val);
   };

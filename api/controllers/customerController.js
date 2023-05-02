@@ -1,6 +1,9 @@
 import expressAsyncHandler from "express-async-handler";
 import mongoose, { Error } from "mongoose";
+import Ad from "../models/AdModel.js";
 import Customer from "../models/customerSchema.js";
+import Device from "../models/DeviceModel.js";
+import Operator from "../models/OperatorModel.js";
 import generateToken from "../utils/utils.js";
 
 // @desc customer signup
@@ -70,8 +73,7 @@ export const customerLogin = expressAsyncHandler(async (req, res) => {
 
   try {
     const customer = await Customer.findOne({ email })
-      .populate({ path: "ads" })
-      .populate({ path: "devices" });
+      
 
     if (!customer) {
       res.status(404);
@@ -233,3 +235,82 @@ export const getCustomerById = expressAsyncHandler(async (req, res) => {
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
+
+
+export const getAds = expressAsyncHandler(async (req, res) => {
+  const customerId = req.params.id; // Rename `id` to `customerId` for clarity
+
+  // Find all ads that belong to the customer and populate the `customer` field
+  const ads = await Ad.find({ customer: customerId }).populate('customer');
+
+  // Create a new array to hold the updated ads
+  const newAds = [];
+
+  for (let i = 0; i < ads.length; i++) {
+    // Find the operator that owns the current ad and populate the `adsUnderOperator.ad.customer` field
+    const operator = await Operator.findById(ads[i].operator).populate({
+      path: 'adsUnderOperator.ad',
+      populate: { path: 'customer' },
+    });
+
+    // Find the ad object with the particular ID
+    const adWithId = operator.adsUnderOperator.find(ad => ad.ad.customer._id.toString() === customerId);
+
+    if (adWithId) {
+      // Create a new object that contains the original ad, the operator details, and the ad object with the particular ID
+      const newAd = {
+        ...ads[i]._doc, // use the spread operator to copy the original ad object
+        adWithId: adWithId,
+      };
+
+      // Push the new object to the newAds array
+      newAds.push(newAd);
+    }
+  }
+
+  // Send the newAds array as a JSON response
+  res.json({ customerId, ads: newAds });
+});
+
+
+export const loadDevices = expressAsyncHandler( async(req,res) => {
+  try {
+    const adId = req.params.id;
+    const operatorId = req.body.id
+    const operator = await Operator.findById(operatorId).populate({
+      path: "adsUnderOperator.ad",
+      populate: {
+        path: "customer",
+      },
+      populate:{
+        path: "operator"
+      }
+    });
+    const ad = operator.adsUnderOperator.id(adId);
+    const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+      const deviceId = curr.device;
+      if (!acc[deviceId]) {
+        acc[deviceId] = [];
+      }
+      acc[deviceId].push(curr);
+      return acc;
+    }, {});
+    const groupedSlots =await Promise.all(Object.keys(groupedDevices).map(async(deviceId) => {
+      const deviceDetails = await Device.findById(deviceId)
+      
+      return {
+        deviceDetails:deviceDetails,
+        deviceId: deviceId,
+        slots: groupedDevices[deviceId],
+      };
+    }));
+    res.json({
+      ad:ad,
+      groupedSlots:groupedSlots,
+      groupedDevices:groupedDevices
+    })
+  } catch (error) {
+    console.log(error)
+  }
+})
+

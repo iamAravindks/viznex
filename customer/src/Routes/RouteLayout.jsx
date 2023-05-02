@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import NavbarLayout from "../Layouts/NavbarLayout";
+import AdDetailsPage from "../pages/AdDetailsPage/AdDetailsPage";
 import AdsPage from "../pages/AdsPage/AdsPage";
 import AnalyticsPage from "../pages/AnalyticsPage/AnalyticsPage";
 import DevicePage from "../pages/DevicePage/DevicePage";
@@ -17,6 +18,8 @@ const RouteLayout = () => {
 
         <Route path="/" element={<NavbarLayout />}>
           <Route exact path="/" element={<AdsPage />} />
+          <Route exact path="/ad/:id" element={<AdDetailsPage />} />
+
           <Route exact path="/analytics" element={<AnalyticsPage />} />
           <Route exact path="/devices" element={<DevicePage />} />
           <Route exact path="/user-details" element={<UserDetails />} />
