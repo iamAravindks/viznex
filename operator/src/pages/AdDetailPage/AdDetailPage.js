@@ -1,19 +1,18 @@
 import { useLocation } from "react-router-dom";
-import ReactPlayer from "react-player";
 
-import useFetch from "../../hooks/useFetch";
-
+import { Context } from "../../context/context";
 import ClipLoader from "react-spinners/ClipLoader";
 import { BarChart } from "../../components/Charts/BarChart";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 const AdDetailPage = () => {
   const today = new Date();
   const year = today.getFullYear();
-const month = ('0' + (today.getMonth() + 1)).slice(-2);
-const day = ('0' + today.getDate()).slice(-2);
-const formattedDate = `${year}-${month}-${day}`;
+  const month = ("0" + (today.getMonth() + 1)).slice(-2);
+  const day = ("0" + today.getDate()).slice(-2);
+  const formattedDate = `${year}-${month}-${day}`;
+  const { getTimeSlot } = useContext(Context);
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const [sheduleLoading, setSheduleLoading] = useState(false);
@@ -22,7 +21,6 @@ const formattedDate = `${year}-${month}-${day}`;
   const [data, setdata] = useState(null);
   const handleDateChange = (e) => {
     setDatereq(e.target.value);
-    console.log(datereq);
   };
   const config = {
     headers: {
@@ -90,13 +88,12 @@ const formattedDate = `${year}-${month}-${day}`;
                     Select a particular date to show the ad report for that day
                   </label>
                   <div className="my-4 flex gap-4">
-
                     <input
                       type="date"
                       className="border border-[orange] rounded px-4 py-2"
                       id="datereq"
-                      min={data.ad.deployedDevices[0].startDate.slice(0,10)}
-                      max={data.ad.deployedDevices[0].endDate.slice(0,10)}
+                      min={data.ad.deployedDevices[0].startDate.slice(0, 10)}
+                      max={data.ad.deployedDevices[0].endDate.slice(0, 10)}
                     />
                     <button
                       className="device-gradient px-4 py-1 rounded"
@@ -135,15 +132,24 @@ const formattedDate = `${year}-${month}-${day}`;
                                 </tr>
                                 {data.frequency[0]?.map((object, ind) => (
                                   <tr>
-                                    <td>Slot {ind + 1}</td>
+                                    <td>
+                                      {getTimeSlot(
+                                        `slot${ind + 1}`.trim().toLowerCase()
+                                      )}
+                                    </td>
                                     <td>{object}</td>
                                     <td>
                                       {data.timesPlayedOnDateArray[i][ind]}
                                     </td>
-                                    <td>{object - data.timesPlayedOnDateArray[i][ind]}</td>
+                                    <td>
+                                      {object -
+                                        data.timesPlayedOnDateArray[i][ind]}
+                                    </td>
                                   </tr>
                                 ))}
-                                <caption className="font-bold my-2">Air time Ad Count</caption>
+                                <caption className="font-bold my-2">
+                                  Air time Ad Count
+                                </caption>
                               </table>
                             </div>
                           </div>
