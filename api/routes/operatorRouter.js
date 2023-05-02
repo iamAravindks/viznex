@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   addTheAdToQueue,
   createCustomer,
+  deleteAdQueue,
   deleteCustomer,
   fetchCustomers,
   getAdHistory,
@@ -42,6 +43,14 @@ operatorRouter.post("/create-queue", isAuthOperator, addTheAdToQueue);
 // @access Private
 
 operatorRouter.patch("/update-queue", isAuthOperator, updateQueue);
+
+// @desc delete an ad from all devices,customer, operator which is set by a operator
+// @route DELETE /api/operator/delete-ad-queue
+// @access Private
+
+operatorRouter.delete("/delete-ad-queue", isAuthOperator, deleteAdQueue);
+
+operatorRouter.delete;
 
 // @desc fetch all the devices
 // @route GET /api/operator/load-devices
@@ -100,7 +109,7 @@ operatorRouter.post("/device/:id/", isAuthOperator, getDeviceByIdDate);
 // @access Public
 
 operatorRouter.post("/incad", incNoTimesPlayed);
-operatorRouter.get("/loadAdData/:id",isAuthOperator, loadAdData )
+operatorRouter.get("/loadAdData/:id", isAuthOperator, loadAdData);
 // @desc Logout
 // @route DELETE /api/operator/logout
 // @access Private
