@@ -90,7 +90,7 @@ operatorRouter.post("/report/ad/:id", getAdHistory);
 //@route GET /api/operator/load-device-details
 // @access Private
 
-operatorRouter.get("/load-device-details", loadDevices);
+operatorRouter.get("/load-device-details", isAuthOperator, loadDevices);
 
 // @desc GET a device by id
 // @route GET /api/operator/device/:id

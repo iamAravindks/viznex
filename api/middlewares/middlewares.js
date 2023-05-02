@@ -102,8 +102,6 @@ const isAuthOperator = expressAsyncHandler(async (req, res, next) => {
 const isAuthDevice = expressAsyncHandler(async (req, res, next) => {
   const token = req.cookies["Viznx_Secure_Device_Session_ID"];
 
-  console.log(token);
-
   if (token) {
     try {
       const decodedObj = jwt.verify(

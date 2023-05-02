@@ -1017,12 +1017,37 @@ export const loadDevices = expressAsyncHandler(async (req, res) => {
           deviceId: { $first: "$deviceId" },
           name: { $first: "$name" },
           location: { $first: "$location" },
-          slots: { $push: "$slots" },
+          // slots: { $push: "$slots" },
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "customers",
+      //     localField: "slots.queue.ad.customer",
+      //     foreignField: "_id",
+      //     as: "slots.queue.ad.customer",
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     _id: "$_id",
+      //     deviceId: "$deviceId",
+      //     name: "$name",
+      //     location: "$location",
+      //     slots: "$slots",
+      //     "slots.queue.ad.customer": {
+      //       $map: {
+      //         input: "$slots.queue.ad.customer",
+      //         as: "c",
+      //         in: { name: "$$c.name", email: "$$c.email" },
+      //       },
+      //     },
+      //   },
+      // },
     ]);
     res.json(devices);
   } catch (error) {
+    console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
@@ -1282,7 +1307,7 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
       throw new Error("Updated operator not found");
     }
 
-    res.json(updatedOperator);
+    res.json(updatedOperator.toJSON());
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message || "Internal server error" });
