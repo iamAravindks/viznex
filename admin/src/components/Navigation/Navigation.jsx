@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import "./Navigation.css";
 import { FaPlay, FaPowerOff } from "react-icons/fa";
+import { TbFileReport } from "react-icons/tb";
 
 import { MdDevicesOther, MdDashboard, MdGroups } from "react-icons/md";
 import { Context } from "../../context/context";
@@ -23,6 +24,9 @@ const Navbar = () => {
       case "/devices":
         setTitle("Devices");
         break;
+      case "/reports":
+      setTitle("Reports");
+      break;
 
       default:
         break;
@@ -70,6 +74,11 @@ const Sidebar = () => {
           {
             icon: <MdDevicesOther className="text-[34px]" />,
             text: "Devices",
+          },
+         
+          {
+            icon: <TbFileReport className="text-[34px]" />,
+            text: "Reports",
           },
         ].map((item, index) => (
           <NavLink

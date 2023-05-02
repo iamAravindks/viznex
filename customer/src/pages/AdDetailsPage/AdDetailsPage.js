@@ -92,8 +92,10 @@ const AdDetailsPage = ()=> {
                       <div className="border rounded px-8 py-8">
                         <h1 className="text-2xl font-bold my-4" >Operator Details</h1>
                         <hr />
-                        <div>
-                          <h1>Operator Name : {}</h1>
+                        <div className="my-8 px-4">
+                          <h1 className="font-bold text-lg">Operator Name : {addata.ad.ad.operator.name}</h1>
+                          <h1 className="font-bold text-lg">Operator Email : {addata.ad.ad.operator.email}</h1>
+
                         </div>
                       </div>
              </div>

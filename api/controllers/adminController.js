@@ -401,3 +401,183 @@ export const deleteCustomerId = expressAsyncHandler(async (req, res) => {
     );
   }
 });
+
+
+
+export const getAdminAdHistory = expressAsyncHandler(async (req, res) => {
+  try {
+    const { adId, opId, startDate, endDate } = req.body;
+    /* const adInfo = await Operator.aggregate([
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          email: 1,
+          adsUnderOperator: {
+            $filter: {
+              input: "$adsUnderOperator",
+              as: "ads",
+              cond: {
+                $eq: ["$$ads.ad", new mongoose.Types.ObjectId(req.params.id)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "devices",
+          localField: "adsUnderOperator.deployedDevices.device",
+          foreignField: "_id",
+          as: "devices",
+        },
+      },
+    ]);
+
+    console.log(adInfo);
+    let adHistory = adInfo.map((item) => {
+      if (!item.adsUnderOperator || !item.devices) {
+        delete item.devices;
+        return item;
+      } else {
+        const devices = item.devices;
+        const obj = {
+          name: item.name,
+          email: item.email,
+          adsUnderOperator: item.adsUnderOperator.map((adObj) => {
+            return {
+              ad: adObj.ad,
+              deployedDevices: adObj.deployedDevices.map((deviceObj) => {
+                const deviceInd = devices.findIndex((d) =>
+                  d._id.equals(deviceObj.device)
+                );
+                return {
+                  ...deviceObj,
+                  device: {
+                    name: devices[deviceInd].name,
+                    location: devices[deviceInd].location,
+                    deviceId: devices[deviceInd].deviceId,
+                    _id: devices[deviceInd]._id,
+                  },
+                };
+              }),
+            };
+          }),
+        };
+        return obj;
+      }
+    });
+
+    adHistory = adHistory
+      .filter(
+        (item) => item.adsUnderOperator && item.adsUnderOperator.length > 0
+      )
+      .reduce((acc, curr) => {
+        acc = curr;
+      });
+
+    adHistory.adsUnderOperator.forEach((adObj) =>
+      adObj.deployedDevices.forEach((item) => {
+        item.slot.datesPlayed = item.slot.datesPlayed.filter(
+          (data) =>
+            data.date >= new Date(startDate) && data.date <= new Date(endDate)
+        );
+      })
+    );
+
+    adHistory.adsUnderOperator[0].deployedDevices =
+      adHistory.adsUnderOperator[0].deployedDevices?.reduce((acc, curr) => {
+        const deviceId = curr.device._id;
+        if (!acc[deviceId]) {
+          acc[deviceId] = [];
+        }
+        acc[deviceId].push(curr);
+        return acc;
+      }, {});
+
+    const groupedSlots = Object.keys(
+      adHistory.adsUnderOperator[0].deployedDevices
+    ).map((id) => {
+      // console.log(adHistory.adsUnderOperator[0].deployedDevices[id][0].device);
+      return {
+        device: adHistory.adsUnderOperator[0].deployedDevices[id][0].device,
+        slots: adHistory.adsUnderOperator[0].deployedDevices[id],
+      };
+    });
+
+    adHistory.groupedSlots = groupedSlots;
+    delete adHistory.adsUnderOperator;
+
+    adHistory.groupedSlots.forEach((item) => {
+      item.slots.forEach((sObj) => {
+        delete sObj.device;
+      });
+    }); */
+
+    const operator = await Operator.findById(opId).populate({
+      path: "adsUnderOperator.ad",
+      populate: {
+        path: "customer",
+      },
+    });
+
+    const ad = operator.adsUnderOperator.id(adId);
+    const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+      const deviceId = curr.device;
+      if (!acc[deviceId]) {
+        acc[deviceId] = [];
+      }
+      acc[deviceId].push(curr);
+      return acc;
+    }, {});
+
+    // Finally, map the groupedDevices object to an array of objects
+    const groupedSlots = await Promise.all(
+      Object.keys(groupedDevices).map(async (deviceId) => {
+        const device = await Device.findById(deviceId).exec();
+        return {
+          device: device.toJSON(),
+          deviceId: deviceId,
+          slots: groupedDevices[deviceId],
+        };
+      })
+    );
+    let totalSum = 0;
+    for (let i = 0; i < groupedSlots.length; i++) {
+      let slotobj = groupedSlots[i];
+      let frequencySum = 0;
+      let start = new Date(startDate);
+      let end = new Date(endDate);
+      let numDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+      for (let j = 0; j < slotobj.slots.length; j++) {
+        let frequency = slotobj.slots[j].slot.frequency;
+        frequencySum = frequencySum + frequency * numDays;
+      }
+
+      let slotSum = frequencySum;
+      totalSum += slotSum;
+      groupedSlots[i].sheduledFrequency = totalSum;
+    }
+    let totalSumPlayed = 0;
+    for (let i = 0; i < groupedSlots.length; i++) {
+      let groupedSlot = groupedSlots[i];
+      let sum = 0;
+      for (let j = 0; j < groupedSlot.slots.length; j++) {
+        let slot = groupedSlot.slots[j];
+        let datesPlayed = slot.slot.datesPlayed;
+        for (let k = 0; k < datesPlayed.length; k++) {
+          sum += parseInt(datesPlayed[k].noOfTimesPlayedOnDate);
+        }
+      }
+      groupedSlots[i].totalSumPlayed = sum;
+    }
+
+    console.log(totalSum);
+
+    res.json({ adId, operator, ad, groupedSlots });
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});

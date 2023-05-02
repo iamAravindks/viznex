@@ -20,10 +20,13 @@ const AdsPage = () => {
               <ClipLoader />{" "}
             </div>
           ) : (
-            <div className="">
+            <div className="flex gap-8 flex-wrap">
               {data.ads?.map((itm) => (
-                <div className="bg-[#e3e6f4] w-[70%] rounded px-8 py-8 my-8 flex justify-between">
-                  <div>
+                <div className=" rounded  my-8 flex-col justify-between border rounded overflow-hidden">
+                   <div className="">
+                    <ReactPlayer url={itm.url} width="400px" height="250px" />
+                  </div>
+                  <div className="my-8  px-4">
                     <h1 className="font-bold text-2xl">{itm.name}</h1>
                     <Link to={`/ad/${itm.adWithId._id}`}>
                       {" "}
@@ -32,9 +35,7 @@ const AdsPage = () => {
                       </button>
                     </Link>
                   </div>
-                  <div className="">
-                    <ReactPlayer url={itm.url} width="300px" height="150px" />
-                  </div>
+                 
                 </div>
               ))}
             </div>

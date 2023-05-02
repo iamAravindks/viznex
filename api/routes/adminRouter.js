@@ -7,6 +7,7 @@ import {
   deleteDeviceId,
   deleteOperatorId,
   editOperatorId,
+  getAdminAdHistory,
   loadProfile,
   updateDevice,
 } from "../controllers/adminController.js";
@@ -124,5 +125,5 @@ adminRouter.get("/customer/:id", isAuthAdmin, getCustomerById);
 // @access Private
 
 adminRouter.get("/device/:id", isAuthAdmin, getDeviceById);
-
+adminRouter.post("/report/ad", getAdminAdHistory)
 export default adminRouter;
