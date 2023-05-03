@@ -22,19 +22,19 @@ export const deviceLogin = expressAsyncHandler(async (req, res) => {
       const token = generateTokenForDevice(device._id);
       res.cookie("Viznx_Secure_Device_Session_ID", token, {
         maxAge: maxAge,
-        domain: "viznx.in",
-        path: "/",
+        // domain: "viznx.in",
+        // path: "/",
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        // secure: true,
+        // sameSite: "none",
       });
       res.cookie("Viznx_device_Status", device._id, {
         maxAge: maxAge,
-        domain: "viznx.in",
-        path: "/",
+        // domain: "viznx.in",
+        // path: "/",
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        // secure: true,
+        // sameSite: "none",
       });
 
       const deviceInfo = await Device.findOne({ deviceId })
@@ -146,12 +146,44 @@ export const loadProfile = expressAsyncHandler(async (req, res) => {
       })
       .populate({
         path: "slots.queue.operator",
-        select: "name email",
+        select: "name email adsUnderOperator",
       })
       .lean();
 
+    deviceInfo.slots.forEach((slotObj) => {
+      if (slotObj.queue.length > 0) {
+        slotObj.queue.forEach((qObj) => {
+          const adId = qObj.ad._id.toString();
+          const datesPlayed = [];
+          qObj.operator.adsUnderOperator.forEach((adObj) => {
+            if (adId === adObj.ad.toString()) {
+              datesPlayed.push(
+                adObj.deployedDevices.find(
+                  (dsObj) =>
+                    dsObj.slot.slotType === slotObj.name &&
+                    dsObj.device.toString() === req.device.id.toString()
+                )?.slot.datesPlayed
+              );
+            }
+          });
+          qObj.datesPlayed = datesPlayed.flatMap((subArr) => subArr);
+        });
+      }
+    });
+
+    deviceInfo.slots.forEach((slotObj) => {
+      if (slotObj.queue.length > 0) {
+        slotObj.queue.forEach((qObj) => {
+          delete qObj.operator.adsUnderOperator;
+        });
+      }
+    });
+
+    deviceInfo;
+
     return res.status(201).json(deviceInfo);
   } catch (error) {
+    console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });

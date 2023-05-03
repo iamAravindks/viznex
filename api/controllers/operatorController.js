@@ -1017,12 +1017,37 @@ export const loadDevices = expressAsyncHandler(async (req, res) => {
           deviceId: { $first: "$deviceId" },
           name: { $first: "$name" },
           location: { $first: "$location" },
-          slots: { $push: "$slots" },
+          // slots: { $push: "$slots" },
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "customers",
+      //     localField: "slots.queue.ad.customer",
+      //     foreignField: "_id",
+      //     as: "slots.queue.ad.customer",
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     _id: "$_id",
+      //     deviceId: "$deviceId",
+      //     name: "$name",
+      //     location: "$location",
+      //     slots: "$slots",
+      //     "slots.queue.ad.customer": {
+      //       $map: {
+      //         input: "$slots.queue.ad.customer",
+      //         as: "c",
+      //         in: { name: "$$c.name", email: "$$c.email" },
+      //       },
+      //     },
+      //   },
+      // },
     ]);
     res.json(devices);
   } catch (error) {
+    console.log(error);
     throw new Error(error.message ? error.message : "Internal server error");
   }
 });
@@ -1282,39 +1307,135 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
       throw new Error("Updated operator not found");
     }
 
-    res.json(updatedOperator);
+    res.json(updatedOperator.toJSON());
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message || "Internal server error" });
   }
 });
 
-
 export const loadAdData = expressAsyncHandler(async (req, res) => {
-  const id = req.params.id;
-  const operator = await Operator.findById(req.operator._id).populate({path:"adsUnderOperator.ad",populate:{path:"customer"}}).lean();
-  const ad = operator.adsUnderOperator.find(ad => ad._id.toString() === id);
-  const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
-    const deviceId = curr.device;
-    if (!acc[deviceId]) {
-      acc[deviceId] = [];
-    }
-    acc[deviceId].push(curr);
-    return acc;
-  }, {});
+  try {
+    const id = req.params.id;
+    const operator = await Operator.findById(req.operator._id)
+      .populate({ path: "adsUnderOperator.ad", populate: { path: "customer" } })
+      .lean();
+    const ad = operator.adsUnderOperator.find((ad) => ad._id.toString() === id);
+    const groupedDevices = ad.deployedDevices.reduce((acc, curr) => {
+      const deviceId = curr.device;
+      if (!acc[deviceId]) {
+        acc[deviceId] = [];
+      }
+      acc[deviceId].push(curr);
+      return acc;
+    }, {});
 
-  // Finally, map the groupedDevices object to an array of objects
-  const groupedSlots = await Promise.all(Object.keys(groupedDevices).map(async (deviceId) => {
-    const device = await Device.findById(deviceId).exec();
-    return {
-      device:device.toJSON(),
-      name:device.name,
-      _id: deviceId,
-      slots: groupedDevices[deviceId],
-    };
-  }));
-  let slotsWithFrequencies = [];
-  slotsWithFrequencies = groupedSlots[0].slots.map(slot => ({slot:slot.slot.slotType,adFrequency: slot.slot.frequency}))
-      
-  res.json({ad, groupedSlots,slotsWithFrequencies});
+    // Finally, map the groupedDevices object to an array of objects
+    const groupedSlots = await Promise.all(
+      Object.keys(groupedDevices).map(async (deviceId) => {
+        const device = await Device.findById(deviceId).exec();
+        return {
+          device: device.toJSON(),
+          name: device.name,
+          _id: deviceId,
+          slots: groupedDevices[deviceId],
+        };
+      })
+    );
+    let slotsWithFrequencies = [];
+    slotsWithFrequencies = groupedSlots[0].slots.map((slot) => ({
+      slot: slot.slot.slotType,
+      adFrequency: slot.slot.frequency,
+    }));
+
+    res.json({ ad, groupedSlots, slotsWithFrequencies });
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
+});
+
+export const deleteAdQueue = expressAsyncHandler(async (req, res) => {
+  try {
+    const { adId } = req.body;
+    const operatorId = new mongoose.Types.ObjectId(req.operator._id);
+    if (!adId || !mongoose.isValidObjectId(adId)) {
+      throw new Error("Please provide a valid ad id");
+    }
+
+    const ad = await Ad.findById(new mongoose.Types.ObjectId(adId));
+    const operator = await Operator.findById(operatorId);
+    if (!operator) throw new Error("Unauthorized operator , please log in");
+    if (!ad) {
+      throw new Error("There is no such ad");
+    }
+
+    // delete this ad with operator id from device
+    const devices = await Device.find({
+      slots: {
+        $elemMatch: {
+          "queue.ad": ad._id,
+          "queue.operator": operatorId,
+        },
+      },
+    });
+
+    for (const device of devices) {
+      for (const slot of device.slots) {
+        const queueIndex = slot.queue.findIndex(
+          (item) =>
+            item.ad.toString() === ad._id.toString() &&
+            item.operator.toString() === operatorId.toString()
+        );
+
+        if (queueIndex !== -1) {
+          await Device.updateOne(
+            { _id: device._id, slots: { $elemMatch: { name: slot.name } } },
+            { $pull: { "slots.$.queue": { _id: slot.queue[queueIndex]._id } } }
+          );
+        }
+      }
+    }
+
+    const customer = await Customer.findOne({
+      deviceWithAds: {
+        $elemMatch: {
+          ad: new mongoose.Types.ObjectId(adId),
+          operator: operatorId,
+        },
+      },
+    });
+
+    if (customer) {
+      await Customer.updateOne(
+        {
+          _id: customer._id,
+        },
+        {
+          $pull: {
+            deviceWithAds: {
+              ad: new mongoose.Types.ObjectId(adId),
+              operator: operatorId,
+            },
+          },
+        }
+      );
+    }
+    const updatedOperator = await Operator.findOneAndUpdate(
+      {
+        _id: operatorId,
+      },
+      {
+        $pull: { adsUnderOperator: { ad: new mongoose.Types.ObjectId(adId) } },
+      },
+      { new: true }
+    );
+
+    res.json(updatedOperator.toJSON());
+    // delete this ad with operator id from customers
+
+    // delete this ad with operator id from operator
+  } catch (error) {
+    throw new Error(error.message ? error.message : "Internal server error");
+  }
 });
