@@ -1284,9 +1284,9 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
     const existsDateObj = operator.adsUnderOperator[adObjInd].deployedDevices[
       deviceObjId
     ].slot.datesPlayed.findIndex(
-      (item) => item.date.getTime() === new Date().getTime()
+      (item) =>
+        item.date.toLocaleDateString() === new Date().toLocaleDateString()
     );
-
     if (existsDateObj !== -1) {
       operator.adsUnderOperator[adObjInd].deployedDevices[
         deviceObjId
