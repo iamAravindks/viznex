@@ -9,6 +9,10 @@ const groupRouter = Router();
 // @access Private
 
 groupRouter.post("/create-new", isAuthOperator, createGroup);
+
+// @desc get all groups
+// @route GET /api/group/load-groups
+// @access access
 groupRouter.get("/load-groups", isAuthOperator, getAllGroups);
 
 export default groupRouter;
