@@ -4,30 +4,30 @@ import {
   deleteGroupByID,
   getAllGroups,
   updateGroupId,
-} from "../controllers/groupController.js";
+} from "../controllers/operatorController.js";
 import { isAuthOperator } from "../middlewares/middlewares.js";
 
 const groupRouter = Router();
 
 // @desc create a new group
-// @route POST /api/group/create-new
+// @route POST /api/operator/create-new
 // @access Private
 
 groupRouter.post("/create-new", isAuthOperator, createGroup);
 
 // @desc get all groups
-// @route GET /api/group/load-groups
+// @route GET /api/operator/load-groups
 // @access access
 groupRouter.get("/load-groups", isAuthOperator, getAllGroups);
 
 // @desc update a group
-// @route PATCH /api/group/update/:id
+// @route PATCH /api/operator/update/:id
 // @access Private
 
 groupRouter.patch("/update/:id", isAuthOperator, updateGroupId);
 
 // @desc Delete a group
-// @route DELETE /api/group/delete-group/:id
+// @route DELETE /api/operator/delete-group/:id
 // @access Private
 
 groupRouter.delete("/delete-group/:id", isAuthOperator, deleteGroupByID);
