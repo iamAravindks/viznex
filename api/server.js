@@ -8,6 +8,7 @@ import morgan from "morgan";
 import operatorRouter from "./routes/operatorRouter.js";
 import deviceRouter from "./routes/deviceRouter.js";
 import customerRouter from "./routes/customerRouter.js";
+import groupRouter from "./routes/groupRouter.js";
 const app = express();
 
 app.use(morgan("dev"));
@@ -33,6 +34,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/operator", operatorRouter);
 app.use("/api/customer", customerRouter);
 app.use("/api/device", deviceRouter);
+app.use("/api/group", groupRouter);
 
 app.use(notFound);
 app.use(errorHandler);
