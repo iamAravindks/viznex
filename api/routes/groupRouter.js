@@ -4,7 +4,7 @@ import {
   deleteGroupByID,
   getAllGroups,
   updateGroupId,
-} from "../controllers/operatorController.js";
+} from "../controllers/groupController.js";
 import { isAuthOperator } from "../middlewares/middlewares.js";
 
 const groupRouter = Router();
