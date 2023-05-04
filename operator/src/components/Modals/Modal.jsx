@@ -123,7 +123,7 @@ const Modal = ({ reFetch }) => {
               htmlFor="my-modal-3"
               className="btn btn-md btn-circle absolute right-5 top-6 bg-white text-[#333] hover:bg-white hover:text-[#333]"
             >
-              ✕
+              X
             </label>
             <div className=" text-left text-white pl-11 pt-3 pb-2 h-[87px] flex items-center top-panel">
               <h1 className="text-device-name font-bold text-[1.7rem]">

@@ -21,7 +21,7 @@ const initialState = {
   error: null,
 };
 
-const BASE_URL = "https://api.viznx.in/api/operator";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const Context = createContext(initialState);
 const config = {
