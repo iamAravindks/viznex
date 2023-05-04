@@ -33,7 +33,7 @@ export const createGroup = expressAsyncHandler(async (req, res) => {
       throw new Error("error in creating new group");
     }
 
-    const allGroups = allGroupsByOperator(operator);
+    const allGroups = await allGroupsByOperator(operator);
 
     res.status(200).json(allGroups);
   } catch (error) {
@@ -47,7 +47,7 @@ export const createGroup = expressAsyncHandler(async (req, res) => {
 export const getAllGroups = expressAsyncHandler(async (req, res) => {
   try {
     const operator = req.operator._id;
-    const allGroups = allGroupsByOperator(operator);
+    const allGroups = await allGroupsByOperator(operator);
     res.status(200).json(allGroups);
   } catch (error) {
     console.log(error);

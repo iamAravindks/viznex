@@ -23,6 +23,5 @@ export const allGroupsByOperator = async (operator) => {
       select: "deviceId name location",
     })
     .select("-operator");
-
   return allGroups;
 };
