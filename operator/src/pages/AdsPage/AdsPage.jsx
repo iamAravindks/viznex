@@ -18,7 +18,9 @@ const AdsPage = () => {
     withCredentials: true,
   };
   const BASE_URL = "https://api.viznx.in/api/operator";
-  const axiosInstance = axios.create({
+
+/*   const BASE_URL = "https://api.viznx.in/api/operator";
+ */  const axiosInstance = axios.create({
     baseURL: "https://api.viznx.in/api/operator",
   });
   const navigate = useNavigate();

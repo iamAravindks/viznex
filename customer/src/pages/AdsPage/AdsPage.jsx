@@ -12,7 +12,7 @@ const AdsPage = () => {
   return (
     <div className="pt-20 px-20">
       <div>
-        <h1 className="text-3xl font-bold">Your advertisements</h1>
+        <h1 className="text-3xl font-bold">Your Ads</h1>
 
         <div>
           {loading ? (

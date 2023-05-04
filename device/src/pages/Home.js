@@ -4,7 +4,7 @@ import { useContext, useState, useRef, useEffect } from 'react'
 import { Context } from '../context/context'
 import axios from 'axios'
 const Home = () => {
-  const BASE_URL = "http://localhost:5000/api/operator";
+  const BASE_URL = "https://api.viznx.in/api/operator";
 
 const config = {
   headers: {
@@ -20,7 +20,7 @@ const config = {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
         switch(currentHour){
-          case 9:
+          case 0:
             setSlot(0)
             break;
           case 10:
@@ -108,18 +108,38 @@ const config = {
           adId,
           operatorId,
         };
-         await axios.post(`${BASE_URL}/incad`,inc, config)
+         const res = await axios.post(`${BASE_URL}/incad`,inc, config)
+         console.log("hello")
         console.log(inc)
         newInfo.slots[slot].queue[currentUrlIndex].adFrequency =
-          newInfo.slots[slot].queue[currentUrlIndex].adFrequency - 1;
-        setInfo(newInfo);
-        console.log(info);
-    
+        newInfo.slots[slot].queue[currentUrlIndex].adFrequency - 1;
+      setInfo(newInfo);
+      console.log(info);
+      console.log("hello second")
+        
+        
+        console.log(val)
+      
+        
+        
+       
         if (currentUrlIndex < val - 1) {
           let nextIndex = currentUrlIndex + 1;
+          console.log(nextIndex)
+          do {
+            if(newInfo.slots[slot].queue[nextIndex].datesPlayed != undefined){
+            newInfo.slots[slot].queue[nextIndex].adFrequency = newInfo.slots[slot].queue[nextIndex].adFrequency - newInfo.slots[slot].queue[nextIndex].datesPlayed[0].noOfTimesPlayedOnDate ;
+            setInfo(newInfo);
+          
+            console.log(newInfo.slots[slot].queue[nextIndex].adFrequency)
+          }
+            
+          } while ( newInfo.slots[slot].queue[nextIndex].datesPlayed != undefined && newInfo.slots[slot].queue[nextIndex].adFrequency === newInfo.slots[slot].queue[nextIndex].datesPlayed[0].noOfTimesPlayedOnDate);
+  
+          
           while (
             newInfo.slots[slot].queue[nextIndex] &&
-            newInfo.slots[slot].queue[nextIndex].adFrequency === 0
+            newInfo.slots[slot].queue[nextIndex].adFrequency <= 0
           ) {
             // skip over videos with adFrequency 0
             nextIndex++;
