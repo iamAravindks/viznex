@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Device from "../models/DeviceModel.js";
 import { generateTokenForDevice } from "../utils/utils.js";
 import Ad from "../models/AdModel.js";
+import { getDeviceFullProfile } from "./otherController.js";
 
 // @desc Device Login
 // @access Private
@@ -130,56 +131,7 @@ export const fetchDevices = expressAsyncHandler(async (req, res) => {
 
 export const loadProfile = expressAsyncHandler(async (req, res) => {
   try {
-    const deviceInfo = await Device.findById(req.device.id)
-      .select("-password ")
-      .populate({
-        path: "slots",
-        select: "name ",
-        populate: {
-          path: "queue.ad",
-          select: "name url adFrequency customer",
-          populate: {
-            path: "customer",
-            select: "name email",
-          },
-        },
-      })
-      .populate({
-        path: "slots.queue.operator",
-        select: "name email adsUnderOperator",
-      })
-      .lean();
-
-    deviceInfo.slots.forEach((slotObj) => {
-      if (slotObj.queue.length > 0) {
-        slotObj.queue.forEach((qObj) => {
-          const adId = qObj.ad._id.toString();
-          const datesPlayed = [];
-          qObj.operator.adsUnderOperator.forEach((adObj) => {
-            if (adId === adObj.ad.toString()) {
-              datesPlayed.push(
-                adObj.deployedDevices.find(
-                  (dsObj) =>
-                    dsObj.slot.slotType === slotObj.name &&
-                    dsObj.device.toString() === req.device.id.toString()
-                )?.slot.datesPlayed
-              );
-            }
-          });
-          qObj.datesPlayed = datesPlayed.flatMap((subArr) => subArr);
-        });
-      }
-    });
-
-    deviceInfo.slots.forEach((slotObj) => {
-      if (slotObj.queue.length > 0) {
-        slotObj.queue.forEach((qObj) => {
-          delete qObj.operator.adsUnderOperator;
-        });
-      }
-    });
-
-    deviceInfo;
+    const deviceInfo = await getDeviceFullProfile(req.device.id);
 
     return res.status(201).json(deviceInfo);
   } catch (error) {
@@ -302,5 +254,105 @@ export const getDeviceReport = expressAsyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error);
     throw new Error(error.message ? error.message : "Internal server Error");
+  }
+});
+
+export const getAdForecastReport = expressAsyncHandler(async (req, res) => {
+  try {
+    const { deviceId, to, from } = req.body;
+
+    if (!deviceId || !mongoose.isValidObjectId(deviceId) || (!to && !from)) {
+      res.status(400);
+      throw new Error("Please provide correct date and device id");
+    }
+    const toDate = new Date(to);
+    const fromDate = new Date(from);
+    const deviceInfo = await Device.findById(
+      new mongoose.Types.ObjectId(deviceId)
+    )
+      .select("-password")
+      .populate({
+        path: "slots",
+        select: "name ",
+        populate: {
+          path: "queue.ad",
+          select: "name url adFrequency customer",
+          populate: {
+            path: "customer",
+            select: "name email",
+          },
+        },
+      })
+      .populate({
+        path: "slots.queue.operator",
+        select: "name email adsUnderOperator",
+      })
+      .lean();
+
+    deviceInfo.slots.forEach((slotObj) => {
+      if (slotObj.queue.length > 0) {
+        slotObj.queue.forEach((qObj) => {
+          delete qObj.operator.adsUnderOperator;
+        });
+      }
+    });
+
+    function getDatesInRange(fromDate, toDate) {
+      const dates = [];
+      let currentDate = new Date(fromDate);
+
+      while (currentDate <= toDate) {
+        dates.push(new Date(currentDate).toLocaleDateString());
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dates;
+    }
+    function createObjectWithKeys(keys) {
+      const result = [];
+
+      for (let i = 0; i < keys.length; i++) {
+        result.push({ date: keys[i], data: [] });
+      }
+
+      return result;
+    }
+
+    const range = getDatesInRange(fromDate, toDate);
+
+    const report = createObjectWithKeys(range);
+    const copyDeviceInfo = { ...deviceInfo };
+
+    report.forEach((elem) => {
+      const date = elem.date;
+      const dataForReport = copyDeviceInfo.slots.map((slotObj) => {
+        const newSlotObj = { ...slotObj };
+        if (newSlotObj.queue.length > 0) {
+          newSlotObj.queue = newSlotObj.queue.filter(
+            (adObj) =>
+              // !confusion here
+              new Date(adObj.startDate) <= new Date(date) &&
+              new Date(date) <= new Date(adObj.endDate)
+          );
+        }
+        return newSlotObj;
+      });
+      elem.data = dataForReport;
+    });
+
+    const { _id, name, deviceId: IdOfDevice, location } = deviceInfo;
+
+    const response = {
+      _id,
+      name,
+      deviceId: IdOfDevice,
+      location,
+      report,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.message ? error.message : "Internal server error");
   }
 });
