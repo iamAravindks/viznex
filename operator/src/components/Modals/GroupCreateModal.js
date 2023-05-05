@@ -3,7 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
-const GroupCreateModal = () => {
+const GroupCreateModal = ({reFetch}) => {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -41,10 +41,12 @@ const GroupCreateModal = () => {
       };
       console.log(newGroup);
       const res = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/group/create-new`,
+        `${process.env.REACT_APP_BASE_URL}/create-new`,
         newGroup,
         config
       );
+      setOpenGroupCreateModal(false)
+      reFetch()
     } catch (error) {
       setmsg(error.response.data.message);
     }

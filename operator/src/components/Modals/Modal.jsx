@@ -34,7 +34,7 @@ const Modal = ({ reFetch }) => {
     },
     withCredentials: true,
   };
-  const BASE_URL = "https://api.viznx.in/api/operator";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const onFrequencyChange = (v, id) => (e) => {
     if (document.getElementById(id).checked == true) {
       const newSlots = [...slots]; // Create a copy of the slots array
@@ -47,7 +47,7 @@ const Modal = ({ reFetch }) => {
   };
 
   const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api/operator",
+    baseURL: process.env.REACT_APP_BASE_URL,
   });
   const [devices, setDevices] = useState([]);
   const handleLoadDevices = async () => {
@@ -61,6 +61,11 @@ const Modal = ({ reFetch }) => {
     const res = await axiosInstance.get("/load-customers", config);
     setCustomers(res.data);
   };
+  const [groups, setGroups] = useState([])
+  const handleLoadGroups = async () => {
+    const res = await axiosInstance.get("/load-groups", config)
+    setGroups(res.data)
+  }
   const handleSelectChange = () => {
     setCustomer(document.querySelector("#customer").value);
   };
@@ -70,6 +75,7 @@ const Modal = ({ reFetch }) => {
     console.log(info);
   };
   const [selectedDevices, setSelectedDevices] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
 
   const handleSubmit = async (e) => {
     setmsg("");
@@ -79,7 +85,7 @@ const Modal = ({ reFetch }) => {
     try {
       const newVideo = {
         ...info,
-        devices: selectedDevices,
+        devices: selectedGroups,
         slotsWithFrequencies: slots,
         customerEmail: customer,
       };
@@ -89,9 +95,7 @@ const Modal = ({ reFetch }) => {
         config
       );
 
-      setinfo({});
-      setSelectedDevices([]);
-      setCustomer("");
+     
       document.querySelector("#my-modal-3").checked = false;
       reFetch();
     } catch (error) {
@@ -108,6 +112,7 @@ const Modal = ({ reFetch }) => {
         onClick={() => {
           handleLoadDevices();
           handleLoadCustomers();
+          handleLoadGroups();
         }}
         className="btn border-0 hover:bg-[#FFB800] min-h-0 capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px] w-[202px] h-[45]  bg-[#FFB800] text-[#fff] text-[21.07px] font-bold"
       >
@@ -172,7 +177,27 @@ const Modal = ({ reFetch }) => {
                 onChange={handleChange}
               />
             </div>
-
+            <div className="flex-col items-center gap-3 input-container  pt-12  min-w-[80%]">
+              <label htmlFor="">
+                Select the Groups to publish this advertisement
+              </label>
+              <Multiselect
+                options={groups}
+                displayValue="name"
+                onSelect={(selectedList, selectedItem) =>{
+                  const deviceIds = selectedItem.devices.map(device => device._id);
+                  setSelectedGroups([...selectedGroups, ...deviceIds]);
+                  console.log(selectedGroups)
+                }
+                  
+                }
+                onRemove={(selectedList, removedItem) => {
+                  const removedGroupDeviceIds = removedItem.devices.map(device => device._id);
+                  setSelectedGroups(selectedGroups.filter(groupId => !removedGroupDeviceIds.includes(groupId)));
+                console.log(selectedGroups)
+                }}
+              />
+            </div>
             <div className="flex-col items-center gap-3 input-container  py-12  min-w-[80%]">
               <label htmlFor="">
                 Select the devices to publish this advertisement
@@ -180,11 +205,14 @@ const Modal = ({ reFetch }) => {
               <Multiselect
                 options={devices}
                 displayValue="name"
-                onSelect={(selectedList, selectedItem) =>
-                  setSelectedDevices([...selectedDevices, selectedItem._id])
+                onSelect={(selectedList, selectedItem) =>{
+                  if (!selectedGroups.includes(selectedItem._id)) {
+                    setSelectedGroups([...selectedGroups, selectedItem._id]);
+                  }
+                }
                 }
                 onRemove={(selectedList, removedItem) => {
-                  setSelectedDevices((current) =>
+                  setSelectedGroups((current) =>
                     current.filter((elm) => elm != removedItem._id)
                   );
                 }}
