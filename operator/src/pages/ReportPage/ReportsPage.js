@@ -9,6 +9,7 @@ const ReportsPage = () => {
   const { userInfo } = useContext(Context);
   const { data: ads, loading, error, reFetch } = useFetch("/load-ads");
   const { data: devices, loading:deviceLoading } = useFetch("/load-devices");
+  const { getTimeSlot } = useContext(Context);
 
   const config = {
     headers: {
@@ -24,6 +25,8 @@ const ReportsPage = () => {
   const [info, setInfo] = useState({});
   const [adInfo, setAdInfo] = useState([]);
   const [reportloading, setreportloading] = useState(false);
+  const [devicereportloading, setdevicereportloading] = useState(false);
+
   const handleChange = (e) => {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -71,14 +74,14 @@ const ReportsPage = () => {
   const handledeviceClick = async (e) => {
     e.preventDefault();
     try {
-      setreportloading(true);
+      setdevicereportloading(true);
       if (selectedDevice._id !== null && deviceinfo.from && deviceinfo.to) {
         const newReport = {
           ...deviceinfo,
           deviceId: selectedDevice._id
         };
         const res = await axios.post(
-          'http://localhost:5000/api/device/ad-forecast',
+          'https://api.viznx.in/api/device/ad-forecast',
           newReport,
           config
         );
@@ -89,7 +92,7 @@ const ReportsPage = () => {
         alert("Please enter the correct details");
 
       }
-      setreportloading(false);
+      setdevicereportloading(false);
 
     } catch (error) {
       console.log(error);
@@ -249,7 +252,57 @@ const ReportsPage = () => {
           </button>
         </div>
       </form>
-
+      {devicereportloading ? (
+        <div>
+          <ClipLoader />
+        </div>
+      ) : (
+        Object.keys(selectedDevice).length !== 0 &&
+        Object.keys(devicedata).length !== 0 && (
+          <div className="my-20">
+            <table id="deviceReport" className="bg-white">
+              <caption className="text-xl font-bold">Air-forcast Report</caption>
+              <tr>
+                <th colSpan="2">Device Name:</th>
+                <th colSpan="6">{selectedDevice.name}</th>
+              </tr>
+              <tr>
+                <th colSpan="2">Device Email:</th>
+                <th colSpan="6">{selectedDevice.location}</th>
+              </tr>
+              <tr>
+                <th>Date</th>
+                <th>Slots</th>
+                <th>No of Ads</th>
+                
+              </tr>
+              {devicedata.report?.map((itm, i) => {
+                console.log(itm);
+                 return(
+                  itm.data?.map((obj, ind)=> (
+                    <tr>
+                    {ind === 0 && (
+                      <td rowSpan={itm.data.length}>{itm.date}</td>
+                    )}
+                    
+                   <td>{getTimeSlot(obj.name.trim().toLowerCase())}</td>
+                  <td>{obj.queue.length}</td>
+                  </tr>
+                  ))
+                 )
+              })}
+            </table>
+            <ReactHTMLTableToExcel
+              id="test-table-xls-button"
+              className="download-table-xls-button px-4 py-2 rounded device-gradient my-8"
+              table="deviceReport"
+              filename="tablexls"
+              sheet="tablexls"
+              buttonText="Download as XLS"
+            />
+          </div>
+        )
+      )}
     </div>
   );
 };
