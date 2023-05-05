@@ -17,11 +17,10 @@ const AdsPage = () => {
     },
     withCredentials: true,
   };
-  const BASE_URL = "https://api.viznx.in/api/operator";
+  const BASE_URL =  process.env.REACT_APP_BASE_URL;
 
-/*   const BASE_URL = "https://api.viznx.in/api/operator";
- */  const axiosInstance = axios.create({
-    baseURL: "https://api.viznx.in/api/operator",
+ const axiosInstance = axios.create({
+    baseURL: process.env.REACT_APP_BASE_URL,
   });
   const navigate = useNavigate();
   const {data, loading, error, reFetch} = useFetch("/load-ads")
@@ -33,6 +32,10 @@ const AdsPage = () => {
     const res = await axiosInstance.get("/load-devices", config);
     setDevices(res.data);
   };
+  const handleDelete = async(id) => {
+    await axiosInstance.post('/delete-ad-queue', {adId: id}, config)
+
+  }
   const [selectedCard, setSelectedCard] = useState(null);
   const handleClick = (id) => {
     navigate(`/ad/${id}`);
@@ -82,7 +85,7 @@ const AdsPage = () => {
                   <button onClick={()=> handleOpenModal(itm._id)} className="px-4 py-1 border-0 hover:bg-[#FFB800]  capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px]   bg-[#FFB800] text-[#fff] text-sm font-bold">
                     Edit
                   </button>
-                  <button className="px-4 py-1 border-0 hover:bg-[#FFB800] capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px]   bg-[#FFB800] text-[#fff] text-sm font-bold">
+                  <button className="px-4 py-1 border-0 hover:bg-[#FFB800] capitalize shadow-[0_0_3.63448px_rgba(0,0,0,0.25)] rounded-[50px]   bg-[#FFB800] text-[#fff] text-sm font-bold" onClick={()=>handleDelete(itm.ad._id)}>
                     Delete
                   </button>
                 </div>
