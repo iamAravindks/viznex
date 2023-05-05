@@ -1,5 +1,7 @@
 import expressAsyncHandler from "express-async-handler";
 import { Group } from "../models/GroupModel.js";
+import mongoose from "mongoose";
+import Device from "../models/DeviceModel.js";
 
 export const logout = (cookieName, otherCookie = null) =>
   expressAsyncHandler(async (req, res) => {
@@ -24,4 +26,59 @@ export const allGroupsByOperator = async (operator) => {
     })
     .select("-operator");
   return allGroups;
+};
+
+export const getDeviceFullProfile = async (deviceId) => {
+  const deviceInfo = await Device.findById(
+    new mongoose.Types.ObjectId(deviceId)
+  )
+    .select("-password ")
+    .populate({
+      path: "slots",
+      select: "name ",
+      populate: {
+        path: "queue.ad",
+        select: "name url adFrequency customer",
+        populate: {
+          path: "customer",
+          select: "name email",
+        },
+      },
+    })
+    .populate({
+      path: "slots.queue.operator",
+      select: "name email adsUnderOperator",
+    })
+    .lean();
+
+  deviceInfo.slots.forEach((slotObj) => {
+    if (slotObj.queue.length > 0) {
+      slotObj.queue.forEach((qObj) => {
+        const adId = qObj.ad._id.toString();
+        const datesPlayed = [];
+        qObj.operator.adsUnderOperator.forEach((adObj) => {
+          if (adId === adObj.ad.toString()) {
+            datesPlayed.push(
+              adObj.deployedDevices.find(
+                (dsObj) =>
+                  dsObj.slot.slotType === slotObj.name &&
+                  dsObj.device.toString() === deviceId.toString()
+              )?.slot.datesPlayed
+            );
+          }
+        });
+        qObj.datesPlayed = datesPlayed.flatMap((subArr) => subArr);
+      });
+    }
+  });
+
+  deviceInfo.slots.forEach((slotObj) => {
+    if (slotObj.queue.length > 0) {
+      slotObj.queue.forEach((qObj) => {
+        delete qObj.operator.adsUnderOperator;
+      });
+    }
+  });
+
+  return deviceInfo;
 };

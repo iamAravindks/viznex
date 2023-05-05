@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   deviceLogin,
+  getAdForecastReport,
   getDeviceReport,
   loadProfile,
   loadQueues,
@@ -34,6 +35,12 @@ deviceRouter.get("/load-queues", isAuthDevice, loadQueues);
 // @access Public
 
 deviceRouter.post("/report/device/:id", getDeviceReport);
+
+// @desc get adForecastReport of a device
+// @route POST /api/device/ad-forecast/
+// @access Public
+
+deviceRouter.post("/ad-forecast/", getAdForecastReport);
 
 // @desc Logout
 // @route DELETE /api/admins/logout

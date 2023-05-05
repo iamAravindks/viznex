@@ -752,19 +752,25 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
 
     await customer.save();
     // now operator
-    let devicesForUpdate = [...devices];
-    const allDevicesWithSlots = operator.adsUnderOperator[
-      adObjInd
-    ].deployedDevices.map((item) => item.device);
+
+    // const allDevicesWithSlots = operator.adsUnderOperator[
+    //   adObjInd
+    // ].deployedDevices.map((item) => item.device);
     console.log("operator");
     console.log(allDevicesWithAdIdOperatorId);
 
     // deletion of devices : filter out all of the objects that is not included in the devices array
-    operator.adsUnderOperator[adObjInd].deployedDevices =
-      operator.adsUnderOperator[adObjInd].deployedDevices.filter((item) => {
-        return devices.includes(item.device.toString());
-      });
+    // operator.adsUnderOperator[adObjInd].deployedDevices =
+    //   operator.adsUnderOperator[adObjInd].deployedDevices.filter((item) => {
+    //     return devices.includes(item.device.toString());
+    //   });
 
+    // deletion of devices : filter out all of the objects that is not included in the devices array : by making it the frequencies as 0
+    operator.adsUnderOperator[adObjInd].deployedDevices.forEach((item) => {
+      if (!devices.includes(item.device.toString())) {
+        item.slot.frequency = 0;
+      }
+    });
     // updating the devices
 
     devices.forEach((_id) => {
@@ -809,12 +815,11 @@ export const updateQueue = expressAsyncHandler(async (req, res) => {
             const hasDeviceObj = slotsWithFrequencies.some(
               (slotObj) => slotObj.slot === deviceObj.slot.slotType
             );
-
+            // make it's frequncy as 0
             if (!hasDeviceObj) {
-              operator.adsUnderOperator[adObjInd].deployedDevices.splice(
-                index,
-                1
-              );
+              operator.adsUnderOperator[adObjInd].deployedDevices[
+                index
+              ].slot.frequency = 0;
             }
           }
         }
