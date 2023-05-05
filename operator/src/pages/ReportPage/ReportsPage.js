@@ -8,6 +8,7 @@ import ReactHTMLTableToExcel from "react-html-table-to-excel";
 const ReportsPage = () => {
   const { userInfo } = useContext(Context);
   const { data: ads, loading, error, reFetch } = useFetch("/load-ads");
+  const { data: devices, loading:deviceLoading } = useFetch("/load-devices");
 
   const config = {
     headers: {
@@ -18,15 +19,28 @@ const ReportsPage = () => {
   const BASE_URL = "https://api.viznx.in/api/operator";
   const [selectedAd, setSelectedAd] = useState({});
   const [data, setData] = useState({});
+  const [devicedata, setdeviceData] = useState({});
+
   const [info, setInfo] = useState({});
   const [adInfo, setAdInfo] = useState([]);
   const [reportloading, setreportloading] = useState(false);
   const handleChange = (e) => {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+  const [deviceinfo, setdeviceInfo] = useState({});
+  const handledeviceChange = (e) => {
+    setdeviceInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
   const handleSelectChange = () => {
     let selectedAdOption = ads[document.querySelector("#ad").value];
     setSelectedAd(selectedAdOption);
+  };
+  const [selectedDevice, setSelectedDevice] = useState({});
+
+  const handledeviceSelectChange = () => {
+    let selectedAdOption = devices[document.querySelector("#device").value];
+    setSelectedDevice(selectedAdOption);
+    console.log(selectedDevice)
   };
 
   const handleClick = async (e) => {
@@ -45,10 +59,38 @@ const ReportsPage = () => {
           config
         );
         setData(res.data);
-        setreportloading(false);
       } else {
         alert("Please enter the correct details");
       }
+      setreportloading(false);
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handledeviceClick = async (e) => {
+    e.preventDefault();
+    try {
+      setreportloading(true);
+      if (selectedDevice._id !== null && deviceinfo.from && deviceinfo.to) {
+        const newReport = {
+          ...deviceinfo,
+          deviceId: selectedDevice._id
+        };
+        const res = await axios.post(
+          'http://localhost:5000/api/device/ad-forecast',
+          newReport,
+          config
+        );
+        setdeviceData(res.data);
+        console.log(devicedata)
+        setreportloading(false);
+      } else {
+        alert("Please enter the correct details");
+
+      }
+      setreportloading(false);
+
     } catch (error) {
       console.log(error);
     }
@@ -166,6 +208,48 @@ const ReportsPage = () => {
           </div>
         )
       )}
+
+<h1 className="text-xl font-bold">Device Report</h1>
+<form action="">
+        <div className="my-8">
+          <label htmlFor="">Select the Device</label>
+          <br></br>
+          <select
+            onChange={handledeviceSelectChange}
+            id="device"
+            className="w-[80%] border  border-[#ff8a00] px-2 bg-[white] rounded py-3 outline-none"
+          >
+            <option>Select Device</option>
+
+            {devices?.map((itm, i) => (
+              <option value={i}>{itm.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="my-8 flex gap-4 items-center">
+          <label htmlFor="">Start Date</label>
+          <input
+            type="date"
+            name="from"
+            onChange={handledeviceChange}
+            className="border border-[#ff8a00] outline-none px-4 py-2 rounded"
+          />
+          <label htmlFor="">End Date</label>
+          <input
+            type="date"
+            name="to"
+            onChange={handledeviceChange}
+            className="border border-[#ff8a00] outline-none px-4 py-2 rounded"
+          />
+          <button
+            className="device-gradient rounded px-4 py-2"
+            onClick={handledeviceClick}
+          >
+            Generate Report
+          </button>
+        </div>
+      </form>
+
     </div>
   );
 };

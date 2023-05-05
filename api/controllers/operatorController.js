@@ -1358,7 +1358,7 @@ export const loadAdData = expressAsyncHandler(async (req, res) => {
 export const deleteAdQueue = expressAsyncHandler(async (req, res) => {
   try {
     const { adId } = req.body;
-    const operatorId = new mongoose.Types.ObjectId(req.operator._id);
+    const operatorId = new mongoose.Types.ObjectId(req.operator.id);
     if (!adId || !mongoose.isValidObjectId(adId)) {
       throw new Error("Please provide a valid ad id");
     }

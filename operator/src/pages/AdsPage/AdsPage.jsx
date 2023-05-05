@@ -32,8 +32,8 @@ const AdsPage = () => {
     const res = await axiosInstance.get("/load-devices", config);
     setDevices(res.data);
   };
-  const handleDelete = async(id) => {
-    await axiosInstance.post('/delete-ad-queue', {adId: id}, config)
+  const handleDelete = async (id) => {
+    await axiosInstance.delete('/delete-ad-queue', {adId: id}, config)
 
   }
   const [selectedCard, setSelectedCard] = useState(null);
