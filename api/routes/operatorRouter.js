@@ -48,7 +48,7 @@ operatorRouter.patch("/update-queue", isAuthOperator, updateQueue);
 // @route DELETE /api/operator/delete-ad-queue
 // @access Private
 
-operatorRouter.delete("/delete-ad-queue", isAuthOperator, deleteAdQueue);
+operatorRouter.patch("/delete-ad-queue", isAuthOperator, deleteAdQueue);
 
 operatorRouter.delete;
 
