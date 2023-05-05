@@ -21,7 +21,17 @@ export const AdSchema = mongoose.Schema({
     ref: "Customer",
     required: true,
   },
+  created_at: { type: Date },
+  updated_at: { type: Date },
   // should we add the devices that plays this ad in here or create another function for this
+});
+AdSchema.pre("save", function (next) {
+  const now = new Date();
+  this.updated_at = now;
+  if (!this.created_at) {
+    this.created_at = now;
+  }
+  next();
 });
 
 const Ad = mongoose.models.Ads || mongoose.model("Ad", AdSchema);
