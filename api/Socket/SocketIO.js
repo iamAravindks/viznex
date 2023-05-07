@@ -12,10 +12,10 @@ export const startSocket = (server) => {
     console.log(`Device ${socket.id} connected to socket route`);
 
     // Join the room with the device ID
-    const deviceId = socket.handshake.query.deviceId;
-    socket.join(deviceId);
+    const id = socket.handshake.query.id;
+    socket.join(id);
 
-    socket.on("statusUpdate", async () => {
+    socket.on("statusUpdate", async (deviceId) => {
       const device = await Device.findById(
         new mongoose.Types.ObjectId(deviceId)
       );
@@ -23,7 +23,14 @@ export const startSocket = (server) => {
       await device.save();
 
       // Emit the status update only to the corresponding room
-      io.to(deviceId).emit("statusUpdate", device.status);
+      io.to(id).emit("statusUpdate", device.status);
+    });
+
+    socket.on("checkStatus", async (deviceId) => {
+      const device = await Device.findById(
+        new mongoose.Types.ObjectId(deviceId)
+      );
+      io.to(id).emit("checkStatus", device.status);
     });
 
     socket.on("disconnect", async () => {
