@@ -9,4 +9,5 @@ export default {
   EMAIL_PORT: process.env.EMAIL_PORT,
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_USER_PASS: process.env.EMAIL_USER_PASS,
+  CLIENT_CONNECTION: process.env.CLIENT_CONNECTION,
 };

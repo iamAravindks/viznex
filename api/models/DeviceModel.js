@@ -47,7 +47,7 @@ const DeviceSchema = mongoose.Schema({
             "slotEleven",
             "slotTwelve",
             "slotThirteen",
-            "slotFourteen"
+            "slotFourteen",
           ],
         },
         queue: [QueueSchema],
@@ -126,6 +126,10 @@ const DeviceSchema = mongoose.Schema({
         message: "Slot names must be unique.",
       },
     ],
+  },
+  status: {
+    type: Boolean,
+    default: false,
   },
 });
 
