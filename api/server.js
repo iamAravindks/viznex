@@ -41,11 +41,8 @@ app.use("/api/operator", groupRouter);
 app.use("/api/customer", customerRouter);
 app.use("/api/device", deviceRouter);
 
-app.use("/api/device/socket", (req, res, next) => {
-  // Attach the Socket.IO instance to the request object
-  startSocket(server);
-  next();
-});
+// Connect to the socket route
+startSocket(server);
 
 app.use(notFound);
 app.use(errorHandler);
