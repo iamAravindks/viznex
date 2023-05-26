@@ -51,7 +51,6 @@ app.use("/api/customer", customerRouter);
 app.use("/api/device", deviceRouter);
 
 
-
 app.use(notFound);
 app.use(errorHandler);
 
