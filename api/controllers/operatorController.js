@@ -1259,7 +1259,7 @@ export const getAdHistory = expressAsyncHandler(async (req, res) => {
 
 export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
   try {
-    const { operatorId, deviceId, slot, adId } = req.body;
+    const { operatorId, deviceId, slot, adId, noOfTimesPlayed } = req.body;
 
     const operator = await Operator.findById(operatorId);
     if (!operator) {
@@ -1295,13 +1295,13 @@ export const incNoTimesPlayed = expressAsyncHandler(async (req, res) => {
     if (existsDateObj !== -1) {
       operator.adsUnderOperator[adObjInd].deployedDevices[
         deviceObjId
-      ].slot.datesPlayed[existsDateObj].noOfTimesPlayedOnDate += 1;
+      ].slot.datesPlayed[existsDateObj].noOfTimesPlayedOnDate = noOfTimesPlayed;
     } else {
       operator.adsUnderOperator[adObjInd].deployedDevices[
         deviceObjId
       ].slot.datesPlayed.push({
         date: new Date(),
-        noOfTimesPlayedOnDate: 1,
+        noOfTimesPlayedOnDate: noOfTimesPlayed,
       });
     }
 
