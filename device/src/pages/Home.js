@@ -3,7 +3,10 @@ import ReactPlayer from "react-player";
 import { useContext, useState, useRef, useEffect } from "react";
 import { Context } from "../context/context";
 import axios from "axios";
+import io from 'socket.io-client';
+
 const Home = () => {
+  
   const BASE_URL = "https://api.viznx.in/api/operator";
 
   const config = {
@@ -13,7 +16,15 @@ const Home = () => {
     withCredentials: true,
   };
 
-  const { userInfo, socket } = useContext(Context);
+  const { userInfo } = useContext(Context);
+  console.log(userInfo._id)
+  const socket = io.connect('http://localhost:5000', {
+    query: {
+      deviceId: userInfo._id
+    }
+  });
+
+
   const [info, setInfo] = useState(userInfo);
   const [slot, setSlot] = useState(0);
   const checkTime = () => {
@@ -78,15 +89,7 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    checkTime();
-
-    if (socket) {
-      socket.on("statusUpdate", (status) => {
-        console.log(`Received status update for device }: ${status}`);
-      });
-    }
-  }, []);
+  
 
   const now = new Date();
   const delay =
@@ -103,7 +106,7 @@ const Home = () => {
   const videoRef = useRef(null);
 
   const handleEnded = async (val, deviceId, slotType, adId, operatorId) => {
-    socket.emit("statusUpdate");
+    
     let newInfo = { ...info };
     if (
       newInfo.slots[slot] &&

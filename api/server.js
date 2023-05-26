@@ -11,10 +11,19 @@ import operatorRouter from "./routes/operatorRouter.js";
 import deviceRouter from "./routes/deviceRouter.js";
 import customerRouter from "./routes/customerRouter.js";
 import groupRouter from "./routes/groupRouter.js";
-import { startSocket } from "./Socket/SocketIO.js";
+import { Server } from 'socket.io';
+import Device from "./models/DeviceModel.js";
+
+// your code that uses the socketio module
 
 const app = express();
 const server = http.createServer(app);
+const io = new Server(server, {
+  cors:{
+    origin:"http://localhost:3000",
+    
+  }
+});
 
 app.use(morgan("dev"));
 const corsOptions = {
@@ -41,14 +50,37 @@ app.use("/api/operator", groupRouter);
 app.use("/api/customer", customerRouter);
 app.use("/api/device", deviceRouter);
 
-app.use("/api/device/socket", (req, res, next) => {
-  // Attach the Socket.IO instance to the request object
-  startSocket(server);
-  next();
-});
+
 
 app.use(notFound);
 app.use(errorHandler);
+
+
+
+io.on('connection', async (socket) => {
+  const deviceId = socket.handshake.query.deviceId;
+  const device = await Device.findOne({_id: deviceId});
+
+  if (device) {
+    console.log(`Device connected: ${deviceId}`);
+    console.log(device);
+
+    // Update the status field of the device to true
+    await Device.updateOne({ _id: deviceId }, { $set: { status: true } });
+  } else {
+    console.log(`Device not found: ${deviceId}`);
+  }
+
+  socket.on('disconnect', async () => {
+    console.log(`Device disconnected: ${deviceId}`);
+    await Device.updateOne({ _id: deviceId }, { $set: { status: false } });
+  });
+});
+
+
+
+
+
 
 server.listen(PORT, () =>
   console.log(`server listen on http://localhost:${PORT}`)

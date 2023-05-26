@@ -105,7 +105,7 @@ export const loadQueues = expressAsyncHandler(async (req, res) => {
 export const fetchDevices = expressAsyncHandler(async (req, res) => {
   try {
     const devices = await Device.find({})
-      .select("deviceId name location slots")
+      .select("deviceId name location slots status")
       .populate({
         path: "slots.queue.ad",
         populate: [
